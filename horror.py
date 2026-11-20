@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""Pipeline video cerita horor bersambung.
+
+Contoh:
+  python horror.py prompts tester ep01
+  python horror.py check tester ep01
+  python horror.py tts tester ep01
+  python horror.py build tester ep01
+  python horror.py shorts tester ep01 --beats 3-6
+  python horror.py thumbnail tester ep01 --beat 5 --text "JANGAN DIBUKA"
+"""
+from __future__ import annotations
+
+import argparse
+import sys
+
+if hasattr(sys.stdout, "reconfigure"):  # Windows consoles: keep ✔/⚠ printable
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+from pipeline.common import Episode, PipelineError, ok, step  # noqa: E402
+
+
+def cmd_placeholders(ep: Episode, args) -> None:
+    from pipeline import visuals as V
+
+    step(f"Placeholder {ep.slug} {ep.ep}")
+    n = 0
+    for b in ep.missing_images():
+        V.placeholder(ep.images / f"{b.key}.png", b.key, b.scene, b.chars)
+        n += 1
+    for name, c in ep.characters.items():
+        if name == "narrator":
+            continue
+        p = ep.reference_image(c.name)
+        if not p.exists():
+            V.reference_placeholder(p, c.name, c.block)
+            n += 1
+    ok(f"{n} placeholder dibuat (gambar yang sudah ada tidak disentuh).")
+
+
+def cmd_all(ep: Episode, args) -> None:
+    from pipeline.prompts import cmd_check
+    from pipeline.render import cmd_build
+    from pipeline.tts import cmd_tts
+
+    if cmd_check(ep, args):
+        raise PipelineError("Lengkapi gambar dulu.")
+    cmd_tts(ep, args)
+    cmd_build(ep, args)
+
+
+def main(argv=None) -> int:
+    p = argparse.ArgumentParser(prog="horror.py", description="Pipeline video cerita horor (edge-tts + ffmpeg)")
+    sub = p.add_subparsers(dest="cmd", required=True)
+
+    def add(name, help_):
+        sp = sub.add_parser(name, help=help_)
+        sp.add_argument("story", help="slug cerita (nama folder di stories/)")
+        sp.add_argument("ep", help="episode, mis. ep01 atau 1")
+        return sp
+
+    sp = add("prompts", "tulis output/flow_prompts.md untuk Google Flow")
+    sp.add_argument("--missing-only", action="store_true", help="hanya beat yang gambarnya belum ada")
+
+    add("check", "daftar gambar yang belum ada")
+    sp = add("import-flow", "salin gambar Flow bernama '[b018a] ...' ke images/<id>.png")
+    sp.add_argument("source", nargs="?", help="zip/folder hasil download Flow "
+                    "(default: yang terbaru di ~/Downloads dengan nama cerita)")
+    add("placeholders", "buat gambar placeholder untuk tes (hanya yang belum ada)")
+
+    def tts_args(sp):
+        sp.add_argument("--force", action="store_true", help="buat ulang semua audio")
+        sp.add_argument("--workers", type=int, default=3, help="jumlah request edge-tts paralel")
+        sp.add_argument("--proxy", help="proxy HTTP untuk edge-tts (opsional)")
+        sp.add_argument("--dummy", action="store_true",
+                        help="audio dummy offline (nada) untuk tes tanpa internet")
+
+    def build_args(sp):
+        sp.add_argument("--bgm", help="nama file musik di assets/bgm (default: file pertama)")
+        sp.add_argument("--no-bgm", action="store_true", help="tanpa musik latar")
+        sp.add_argument("--clean", action="store_true", help="hapus cache grup setelah selesai")
+
+    tts_args(add("tts", "buat audio per beat + SRT"))
+    sp = add("build", "render video episode 1920x1080")
+    sp.add_argument("--force", action="store_true", help="render ulang semua klip")
+    build_args(sp)
+
+    sp = add("all", "check → tts → build sekaligus")
+    tts_args(sp)
+    build_args(sp)
+
+    sp = add("shorts", "potongan vertikal 1080x1920 (<60 detik)")
+    sp.add_argument("--beats", required=True, help="rentang beat, mis. 12-18 (atau 3,5,6)")
+    sp.add_argument("--title", help="teks judul di atas (opsional)")
+    sp.add_argument("--hold", type=float, default=1.2, help="detik jeda di beat cliffhanger terakhir")
+    sp.add_argument("--fg-scale", type=float, default=1.15, help="ukuran gambar utama (1.0 = selebar layar)")
+    sp.add_argument("--sub-size", type=int, default=68, help="ukuran font subtitle")
+    sp.add_argument("--auto-trim", action="store_true", help="buang beat dari awal jika > 60 detik")
+    sp.add_argument("--force", action="store_true")
+    build_args(sp)
+
+    sp = add("thumbnail", "thumbnail 1280x720")
+    sp.add_argument("--beat", required=True, help="id beat sumber gambar")
+    sp.add_argument("--text", required=True, help="teks (maks 4 kata)")
+    sp.add_argument("--position", default="left", choices=["left", "right", "center", "top", "bottom"])
+    sp.add_argument("--color", default="#FFFFFF", help="warna teks utama")
+    sp.add_argument("--accent", default="#FF2B2B", help="warna baris terakhir")
+    sp.add_argument("--crop", choices=["wide", "closeup_face", "detail"], help="crop gambar")
+    sp.add_argument("--out", help="nama file output (default thumbnail_epXX.png)")
+
+    args = p.parse_args(argv)
+    try:
+        ep = Episode(args.story, args.ep)
+        if args.cmd == "prompts":
+            from pipeline.prompts import cmd_prompts
+            cmd_prompts(ep, args)
+        elif args.cmd == "check":
+            from pipeline.prompts import cmd_check
+            return cmd_check(ep, args)
+        elif args.cmd == "import-flow":
+            from pipeline.importer import cmd_import
+            return cmd_import(ep, args)
+        elif args.cmd == "placeholders":
+            cmd_placeholders(ep, args)
+        elif args.cmd == "tts":
+            from pipeline.tts import cmd_tts
+            cmd_tts(ep, args)
+        elif args.cmd == "build":
+            from pipeline.render import cmd_build
+            cmd_build(ep, args)
+        elif args.cmd == "all":
+            cmd_all(ep, args)
+        elif args.cmd == "shorts":
+            from pipeline.shorts import cmd_shorts
+            cmd_shorts(ep, args)
+        elif args.cmd == "thumbnail":
+            from pipeline.thumbnail import cmd_thumbnail
+            cmd_thumbnail(ep, args)
+    except PipelineError as e:
+        print(f"\n✗ {e}", file=sys.stderr)
+        return 1
+    except KeyboardInterrupt:
+        print("\nDibatalkan. Jalankan lagi untuk melanjutkan (file yang sudah jadi dilewati).")
+        return 130
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

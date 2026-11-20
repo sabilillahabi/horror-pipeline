@@ -1,0 +1,70 @@
+episode: 1
+title: "Kamar yang Terkunci"
+
+# Dibacakan narator di awal (15–30 detik). Kosongkan untuk episode pertama jika tidak perlu.
+recap: >-
+  Sebelumnya, Dimas baru saja pindah ke sebuah rumah kos tua di pinggiran kota.
+  Harganya murah, terlalu murah. Ibu kos hanya berpesan satu hal: jangan pernah
+  membuka pintu kamar nomor tiga belas.
+# recap_image: 2        # opsional: tampilkan gambar beat 2 saat recap (default: kartu "SEBELUMNYA...")
+
+chapters:
+  - title: "Suara dari Balik Dinding"
+    beats:
+      - id: 1
+        speaker: narrator
+        text: >-
+          Malam itu hujan turun deras. Dimas terbangun pukul dua pagi karena mendengar
+          suara ketukan pelan dari dinding kamarnya.
+        scene: >-
+          A small, dim boarding house bedroom at night, rain streaking the window,
+          a single desk lamp, cracked wall plaster beside a narrow bed.
+        characters_in_scene:
+          - {name: Dimas, position: left foreground}
+
+      - id: 2
+        speaker: Dimas
+        text: "Siapa di situ? Laras, itu kamu?"
+        scene: >-
+          A long narrow corridor of an old boarding house, flickering ceiling light,
+          wooden doors on both sides, one door at the end marked with the number 13.
+        characters_in_scene:
+          - {name: Dimas, position: left}
+
+      - id: 3
+        speaker: Laras
+        text: "Mas Dimas... jangan keras-keras. Dia bisa dengar."
+        effect: whisper
+        scene: >-
+          A half-open doorway in a dark corridor, a frightened face peeking out,
+          faint cold blue light from inside the room.
+        characters_in_scene:
+          - {name: Laras, position: right}
+
+  - title: "Pintu Nomor Tiga Belas"
+    beats:
+      - id: 4
+        speaker: narrator
+        text: "Tiga hari kemudian."
+        visual: text_card
+        card_text: "Tiga hari kemudian."
+        min_duration: 3
+
+      - id: 5
+        speaker: narrator
+        text: >-
+          Pintu kamar nomor tiga belas kini terbuka sedikit. Dari celahnya, Dimas
+          melihat sesuatu yang tidak seharusnya ada di sana. Sebuah tangan pucat,
+          menggenggam kunci berkarat.
+        scene: >-
+          Close view of an old wooden door with the number 13, slightly ajar,
+          a pale hand with long fingernails holding a rusty key emerging from the darkness.
+        characters_in_scene: []
+
+      - id: 6
+        speaker: Laras
+        text: "Kenapa kamu buka pintunya?"
+        effect: echo
+        reuse: 3
+        crop: closeup_face
+        pause_after: 1.5

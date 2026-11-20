@@ -1,0 +1,45 @@
+# Konfigurasi cerita (berlaku untuk semua episode)
+title: "Rumah Kos Nomor 13"
+hashtag: "#ceritahoror #horor #rumahkos13"
+
+# Ditempel di akhir setiap prompt Flow — jaga gaya visual tetap konsisten
+style_block: >-
+  Dark semi-realistic digital painting, muted desaturated colors, cinematic lighting,
+  heavy shadows, 16:9 widescreen composition.
+prompt_suffix: "No text, no captions, no watermark."
+
+# Opsional: font untuk kartu judul/subtitle/thumbnail (atau taruh .ttf di assets/fonts/)
+# font: assets/fonts/Anton-Regular.ttf
+
+# Opsional: musik latar (nama file di assets/bgm/). Kosongkan = file pertama di folder itu.
+# bgm: dark_ambient.mp3
+
+# Opsional: override pengaturan render (lihat DEFAULT_RENDER di pipeline/common.py)
+render:
+  grain: 8
+  bgm_volume: 0.16
+
+characters:
+  - name: narrator
+    voice: id-ID-ArdiNeural
+    pitch: "-8Hz"
+    rate: "-5%"
+    effect: none
+
+  - name: Dimas
+    character_block: >-
+      Dimas, an Indonesian man in his mid-20s, short messy black hair, thin face,
+      tired eyes, wearing a faded grey hoodie and dark jeans.
+    voice: id-ID-ArdiNeural
+    pitch: "+2Hz"
+    rate: "+0%"
+    effect: none
+
+  - name: Laras
+    character_block: >-
+      Laras, an Indonesian woman in her early 20s, long straight black hair,
+      pale skin, wearing a simple white blouse and a long dark skirt.
+    voice: id-ID-GadisNeural
+    pitch: "-2Hz"
+    rate: "-5%"
+    effect: none

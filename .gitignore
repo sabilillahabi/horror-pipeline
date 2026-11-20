@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Generated per episode
+stories/*/episodes/*/audio/
+stories/*/episodes/*/cache/
+stories/*/episodes/*/output/
+stories/*/episodes/*/images/*
+!stories/*/episodes/*/images/.gitkeep
+
+# Media anywhere (generated or large)
+*.mp4
+*.mov
+*.mkv
+*.wav
+*.mp3
+*.m4a
+*.srt
+*.part.*
+
+# Music & fonts you add locally (keep the README notes)
+assets/bgm/*
+!assets/bgm/README.txt
+assets/fonts/*
+!assets/fonts/README.txt
+
+# OS junk
+.DS_Store
+Thumbs.db
