@@ -30,3 +30,14 @@ assets/fonts/*
 # OS junk
 .DS_Store
 Thumbs.db
+
+# Secrets
+.env
+
+# Sound assets (imported locally via sound-import)
+assets/sound/*
+
+dist/
+
+# Channel outro clips are made once per channel and reused by every episode
+!channels/*/audio/*.wav

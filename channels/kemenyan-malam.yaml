@@ -1,0 +1,24 @@
+# Channel intro/outro, shared by every story with `channel: kemenyan-malam` in story.yaml.
+# Clips are generated once into channels/kemenyan-malam/audio/ (intro.wav, outro.wav) and reused;
+# regenerate with:  python horror.py channel-tts <story> <ep> --force
+name: "Kemenyan Malam"
+tagline: "Dengarkan pelan-pelan. Mereka juga sedang mendengarkan."
+signature: "— Kemenyan Malam"
+
+# Gemini TTS (never edge-tts). Must not be a voice any story character uses.
+voice: Vindemiatrix
+gender: female
+language: id-ID
+intro_style: "Perempuan berbisik pelan dan dingin, dekat sekali dengan telinga pendengar, jeda singkat di antara dua kalimat."
+outro_style: "Perempuan berbisik sangat pelan dan lebih lambat, seolah menghilang di akhir kalimat."
+
+# Episode layout for every story on this channel (a story can override in story.yaml `structure:`)
+structure:
+  intro: false          # no channel intro: the video opens on the first story beat
+  chapter_cards: false  # no "EPISODE 1 · BAB I" cards; chapter timestamps still go in description.txt
+  cold_open: 0.5        # seconds of black (ambience fading in) before the first beat
+
+# Outro visual: pure black, tagline (italic serif, one sentence per line, ~66% of frame width)
+# over the signature (bold serif, proportionally smaller)
+text_color: "#E8E2D6"
+# tagline_font / signature_font: optional paths; default Georgia Italic / Georgia Bold

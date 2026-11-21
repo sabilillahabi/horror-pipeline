@@ -1,0 +1,51 @@
+# Sound design for Juru Kunci ep01.
+# Files live in assets/sound/<name>.mp3 (see assets_manifest in the README / sound_assets.yaml).
+#
+# music: one background bed for the whole episode, ducked under voice.
+# ambience: looped beds over beat ranges (inclusive, in script order), crossfaded 1.5 s.
+# sfx: one-shots per beat. at = start | end | offset seconds from beat start. vol in dB relative to 0.
+
+music:
+  file: bgm_dark_ambient
+  vol: -18                  # was -24
+  duck_under_voice: -5      # was -8
+  fade_in: 3
+  fade_out: 4
+  mute_on_beats: [b009, b020, b070]   # short silence for impact
+
+ambience:   # all +6 dB vs. the first mix (2026-11-21)
+  - {file: amb_night_village, from: b001, to: b008, vol: -14}
+  - {file: amb_office,        from: b010, to: b012, vol: -20}
+  - {file: amb_train_night,   from: b013, to: b013, vol: -16}
+  - {file: amb_village_morning, from: b014, to: b018e, vol: -18}
+  - {file: amb_night_village, from: b019, to: b026b, vol: -20}   # grey funeral day: wind only
+  - {file: amb_rain_light,    from: b028, to: b047, vol: -18}
+  - {file: amb_night_village, from: b048, to: b050, vol: -14}
+  - {file: amb_village_morning, from: b051, to: b058, vol: -20}
+  - {file: amb_night_village, from: b064, to: b069, vol: -14}
+  - {file: amb_rain_light,    from: b071, to: b077, vol: -18}
+
+sfx:
+  b004:  {file: sfx_hit_low, at: start, vol: -8}
+  b008:  {file: sfx_hit_big, at: end, vol: -6}
+  b010:  {file: sfx_phone_vibrate, at: 1.0, vol: -10}
+  b014:  {file: sfx_motorbike_pass, at: start, vol: -14}
+  b018b: {file: sfx_rattan_creak, at: 1.5, vol: -12}
+  b027:  {file: sfx_knock3, at: end, vol: -6}
+  b028:  {file: sfx_knock3, at: start, vol: -6}
+  b030:  {file: sfx_door_creak, at: start, vol: -10}
+  b044:  {file: sfx_wind_gust, at: start, vol: -10}
+  b045:  {file: sfx_hit_low, at: end, vol: -10}
+  b050:  {file: sfx_hit_low, at: end, vol: -8}
+  b055a: {file: sfx_humming_female, at: 0.5, vol: -18}
+  b059:  {file: sfx_drawer, at: start, vol: -10}
+  b060:  {file: sfx_paper_flip, at: start, vol: -12}
+  b061a: {file: sfx_paper_flip, at: start, vol: -12}
+  b066:  {file: sfx_kentongan, at: 1.5, vol: -8}
+  b067:  {file: sfx_footsteps_dirt, at: start, vol: -14}
+  b067c: {file: sfx_padlock, at: start, vol: -10}
+  b068:  {file: sfx_hit_big, at: start, vol: -8}
+  b069:  {file: sfx_whoosh, at: 1.0, vol: -10}
+  b070:  {file: sfx_running, at: start, vol: -10}
+  b074:  {file: sfx_hit_low, at: start, vol: -12}
+  b077:  {file: sfx_hit_big, at: end, vol: -4}

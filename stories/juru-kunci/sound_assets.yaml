@@ -1,0 +1,32 @@
+# Sound assets for Juru Kunci (all from Pixabay, Pixabay Content License: free for commercial use, no attribution required).
+# key = asset name used in episodes/epXX/sound.yaml -> saved as assets/sound/<key>.mp3
+# value = Pixabay sound page slug (https://pixabay.com/sound-effects/<slug>/)
+# Downloaded files are named by Pixabay after the slug/title, so match by the trailing numeric ID.
+
+ambience:
+  amb_night_village:   film-special-effects-a-windy-night-58798            # 2:04
+  amb_village_morning: nature-polish-village-rooster-333334                # 0:40, loop
+  amb_rain_light:      nature-light-rain-on-a-tin-roof-512470              # 1:34
+  amb_office:          technology-office-ambience-24734                    # 2:21
+  amb_train_night:     film-special-effects-inside-old-train-169418        # 2:01
+
+sfx:
+  sfx_knock3:          household-wood-door-knock-106669                    # 0:03
+  sfx_door_creak:      household-creaking-door-41706                       # 0:06
+  sfx_kentongan:       musical-woodblock-drum-mrstokes302-426359           # 0:01 single hit -> build pattern 3 hits, pause, 3 hits
+  sfx_phone_vibrate:   film-special-effects-iphone-vibrate-on-wood-table-95908  # 0:09
+  sfx_motorbike_pass:  city-motorcycle-passing-105540                      # 0:08
+  sfx_rattan_creak:    household-chair-creaking-back-and-forth-01-84458    # 0:10
+  sfx_wind_gust:       horror-halloween-creepy-wind-gust-511327            # 0:08
+  sfx_humming_female:  people-042022-woman-humming-75962                   # 0:19, pitch down slightly + reverb
+  sfx_drawer:          household-open-the-drawer-sound-227896              # 0:04
+  sfx_paper_flip:      film-special-effects-page-flip-1-178322             # 0:02
+  sfx_footsteps_dirt:  film-special-effects-footsteps-dirt-gravel-6823     # 0:35
+  sfx_running:         film-special-effects-footsteps-gravel-running-stop-47595  # 0:05
+  sfx_padlock:         film-special-effects-chain-locker-203796            # 0:06
+  sfx_hit_low:         film-special-effects-sub-boom-537394                # 0:10
+  sfx_hit_big:         horror-impact-454854                                # 0:03
+  sfx_whoosh:          film-special-effects-ghostly-whoosh-276722          # 0:07
+
+music:
+  bgm_dark_ambient:    "EBB - Density & Time"  # YouTube Audio Library, Ambient/Dark, 14:40, YouTube Audio Library License (monetization OK, no attribution required). Downloaded file name starts with "EBB".

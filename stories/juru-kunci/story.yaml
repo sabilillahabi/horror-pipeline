@@ -1,0 +1,103 @@
+title: "Juru Kunci"
+slug: juru-kunci
+hashtag: "#JuruKunciWringinpitu"
+language: id
+channel: kemenyan-malam   # intro/outro from channels/kemenyan-malam.yaml
+style_block: "Dark semi-realistic digital painting, muted colors, cinematic lighting."
+
+# --- Gemini TTS ---
+# Each character: gemini_voice + gemini_style (default delivery, written in Indonesian/English).
+# Per-beat overrides live in episodes/epXX/styles.yaml and are appended to the default style.
+tts_engine: gemini
+gemini_language: id-ID
+gemini_voices:
+  narrator:
+    voice: id-id-assistant-1
+    style: "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita pelan dan intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Beri jeda alami di koma dan titik-titik."
+  bayu:
+    voice: id-id-assistant-1
+    style: "Sama dengan narator."
+  sekar:
+    voice: Leda
+    style: "Perempuan muda 19 tahun dari desa di Jawa Tengah, suara lembut dan polos, sedikit logat Jawa."
+  mbah_karto:
+    voice: Algenib
+    style: "Kakek Jawa berusia 75 tahun, suara serak dan berat, bicara sangat pelan dan tegas, logat Jawa kental, setiap kata ditekan seperti peringatan."
+  warga:
+    voice: Iapetus
+    style: "Bapak-bapak desa Jawa usia 55 tahun, sopan dan hormat tapi terdengar datar dan janggal, logat Jawa."
+  sumirah:
+    voice: Achernar
+    style: "Perempuan Jawa dari masa lalu, berbisik lirih, sedih dan hampa, napas terdengar."
+  penunggu:
+    voice: Alnilam
+    style: "Makhluk tua yang sangat dalam dan berat, berbisik lambat, mengancam."
+
+characters:
+  - name: narrator
+    display_name: "Bayu (narator, aku)"
+    character_block: "Young Javanese Indonesian man, 25 years old, lean build, short neat black hair slightly grown out, thin mustache stubble, calm but tired eyes, wearing a faded dark navy flannel shirt over a grey t-shirt"
+    reference: characters/bayu.png
+    voice: id-ID-ArdiNeural
+    pitch: "+0Hz"
+    rate: "-5%"
+    effect: none
+
+  - name: bayu
+    display_name: "Bayu (visual only, voice = narrator)"
+    character_block: "Young Javanese Indonesian man, 25 years old, lean build, short neat black hair slightly grown out, thin mustache stubble, calm but tired eyes, wearing a faded dark navy flannel shirt over a grey t-shirt"
+    reference: characters/bayu.png
+    voice: id-ID-ArdiNeural
+    pitch: "+0Hz"
+    rate: "-5%"
+    effect: none
+
+  - name: sekar
+    display_name: "Sekar"
+    character_block: "Young Javanese Indonesian woman, 19 years old, round soft face, long straight black hair in a single braid, wearing a cream-colored long-sleeve blouse and a brown batik skirt"
+    reference: characters/sekar.png
+    voice: id-ID-GadisNeural
+    pitch: "+6Hz"
+    rate: "+0%"
+    effect: none
+
+  - name: mbah_karto
+    display_name: "Mbah Karto"
+    character_block: "Elderly Javanese Indonesian man, around 75 years old, very thin, deeply wrinkled dark skin, short white hair under a black peci, thin white beard, wearing a worn dark brown lurik shirt and a checkered sarong"
+    reference: characters/mbah_karto.png
+    voice: id-ID-ArdiNeural
+    pitch: "-14Hz"
+    rate: "-18%"
+    effect: none
+
+  - name: warga
+    display_name: "Warga (Pak Darno dan lainnya)"
+    character_block: "Middle-aged Javanese Indonesian village man, around 55 years old, sun-darkened skin, short greying hair, wearing a faded batik shirt and black peci"
+    reference: characters/warga.png
+    voice: id-ID-ArdiNeural
+    pitch: "-6Hz"
+    rate: "-8%"
+    effect: none
+
+  - name: sumirah
+    display_name: "Sumirah (perempuan di gerbang)"
+    character_block: "Young Javanese woman, appearing 25 years old, pale ashen skin, long black hair in a loose old-fashioned bun with its silver hairpin missing, sad empty eyes, wearing a faded torn green kebaya and a dark batik jarik"
+    reference: characters/sumirah.png
+    voice: id-ID-GadisNeural
+    pitch: "-8Hz"
+    rate: "-15%"
+    effect: echo
+
+  - name: penunggu
+    display_name: "Sang Penunggu"
+    character_block: "A towering dark silhouette half-merged with the roots of an ancient banyan tree, impossibly long thin arms, faint dim red glowing eyes, face never clearly visible, wrapped in hanging aerial roots and mist"
+    reference: characters/penunggu.png
+    voice: id-ID-ArdiNeural
+    pitch: "-25Hz"
+    rate: "-25%"
+    effect: whisper
+
+# final encode preset (2026-11-21: veryfast to make the upload deadline; 'medium' is the default)
+render:
+  preset: veryfast
+

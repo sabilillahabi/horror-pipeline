@@ -196,7 +196,8 @@ def find_serif_font(story_cfg: dict | None = None) -> str | None:
     for c in _SERIF_CANDIDATES:
         if Path(c).exists():
             return c
-    return find_font(story_cfg)
+    from . import fonts
+    return fonts.path("serif_regular") or find_font(story_cfg)
 
 
 def find_font(story_cfg: dict | None = None, key: str = "font") -> str | None:
@@ -215,7 +216,8 @@ def find_font(story_cfg: dict | None = None, key: str = "font") -> str | None:
     for c in _FONT_CANDIDATES:
         if Path(c).exists():
             return c
-    return None
+    from . import fonts
+    return fonts.path("impact") or fonts.path("sans_bold")
 
 
 # ---------------------------------------------------------------- data model
@@ -322,6 +324,11 @@ class Episode:
         self.render = {**DEFAULT_RENDER, **(self.story.get("render") or {}),
                        **(self.script.get("render") or {})}
         self.characters = self._load_characters()
+        # TTS engine: story.yaml `tts_engine` (edge | gemini); `--engine` on the CLI overrides it
+        self.tts_engine = str(self.story.get("tts_engine") or "edge").strip().lower()
+        styles = self.dir / "styles.yaml"
+        self.beat_styles = ({beat_key(k): str(v or "") for k, v in self._load(styles).items()}
+                            if styles.exists() else {})
         self.chapters = []
         self.beats: list[Beat] = []
         self._load_beats()
@@ -504,8 +511,13 @@ class Episode:
     def missing_images(self) -> list[Beat]:
         return [b for b in self.beats if self.needs_own_image(b) and not self.find_image(b.key)]
 
+    @property
+    def audio_dir(self) -> Path:
+        """edge-tts clips live in audio/, Gemini clips in audio/gemini/ so neither overwrites the other."""
+        return self.audio / "gemini" if self.tts_engine == "gemini" else self.audio
+
     def audio_path(self, key: str) -> Path:
-        return self.audio / f"{key}.wav"
+        return self.audio_dir / f"{key}.wav"
 
     def recap_image(self) -> Path | None:
         r = self.script.get("recap_image")

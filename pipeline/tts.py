@@ -88,8 +88,48 @@ def _apply_effect(src, dst, effect: str) -> None:
     os.replace(tmp, dst)
 
 
+def _beat_filter(ep: Episode, spec: str | None):
+    if not spec:
+        return None
+    from .common import beat_key
+    keys = {beat_key(s.strip()) for s in spec.split(",") if s.strip()}
+    known = {b.key for b in ep.beats} | {"recap"}
+    unknown = sorted(keys - known)
+    if unknown:
+        raise PipelineError(f"Beat tidak ada di script.yaml: {', '.join(unknown)}")
+    return keys
+
+
+def _gemini_jobs(ep: Episode, only):
+    jobs = []
+    if ep.recap:
+        jobs.append(("recap", ep.recap, "narrator", None))
+    for b in ep.beats:
+        if b.text:
+            jobs.append((b.key, b.text, b.speaker, b.effect))
+    return [{"key": k, "text": t, "speaker": s, "effect": eff or ep.speaker(s).effect or "none"}
+            for k, t, s, eff in jobs if only is None or k in only]
+
+
 def cmd_tts(ep: Episode, args) -> None:
     require_ffmpeg()
+    only = _beat_filter(ep, getattr(args, "beats", None))
+    if ep.tts_engine == "gemini":
+        if args.dummy:
+            raise PipelineError("--dummy hanya untuk edge-tts (pakai --engine edge --dummy)")
+        from . import gemini_tts
+        from . import channel
+        step(f"TTS {ep.slug} {ep.ep}  [Gemini]")
+        try:
+            ch = channel.for_episode(ep)
+            if ch and ch.missing():  # made once per channel; --force here never redoes them
+                channel.generate(ep, ch)
+            gemini_tts.run(ep, _gemini_jobs(ep, only), args, _apply_effect, FX_VERSION)
+        except ModuleNotFoundError as e:
+            raise PipelineError(f"Modul belum terpasang ({e.name}): pip install -r requirements.txt")
+        if only is None:
+            _finish(ep)
+        return
     step(f"TTS {ep.slug} {ep.ep}" + ("  [MODE DUMMY — bukan suara asli]" if args.dummy else ""))
     raw_dir = ep.audio / "raw"
     raw_dir.mkdir(exist_ok=True)
@@ -98,6 +138,8 @@ def cmd_tts(ep: Episode, args) -> None:
 
     todo = []
     for job in _jobs(ep):
+        if only is not None and job["key"] not in only:
+            continue
         wav = ep.audio_path(job["key"])
         if not args.force and wav.exists() and manifest.get(job["key"]) == job["hash"]:
             continue
@@ -137,6 +179,11 @@ def cmd_tts(ep: Episode, args) -> None:
             asyncio.run(main())
         except ModuleNotFoundError:
             raise PipelineError("Modul edge-tts belum terpasang: pip install -r requirements.txt")
+    if only is None:
+        _finish(ep)
+
+
+def _finish(ep: Episode) -> None:
     segs = build_timeline(ep)
     srt = ep.output / f"{ep.ep}.srt"
     write_srt(segs, srt)

@@ -12,7 +12,7 @@ from .common import (SAMPLE_RATE, Beat, Episode, PipelineError, fmt_ts, probe_du
 
 @dataclass
 class Segment:
-    kind: str                 # recap | card | beat
+    kind: str                 # recap | card | beat | intro | outro
     slot: float               # seconds this segment occupies on the timeline
     audio: Path | None = None
     audio_dur: float = 0.0
@@ -21,6 +21,21 @@ class Segment:
     card: dict | None = None  # chapter card info
     start: float = 0.0
     chapter: int | None = None
+    lead: float = 0.0         # silence before the audio starts within the slot
+
+
+STRUCTURE_DEFAULTS = {"intro": True, "chapter_cards": True, "cold_open": 0.0}
+
+
+def structure(ep: Episode) -> dict:
+    """Episode layout: built-in defaults ← channels/<slug>.yaml `structure:` ← story.yaml `structure:`."""
+    out = dict(STRUCTURE_DEFAULTS)
+    slug = ep.story.get("channel")
+    if slug:
+        from .channel import Channel
+        out.update(Channel(str(slug)).cfg.get("structure") or {})
+    out.update(ep.story.get("structure") or {})
+    return out
 
 
 def build_timeline(ep: Episode, beats: list[Beat] | None = None, recap: bool = True,
@@ -30,6 +45,7 @@ def build_timeline(ep: Episode, beats: list[Beat] | None = None, recap: bool = T
     fps = int(r["fps"])
     segs: list[Segment] = []
     missing = []
+    cards = cards and structure(ep)["chapter_cards"]
 
     def audio_of(key: str, text: str):
         if not text:
@@ -95,12 +111,12 @@ def write_narration(segs: list[Segment], out: Path) -> None:
         w.setframerate(SAMPLE_RATE)
         for s in segs:
             n_slot = int(round(s.slot * SAMPLE_RATE))
-            data = b""
+            data = b"\x00\x00" * int(round(s.lead * SAMPLE_RATE))
             if s.audio:
                 with wave.open(str(s.audio), "rb") as a:
                     if (a.getnchannels(), a.getsampwidth(), a.getframerate()) != (1, 2, SAMPLE_RATE):
                         raise PipelineError(f"Format audio tak terduga: {s.audio} (jalankan tts --force)")
-                    data = a.readframes(min(a.getnframes(), n_slot))
+                    data += a.readframes(max(0, min(a.getnframes(), n_slot - len(data) // 2)))
             w.writeframes(data + b"\x00\x00" * (n_slot - len(data) // 2))
 
 
@@ -156,7 +172,7 @@ def subtitle_cues(segs: list[Segment], max_chars: int = 84) -> list[tuple[float,
             continue
         chunks = chunk_text(s.text, max_chars)
         total = sum(len(c) for c in chunks) or 1
-        t = s.start
+        t = s.start + s.lead
         for c in chunks:
             d = s.audio_dur * len(c) / total
             cues.append((t, t + d, c))
@@ -175,11 +191,14 @@ def write_description(ep: Episode, segs: list[Segment], out: Path) -> None:
     """YouTube description draft with chapter timestamps (first must be 00:00)."""
     lines = [f"{ep.story.get('title', ep.slug)} — Episode {ep.number}: {ep.title}", ""]
     stamps = []
-    if segs and segs[0].kind == "recap":
+    if any(s.kind == "recap" for s in segs):
         stamps.append((0.0, "Sebelumnya..."))
+    # chapter starts come from the data (first beat of each chapter), with or without title cards
+    seen = set()
     for s in segs:
-        if s.kind == "card":
-            stamps.append((s.start, f"Bab {roman(s.chapter + 1)}: {s.card['title']}"))
+        if s.kind in ("card", "beat") and s.chapter is not None and s.chapter not in seen:
+            seen.add(s.chapter)
+            stamps.append((s.start, f"Bab {roman(s.chapter + 1)}: {ep.chapters[s.chapter]['title']}"))
     if stamps:
         stamps[0] = (0.0, stamps[0][1])
         lines += [f"{fmt_ts(t)} {name}" for t, name in stamps]

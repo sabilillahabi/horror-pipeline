@@ -9,8 +9,11 @@ from pathlib import Path
 
 from .common import (ASSETS, AUDIO_EXTS, ROOT, Episode, PipelineError, atomic_out, file_sig, fmt_ts,
                      info, ok, require_ffmpeg, run, sha, step)
-from .timeline import (Segment, build_timeline, total_duration, write_description, write_narration,
-                       write_srt)
+from .common import quantize
+from .timeline import (Segment, build_timeline, structure, total_duration, write_description,
+                       write_narration, write_srt)
+from . import channel as C
+from . import sound
 from . import visuals as V
 
 TEXT_CARD_FADE = 0.6  # seconds of fade in/out on text cards
@@ -210,6 +213,13 @@ def plan_shots(ep: Episode, segs: list[Segment]) -> list[dict]:
         return d
 
     for s in segs:
+        if s.kind in ("intro", "outro"):  # channel card: black, text fades in/out, no Ken Burns
+            shots.append({"kind": "channel", "slot": s.slot, "card": s.card, "dir": "static",
+                          "fade": C.FADE, "fade_slot": s.card["text_dur"]})
+            continue
+        if s.kind == "lead":  # cold-open black
+            shots.append({"kind": "black", "slot": s.slot})
+            continue
         if s.kind == "card":
             shots.append({"kind": "card", "slot": s.slot, "top": s.card["top"],
                           "title": s.card["title"], "dir": "subtle"})
@@ -274,6 +284,8 @@ def render_shots(ep: Episode, shots: list[dict], w: int, h: int, force: bool,
                 img = V.crop_region(V.load_rgb(sh["src"]), sh["crop"], sh["focus"], sh["shift"])
             elif sh["kind"] == "card":
                 img = V.chapter_card(ep.story, sh["top"], sh["title"], w * 2, h * 2)
+            elif sh["kind"] == "channel":
+                img = C.card_image(sh["card"], w * 2, h * 2)
             else:
                 img = V.text_card(ep.story, sh["text"], w * 2, h * 2)
             if composite and sh["kind"] == "image":
@@ -282,28 +294,94 @@ def render_shots(ep: Episode, shots: list[dict], w: int, h: int, force: bool,
         print(f"  [{i + 1}/{len(shots)}] {label} {sh['kind']:<5} {dur:5.2f}s {sh.get('dir', '')}",
               flush=True)
         render_clip(still, out, dur, sh.get("dir", "subtle"), r, w, h, zoom,
-                    fade=sh.get("fade", 0.0), slot=sh["slot"])
+                    fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
         rendered += 1
     info(f"{rendered} klip dirender, {len(shots) - rendered} dipakai dari cache")
     return paths
 
 
 # ---------------------------------------------------------------- command
+def _preview_timeline(ep: Episode, keys: set) -> list[Segment]:
+    """The selected beats with the same timing as in the full episode (chapter card included,
+    recap left out), so a preview sounds like the final cut."""
+    first_of = {}
+    for b in ep.beats:
+        first_of.setdefault(b.chapter, b.key)
+    segs = [s for s in build_timeline(ep, require_audio=False)
+            if (s.kind == "beat" and s.beat.key in keys) or (s.kind == "card" and first_of[s.chapter] in keys)]
+    lacking = [s.beat.key for s in segs if s.kind == "beat" and s.text and not s.audio]
+    if lacking:
+        raise PipelineError(f"Audio belum ada untuk: {', '.join(lacking[:8])}"
+                            f"\n  Jalankan dulu: tts {ep.slug} {ep.ep}")
+    t = 0.0
+    for s in segs:
+        s.start = t
+        t += s.slot
+    return segs
+
+
 def cmd_build(ep: Episode, args) -> None:
     require_ffmpeg()
     r = ep.render
-    step(f"Build {ep.slug} {ep.ep}")
-    missing = ep.missing_images()
+    sel = ep.parse_beat_range(args.beats) if getattr(args, "beats", None) else None
+    keys = {b.key for b in sel} if sel else None
+    step(f"Build {ep.slug} {ep.ep}" + (f"  [preview {sel[0].key}–{sel[-1].key}]" if sel else ""))
+    missing = [b for b in ep.missing_images() if keys is None or b.key in keys]
     if missing:
         raise PipelineError("Gambar belum lengkap: " + ", ".join(b.key for b in missing) +
                             f"\n  Cek dengan: check {ep.slug} {ep.ep}")
-    segs = build_timeline(ep)
-    total = total_duration(segs)
-    info(f"Durasi: {fmt_ts(total)} · {len(segs)} segmen")
+    segs = build_timeline(ep) if sel is None else _preview_timeline(ep, keys)
+    lay = structure(ep)
+    fps = int(r["fps"])
+    if float(lay["cold_open"] or 0) > 0 and segs and segs[0].kind != "recap" and \
+            (sel is None or sel[0] is ep.beats[0]):
+        # a moment of black (ambience fading in) so the first line doesn't start on frame 1
+        segs.insert(0, Segment("lead", quantize(float(lay["cold_open"]), fps)))
+        t = 0.0
+        for s in segs:
+            s.start = t
+            t += s.slot
+    story_total = total_duration(segs)
+    # channel intro/outro wrap the story; the story's own sound layer never reaches them
+    ch = C.for_episode(ep)
+    intro = ch.segment("intro", fps) if ch and lay["intro"] else None
+    outro = ch.segment("outro", fps) if ch else None
+    all_segs = [x for x in (intro, *segs, outro) if x is not None]
+    total = total_duration(all_segs)
+    info(f"Durasi: {fmt_ts(total)} · {len(all_segs)} segmen"
+         + (f" (intro {intro.slot:.1f}s + " if intro else " (") + f"cerita {fmt_ts(story_total)}"
+         + (f" + outro {outro.slot:.1f}s)" if outro else ")"))
 
-    shots = plan_shots(ep, segs)
+    step("Audio")
+    # the vertical build keeps its own audio files, so both builds can run side by side
+    tag = ("_preview" if sel else "") + ("_v" if getattr(args, "vertical", False) else "")
+    narration = ep.cache / f"narration{tag}.wav"
+    write_narration(segs, narration)
+    mix = ep.cache / f"mix{tag}.wav"
+    if not getattr(args, "no_sound", False) and sound.load_config(ep) is not None:
+        sound.mix(ep, segs, narration, mix, story_total)  # music + ambience + sfx from sound.yaml
+    else:
+        bgm = pick_bgm(ep, args)
+        info(f"Musik: {bgm.name if bgm else '(tanpa musik)'}")
+        mix_audio(narration, bgm, mix, story_total, r)
+    if ch:
+        wrapped = ep.cache / f"mix_channel{tag}.wav"
+        C.wrap_audio(mix, intro, outro, wrapped)
+        mix = wrapped
+        info(f"Intro/outro channel '{ch.slug}' ditambahkan")
+    story_starts = [s.start for s in all_segs]  # mix/stems timebase (story from 0)
+    t = 0.0  # story segments were timed from 0 for the mix; shift them behind the intro
+    for s in all_segs:
+        s.start = t
+        t += s.slot
+    segs = all_segs
+
+    if getattr(args, "vertical", False):  # 9:16 from the same timeline + mix
+        from .vertical import build_vertical
+        return build_vertical(ep, args, sel, segs, story_starts, mix, narration, total, ch)
+
+    shots = plan_shots(ep, all_segs)
     clips = render_shots(ep, shots, int(r["width"]), int(r["height"]), args.force)
-
     step("Crossfade & gabung video")
     slots = [s["slot"] for s in shots]
     video = ep.cache / f"video_{sha([str(c) for c in clips] + slots + [r['crossfade'], r['crf'], r['preset'], r['grain']])}.mp4"
@@ -314,19 +392,50 @@ def cmd_build(ep: Episode, args) -> None:
     else:
         info("Video gabungan dipakai dari cache")
 
-    step("Audio")
-    narration = ep.cache / "narration.wav"
-    write_narration(segs, narration)
-    bgm = pick_bgm(ep, args)
-    info(f"Musik: {bgm.name if bgm else '(tanpa musik)'}")
-    mix = ep.cache / "mix.wav"
-    mix_audio(narration, bgm, mix, total, r)
+    if sel:
+        out = ep.output / f"preview_{sel[0].key}-{sel[-1].key}.mp4"
+        srt = out.with_suffix(".srt")
+        mux(video, mix, out, total)
+        write_srt(segs, srt)
+        write_description(ep, segs, ep.output / f"description_{out.stem}.txt")
+        ok(f"Preview: {out.relative_to(ROOT)}  ({fmt_ts(total)}) + {srt.name}")
+    else:
+        out = ep.output / f"{ep.ep}.mp4"
+        srt = ep.output / f"{ep.ep}.srt"
+        mux(video, mix, out, total)
+        write_srt(segs, srt)
+        write_description(ep, segs, ep.output / "description.txt")
+        ok(f"Selesai: {out.relative_to(ROOT)}  ({fmt_ts(total)})")
+        ok(f"Subtitle: {srt.relative_to(ROOT)} · deskripsi+chapter: output/description.txt")
+        if args.clean:
+            shutil.rmtree(ep.cache / "groups", ignore_errors=True)
 
-    out = ep.output / f"{ep.ep}.mp4"
-    mux(video, mix, out, total)
-    write_srt(segs, ep.output / f"{ep.ep}.srt")
-    write_description(ep, segs, ep.output / "description.txt")
-    ok(f"Selesai: {out.relative_to(ROOT)}  ({fmt_ts(total)})")
-    ok(f"Subtitle: {(ep.output / f'{ep.ep}.srt').relative_to(ROOT)} · deskripsi+chapter: output/description.txt")
-    if args.clean:
-        shutil.rmtree(ep.cache / "groups", ignore_errors=True)
+    manifest = _write_manifest(ep, out, srt, tag, total, segs, story_starts, shots, narration, ch)
+    if not getattr(args, "no_review", False):
+        from .review import review
+        review(ep, manifest)
+
+
+def _write_manifest(ep, out, srt, tag, total, segs, story_starts, shots, narration, ch, **extra) -> Path:
+    """What `review` needs to know about the render it checks."""
+    import json
+    t, shot_rows = 0.0, []
+    for sh in shots:
+        shot_rows.append({"kind": sh["kind"], "start": round(t, 3), "slot": round(sh["slot"], 3),
+                          "src": Path(sh["src"]).name if sh.get("src") else None, "crop": sh.get("crop")})
+        t += sh["slot"]
+    rows = []
+    for s, st in zip(segs, story_starts):
+        b = s.beat
+        rows.append({"kind": s.kind, "key": b.key if b else s.kind, "start": round(s.start, 3),
+                     "story_start": round(st, 3), "slot": round(s.slot, 3), "audio_dur": round(s.audio_dur, 3),
+                     "lead": s.lead, "chapter": s.chapter, "visual": getattr(b, "visual", None),
+                     "pause_after": getattr(b, "pause_after", None), "text": bool(s.text)})
+    m = {"output": str(out), "srt": str(srt), "total": total, "segments": rows, "shots": shot_rows,
+         "narration": str(narration), "stems": {k: str(ep.cache / f"stem_{k}.wav") for k in ("music", "amb", "sfx")},
+         "max_shot": float(ep.render["max_shot"]), "channel": ch.slug if ch else None,
+         "mute_on_beats": [str(x) for x in ((sound.load_config(ep) or {}).get("music") or {}).get("mute_on_beats") or []],
+         **extra}
+    p = ep.cache / f"render{tag}.json"
+    p.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
+    return p

@@ -163,6 +163,13 @@ def cmd_check(ep: Episode, args) -> int:
         rel, exists = _ref_label(ep, name)
         if not exists:
             warn(f"Referensi karakter belum ada: {rel}")
+    from . import thumbs
+    have_t = thumbs.existing(ep)
+    print(f"  Thumb : {', '.join(f'thumbnail/{p.name}' for p in have_t.values()) or '-'}")
+    for r in thumbs.SIZES:
+        if r not in have_t:
+            warn(f"Thumbnail {r} belum ada (download Flow 'thumb_ep{ep.number:02d}_{r}' lalu import-flow)"
+                 + (" — pakai fallback `thumbnail:` di script.yaml" if r == "16x9" and ep.script.get("thumbnail") else ""))
     if missing:
         print(f"\n  {len(missing)} gambar belum ada.")
         return 1

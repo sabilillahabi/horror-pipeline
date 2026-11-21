@@ -57,6 +57,8 @@ def main(argv=None) -> int:
         sp = sub.add_parser(name, help=help_)
         sp.add_argument("story", help="slug cerita (nama folder di stories/)")
         sp.add_argument("ep", help="episode, mis. ep01 atau 1")
+        sp.add_argument("--engine", choices=["edge", "gemini"],
+                        help="mesin TTS (default: tts_engine di story.yaml, atau edge)")
         return sp
 
     sp = add("prompts", "tulis output/flow_prompts.md untuk Google Flow")
@@ -65,7 +67,9 @@ def main(argv=None) -> int:
     add("check", "daftar gambar yang belum ada")
     sp = add("import-flow", "salin gambar Flow bernama '[b018a] ...' ke images/<id>.png")
     sp.add_argument("source", nargs="?", help="zip/folder hasil download Flow "
-                    "(default: yang terbaru di ~/Downloads dengan nama cerita)")
+                    "(default: download Flow terbaru di ~/Downloads: zip, folder, atau file [bXXX] lepas)")
+    sp.add_argument("--force", action="store_true",
+                    help="timpa gambar lokal walau sumbernya lebih lama (yang lama tetap dibackup)")
     add("placeholders", "buat gambar placeholder untuk tes (hanya yang belum ada)")
 
     def tts_args(sp):
@@ -79,11 +83,33 @@ def main(argv=None) -> int:
         sp.add_argument("--bgm", help="nama file musik di assets/bgm (default: file pertama)")
         sp.add_argument("--no-bgm", action="store_true", help="tanpa musik latar")
         sp.add_argument("--clean", action="store_true", help="hapus cache grup setelah selesai")
+        sp.add_argument("--no-sound", action="store_true",
+                        help="tanpa lapisan suara sound.yaml (musik/ambience/sfx)")
+        sp.add_argument("--no-review", action="store_true", help="lewati review otomatis setelah render")
 
-    tts_args(add("tts", "buat audio per beat + SRT"))
+    sp = add("tts", "buat audio per beat + SRT")
+    tts_args(sp)
+    sp.add_argument("--beats", help="hanya beat ini, mis. b008,b011 (untuk tes; SRT tidak dibuat)")
     sp = add("build", "render video episode 1920x1080")
     sp.add_argument("--force", action="store_true", help="render ulang semua klip")
+    sp.add_argument("--beats", help="preview sebagian, mis. b001-b027 → output/preview_b001-b027.mp4")
+    sp.add_argument("--vertical", action="store_true",
+                    help="versi 9:16 1080x1920 + part 2-3 menit + captions.txt di output/vertical/")
     build_args(sp)
+
+    add("review", "cek teknis render terakhir → output/review_report.md + contact sheet")
+    sp = add("threads", "thread Threads per bab → output/threads/bab<N>.md + gambar")
+    sp.add_argument("--thumb-only", action="store_true",
+                    help="hanya thumbnail di post 1, tanpa gambar adegan 4:5")
+
+    add("covers", "cover per part IG/FB dari covers.yaml, langsung dipasang ke video part")
+
+    sp = add("channel-tts", "buat klip intro/outro channel (Gemini, sekali untuk semua episode)")
+    sp.add_argument("--force", action="store_true", help="buat ulang intro.wav/outro.wav")
+
+    sp = add("sound-import", "salin aset suara dari sound_assets.yaml ke assets/sound/")
+    sp.add_argument("source", nargs="?", help="folder sumber (default: ~/Downloads)")
+    sp.add_argument("--force", action="store_true", help="proses ulang aset yang sudah ada")
 
     sp = add("all", "check → tts → build sekaligus")
     tts_args(sp)
@@ -100,8 +126,10 @@ def main(argv=None) -> int:
     build_args(sp)
 
     sp = add("thumbnail", "thumbnail 1280x720")
-    sp.add_argument("--beat", required=True, help="id beat sumber gambar")
-    sp.add_argument("--text", required=True, help="teks (maks 4 kata)")
+    sp.add_argument("--beat", help="id beat sumber gambar (default: thumbnail.beat di script.yaml)")
+    sp.add_argument("--text", help="teks maks 4 kata (default: thumbnail.text di script.yaml)")
+    sp.add_argument("--generate", action="store_true",
+                    help="buat dari beat walau thumbnail Flow (thumbnail/thumbnail_16x9.jpg) sudah ada")
     sp.add_argument("--position", default="left", choices=["left", "right", "center", "top", "bottom"])
     sp.add_argument("--color", default="#FFFFFF", help="warna teks utama")
     sp.add_argument("--accent", default="#FF2B2B", help="warna baris terakhir")
@@ -111,6 +139,8 @@ def main(argv=None) -> int:
     args = p.parse_args(argv)
     try:
         ep = Episode(args.story, args.ep)
+        if getattr(args, "engine", None):
+            ep.tts_engine = args.engine
         if args.cmd == "prompts":
             from pipeline.prompts import cmd_prompts
             cmd_prompts(ep, args)
@@ -130,6 +160,21 @@ def main(argv=None) -> int:
             cmd_build(ep, args)
         elif args.cmd == "all":
             cmd_all(ep, args)
+        elif args.cmd == "threads":
+            from pipeline.threads import cmd_threads
+            cmd_threads(ep, args)
+        elif args.cmd == "review":
+            from pipeline.review import cmd_review
+            cmd_review(ep, args)
+        elif args.cmd == "covers":
+            from pipeline.covers import cmd_covers
+            cmd_covers(ep, args)
+        elif args.cmd == "channel-tts":
+            from pipeline.channel import cmd_channel_tts
+            cmd_channel_tts(ep, args)
+        elif args.cmd == "sound-import":
+            from pipeline.sound import cmd_sound_import
+            return cmd_sound_import(ep, args)
         elif args.cmd == "shorts":
             from pipeline.shorts import cmd_shorts
             cmd_shorts(ep, args)

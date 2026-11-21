@@ -1,0 +1,9 @@
+{
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Vindemiatrix",
+  "language": "id-ID",
+  "style": "Perempuan berbisik sangat pelan dan lebih lambat, seolah menghilang di akhir kalimat.",
+  "text": "Dengarkan pelan-pelan. Mereka juga sedang mendengarkan.",
+  "hash": "5af5b2c3c131",
+  "fx": 3
+}

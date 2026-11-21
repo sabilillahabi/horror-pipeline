@@ -23,6 +23,18 @@ def _layout(words: list[str]) -> list[list[str]]:
 
 def cmd_thumbnail(ep: Episode, args) -> None:
     step(f"Thumbnail {ep.slug} {ep.ep}")
+    from . import thumbs
+    imported = thumbs.path(ep, "16x9")
+    if imported.exists() and not args.generate:
+        ok(f"Thumbnail dari Flow dipakai: {imported.relative_to(ROOT)} (buat dari beat: --generate)")
+        return
+    # fallback: script.yaml `thumbnail: {beat, text}`, overridable from the command line
+    fb = ep.script.get("thumbnail") or {}
+    args.beat = args.beat or fb.get("beat")
+    args.text = args.text or fb.get("text")
+    if not args.beat or not args.text:
+        raise PipelineError("Tidak ada thumbnail dari Flow dan tidak ada `thumbnail: {beat, text}` di script.yaml "
+                            "(atau --beat/--text).")
     words = args.text.upper().split()
     if not words:
         raise PipelineError("--text kosong.")

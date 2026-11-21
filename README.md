@@ -221,6 +221,135 @@ terpengaruh. `--force` = render ulang semua. Folder `cache/` aman dihapus setela
 
 Jalan pintas: `python horror.py all rumah-kos ep02` = check → tts → build.
 
+### Langkah 6b — Lapisan suara (musik, ambience, SFX)
+
+Kalau episode punya `sound.yaml`, `build` memakai lapisan suara itu sebagai pengganti `assets/bgm/`.
+`--no-sound` = build tanpa lapisan suara (kembali ke perilaku `assets/bgm/`).
+
+**`stories/<cerita>/sound_assets.yaml`** — daftar aset per cerita. Key = nama aset, value = slug
+halaman Pixabay (dicocokkan dengan ID angka di akhir nama file download) atau judul file
+(dicocokkan dengan awal nama file, mis. `"EBB - Density & Time"`):
+
+```yaml
+ambience:
+  amb_night_village: film-special-effects-a-windy-night-58798
+sfx:
+  sfx_knock3: household-wood-door-knock-106669
+music:
+  bgm_dark_ambient: "EBB - Density & Time"
+```
+
+```bash
+python horror.py sound-import juru-kunci ep01            # cari di ~/Downloads
+python horror.py sound-import juru-kunci ep01 D:\sfx     # folder lain
+```
+
+Hasil: `assets/sound/<key>.mp3`. File di Downloads hanya dibaca. Aset yang tidak ketemu
+dilaporkan; jalankan lagi setelah download (yang sudah ada dilewati, `--force` = proses ulang).
+Pemrosesan otomatis:
+- semua `ambience` dibuat loop mulus (titik loop di-crossfade);
+- `sfx_kentongan`: satu pukulan → pola 3 pukulan (jarak 0,6 dtk), jeda 1,2 dtk, 3 pukulan, plus reverb ringan;
+- `sfx_humming_female`: pitch turun 2 semitone, reverb, low-pass (terdengar dari balik pintu).
+
+**`episodes/epXX/sound.yaml`** — penempatan suara di episode:
+
+```yaml
+music:                 # satu bed untuk seluruh episode
+  file: bgm_dark_ambient
+  vol: -24             # dB
+  duck_under_voice: -8 # turun sekian dB saat ada suara
+  fade_in: 3
+  fade_out: 4
+  mute_on_beats: [b009, b020]   # musik hilang total di beat ini
+ambience:              # bed yang di-loop per rentang beat (inklusif, urutan script)
+  - {file: amb_night_village, from: b001, to: b008, vol: -20}
+sfx:                   # one-shot per beat; at = start | end (akhir suara beat) | detik dari awal beat
+  b008: {file: sfx_hit_big, at: end, vol: -6}
+  b010: {file: sfx_phone_vibrate, at: 1.0, vol: -10}
+```
+
+Antar segmen ambience ada crossfade 1,5 dtk; di luar rentang = hening. Aset yang belum ada
+di `assets/sound/` dilewati dengan peringatan. Mix akhir dinormalisasi ke −14 LUFS (true peak −1,5 dB)
+untuk YouTube.
+
+**Preview sebagian** (timing sama dengan episode penuh, termasuk kartu bab):
+
+```bash
+python horror.py build juru-kunci ep01 --beats b001-b027   # → output/preview_b001-b027.mp4 + .srt
+```
+
+### Langkah 6c — Struktur episode & outro channel
+
+Tambahkan `channel: kemenyan-malam` di `story.yaml`. Pengaturannya ada di
+`channels/kemenyan-malam.yaml` (tagline, signature, voice Gemini, style bisikan, warna teks, `structure`).
+
+Struktur default channel (bisa ditimpa per cerita dengan `structure:` di `story.yaml`):
+
+- `intro: false` — tidak ada intro; video langsung mulai di beat pertama.
+- `chapter_cards: false` — tidak ada kartu "EPISODE 1 · BAB I". Kartu cerita (`visual: text_card`,
+  mis. "TIGA MINGGU SEBELUMNYA", "Bersambung") tetap. Timestamp chapter YouTube tetap ditulis di
+  `output/description.txt` (00:00 bab pertama, lalu awal tiap bab).
+- `cold_open: 0.5` — 0,5 detik hitam dengan ambience fade-in sebelum beat pertama.
+
+Outro: layar hitam, tagline serif miring satu kalimat per baris (baris terlebar ±66% lebar frame),
+signature serif tebal lebih kecil di bawahnya, fade in/out 0,8 detik, lama tampil = klip suara + 1,5 detik,
+lalu 1 detik hitam tanpa suara. Tagline dibisikkan (dengan sedikit reverb) tapi **tidak** masuk subtitle
+karena sudah tampil di layar. Musik/ambience cerita tidak masuk ke outro.
+- Klip dibuat **sekali** ke `channels/kemenyan-malam/audio/intro.wav` dan `outro.wav` lalu dipakai ulang
+  untuk semua episode. `tts` membuatnya otomatis kalau belum ada (Gemini saja, tanpa fallback edge-tts;
+  rotasi key dan retry per jam berlaku sama). Buat ulang:
+
+```bash
+python horror.py channel-tts juru-kunci ep01 --force
+```
+
+### Langkah 6d — Review otomatis
+
+Setiap `build` (juga preview) diakhiri `review`, yang menulis `output/review_report.md` dan
+`output/review_sheet_*.png` (contact sheet: 1 frame tiap 4 detik, subtitle dibakar seperti di copy review).
+Isinya: loudness (−14 ±1 LUFS, true peak ≤ −1 dBTP, LRA); jarak musik+ambience di jeda vs suara saat bicara
+(ditandai kalau > 26 dB atau < 12 dB); shot gambar > 12 detik (peringatan saja); hening > 3 detik dan layar
+hitam/beku yang tidak disengaja; subtitle tumpang tindih/terlalu cepat; timestamp chapter. Diakhiri daftar
+PASS / PERINGATAN / NEEDS FIX. Jalankan ulang tanpa render: `python horror.py review juru-kunci ep01`
+(lewati saat build: `--no-review`).
+
+### Langkah 6e — Versi vertikal 9:16 (TikTok, Instagram, Facebook)
+
+```bash
+python horror.py build juru-kunci ep01 --vertical                    # episode penuh
+python horror.py build juru-kunci ep01 --beats b001-b027 --vertical  # tes bab 1
+```
+
+Pakai beat, gambar, audio dan mix yang sama dengan versi horizontal (tanpa gambar baru), hasil di
+`output/vertical/`:
+
+- `<nama>.mp4` — video penuh 1080x1920 (TikTok), full-bleed (tanpa blur/letterbox).
+- `<nama>_partN.mp4` — part ≤ 3 menit untuk Instagram/Facebook, dipotong di batas beat (diutamakan setelah
+  kalimat menggantung atau SFX hit). Tiap part dibuka kartu 1 detik "Juru Kunci · Eps 1 · Part N" dan
+  ditutup kartu 1,5 detik "Lanjut ke Part N+1"; part terakhir ditutup outro biasa.
+- `captions.txt` — caption siap tempel per part (hook + hashtag).
+- `covers/<nama>_partN_cover.jpg` (+ salinan `<nama>_partN_cover.jpg` di sebelah part, juga disematkan di
+  videonya) — cover berbeda per part. Judulnya dipotong persis dari `thumbnail/thumbnail_9x16.jpg` sekali per
+  episode (`thumbnail/title_epXX.png`, posisi & ukuran sama), ditambah "PART N" di bawah "EPISODE N".
+  Latar: gambar terkuat di rentang part (SFX hit / close-up karakter, tidak ada gambar dipakai dua kali),
+  crop 9:16, 40% atas digelapkan. `covers/covers_sheet.png` = semua cover berdampingan. Override gambar di
+  `episodes/epXX/covers.yaml` (`part3: {beat: b034}`); buat ulang tanpa render: `python horror.py covers <story> <ep>`.
+  Video penuh (TikTok) tetap memakai `thumbnail_9x16.jpg`.
+- `review_report.md`, `review_sheet_*.png`, `review_crops_*.png` (peta jendela crop tiap gambar).
+
+Crop 9:16: satu karakter → jendela di tengah karakter (left/center/right dari `characters_in_scene`);
+dua atau lebih → di tengah mereka, atau di pembicara kalau tidak muat; tanpa karakter → pan horizontal
+pelan. Ken Burns halus tetap ada. Override per beat di `script.yaml`:
+
+```yaml
+      - id: b012
+        vertical_crop_x: 0.2          # 0 = jendela di tepi kiri, 1 = di tepi kanan
+        vertical_pan: left_to_right   # left_to_right | right_to_left | none
+```
+
+Subtitle vertikal: Arial tebal putih bergaris hitam, maks 2 baris (±4–6 kata), di sepertiga bawah tapi di
+atas 320 px terbawah, 140 px kanan dikosongkan untuk tombol platform. Label kecil judul+episode (+part) di atas.
+
 ### Langkah 7 — Buat Shorts
 
 ```bash
