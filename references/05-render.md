@@ -39,5 +39,8 @@ Vindemiatrix). Outro hanya ada di sini. Chapter YouTube di `description.txt` = a
   dirender paralel (jumlah core − 1); cache shot = hash isi gambar + gerakan + durasi + resolusi + versi layout
   (`KB_VERSION`), jadi re-import gambar yang sama atau render ulang setelah perubahan kecil hampir instan.
 - Subtitle vertikal dibakar dalam encode yang sama dengan gabung akhir (tidak ada encode ketiga).
+- Film grain default `grain: 2`. Grain itu noise yang hampir tidak bisa dikompres: grain 5+ membuat setiap encode
+  mentok di 6 Mbps (part 2:30 ±115 MB, video panjang ±470 MB); grain 2 → part ±36–40 MB, video panjang ±155 MB.
+  Jangan naikkan tanpa izin user.
 - Tetap satu render berat pada satu waktu; jangan kill ffmpeg yang sedang jalan.
 - Waktu render dicetak di akhir `build` ("Waktu render: …") dan disimpan di manifest; laporkan ke user.
