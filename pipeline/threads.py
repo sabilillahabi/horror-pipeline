@@ -191,6 +191,12 @@ def _part_video(ep: Episode, chapter: int) -> str | None:
     """A vertical IG/FB part (< 5 min) whose beats belong to this chapter."""
     for mf in sorted(ep.cache.glob("render_vertical*.json"), key=lambda p: -p.stat().st_mtime):
         m = json.loads(mf.read_text(encoding="utf-8"))
+        if m.get("kind") == "vertical_parts":  # one vertical file per script part
+            for p in m["parts"]:
+                f = Path(m["outdir"]) / p["file"]
+                if p["n"] == chapter + 1 and f.is_file():
+                    return f"{f.relative_to(ep.output).as_posix()} ({int(p['dur'] // 60)}:{int(p['dur'] % 60):02d})"
+            continue
         outdir = Path(m["output"]).parent
         for p in m.get("parts") or []:
             chs = {s["chapter"] for s in m["segments"] if s["kind"] == "beat" and p["a"] <= s["start"] < p["b"]}

@@ -1,5 +1,9 @@
 # 02 — Gambar (Google Flow, diimport ke Muse)
 
+**Jumlah: 25–30 gambar Flow baru per episode, selalu 16:9** (vertikal dipotong otomatis). Beat lain memakai
+`reuse: <beat>` + `crop: wide | closeup_face | detail`. `prompts` mencetak jumlah gambar baru dan memperingatkan
+di atas 30. Setelah import: `python scripts/push_assets.py --story <slug> --ep <ep>` (00).
+
 Gambar dibuat user di **Google Flow**, bukan di Muse. Tugasmu: siapkan prompt, import hasilnya, cek visual.
 Semua gambar 16:9. Versi vertikal, Threads 4:5 dan cover dipotong otomatis dari gambar ini.
 

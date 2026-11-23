@@ -15,7 +15,8 @@ from pathlib import Path
 
 import yaml
 
-from .common import ASSETS, AUDIO_EXTS, Episode, PipelineError, atomic_out, info, ok, run, step, warn
+from .common import (ASSETS, AUDIO_EXTS, Episode, PipelineError, atomic_out, filter_script_flag, info, ok, run,
+                     step, warn)
 
 SOUND_DIR = ASSETS / "sound"
 FMT = "aformat=sample_rates=48000:sample_fmts=fltp:channel_layouts=stereo"
@@ -261,7 +262,7 @@ def _stems(ep: Episode, segs, cfg: dict, total: float, work: Path) -> dict:
         maps += ["-map", f"[{name}]", "-c:a", "pcm_f32le", str(outs[name])]
     script = work / "sound_graph.txt"
     script.write_text(";".join(chains), encoding="utf-8")
-    run(["ffmpeg", "-y", *inputs, "-/filter_complex", script, *maps], "render stem suara")
+    run(["ffmpeg", "-y", *inputs, filter_script_flag(), script, *maps], "render stem suara")
     outs["tracks"] = sum(len(v) for v in groups.values())
     return outs
 
@@ -350,7 +351,7 @@ def mix(ep: Episode, segs, narration: Path, out: Path, total: float) -> dict:
     script.write_text(graph, encoding="utf-8")
     tmp = atomic_out(pre)
     run(["ffmpeg", "-y", "-i", narration, "-i", stems["music"], "-i", stems["amb"], "-i", stems["sfx"],
-         "-/filter_complex", script, "-map", "[mix]", "-t", f"{total:.3f}", "-c:a", "pcm_f32le", tmp],
+         filter_script_flag(), script, "-map", "[mix]", "-t", f"{total:.3f}", "-c:a", "pcm_f32le", tmp],
         "mix lapisan suara")
     os.replace(tmp, pre)
     if limited:  # report the bed as it ends up in the mix

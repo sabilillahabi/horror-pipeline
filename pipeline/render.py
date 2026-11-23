@@ -21,29 +21,31 @@ DIRECTIONS = ["zoom_in", "pan_right", "zoom_out", "pan_left", "zoom_in", "pan_up
 
 
 # ---------------------------------------------------------------- Ken Burns
-def kb_expr(direction: str, n: int, amount: float):
-    """zoompan expressions. `on` = output frame index, p goes 0→1 across the shot."""
-    p = f"(on/{max(1, n - 1)})"
-    # smoothstep easing keeps starts/ends gentle
+KB_VERSION = 5   # bump when the motion/still logic changes: it is part of every shot's cache key
+
+
+def _even(x: float) -> int:
+    return max(2, int(round(x / 2)) * 2)
+
+
+def kb_filter(direction: str, dur: float, amount: float, w: int, h: int) -> str:
+    """Ken Burns with crop/scale on a still that is already kb_scale (1.5x) the output size.
+
+    zoom: the still is scaled per frame to (1+z(t))·output and the centre cut out; pan: scaled once to
+    (1+amount)·output and the crop window slides. Easing: smoothstep over the clip."""
+    p = f"min(1,t/{max(0.04, dur):.3f})"
     e = f"({p}*{p}*(3-2*{p}))"
-    a = amount
-    cx, cy = "(iw-iw/zoom)/2", "(ih-ih/zoom)/2"
-    if direction == "zoom_in":
-        return f"1+{a}*{e}", cx, cy
-    if direction == "zoom_out":
-        return f"1+{a}*(1-{e})", cx, cy
-    z = f"{1 + a}"
-    if direction == "pan_right":
-        return z, f"(iw-iw/zoom)*{e}", cy
-    if direction == "pan_left":
-        return z, f"(iw-iw/zoom)*(1-{e})", cy
-    if direction == "pan_up":
-        return z, cx, f"(ih-ih/zoom)*(1-{e})"
-    if direction == "pan_down":
-        return z, cx, f"(ih-ih/zoom)*{e}"
-    if direction == "subtle":
-        return f"1+{a * 0.35}*{e}", cx, cy
-    return "1", "0", "0"
+    if direction in ("zoom_in", "zoom_out", "subtle"):
+        a = amount * (0.35 if direction == "subtle" else 1.0)
+        z = f"(1+{a}*{e})" if direction != "zoom_out" else f"(1+{a}*(1-{e}))"
+        return (f"scale=w='2*trunc({w}*{z}/2)':h='2*trunc({h}*{z}/2)':eval=frame:flags=bicubic,"
+                f"crop={w}:{h}:x='(iw-{w})/2':y='(ih-{h})/2'")
+    if direction in ("pan_right", "pan_left", "pan_up", "pan_down"):
+        zw, zh = _even(w * (1 + amount)), _even(h * (1 + amount))
+        fx = {"pan_right": e, "pan_left": f"(1-{e})"}.get(direction, "0.5")
+        fy = {"pan_down": e, "pan_up": f"(1-{e})"}.get(direction, "0.5")
+        return f"scale={zw}:{zh}:flags=bicubic,crop={w}:{h}:x='(iw-{w})*{fx}':y='(ih-{h})*{fy}'"
+    return f"scale={w}:{h}:flags=bicubic"
 
 
 def render_clip(still: Path | None, out: Path, dur: float, direction: str, r: dict,
@@ -51,6 +53,7 @@ def render_clip(still: Path | None, out: Path, dur: float, direction: str, r: di
                 slot: float | None = None) -> None:
     """Render one shot. `fade` > 0: fade in from black at the start and out to black by `slot`
     (the crossfade tail after `slot` then stays black)."""
+    from .encode import clip_args
     fps = int(r["fps"])
     n = max(1, round(dur * fps))
     post = ""
@@ -60,33 +63,73 @@ def render_clip(still: Path | None, out: Path, dur: float, direction: str, r: di
         post += f",fade=t=in:st=0:d={f:.3f},fade=t=out:st={max(0.0, slot - f):.3f}:d={f:.3f}"
     post += ",format=yuv420p"  # grain is added once, in the final join pass
     tmp = atomic_out(out)
-    common_out = ["-frames:v", n, "-r", fps, "-c:v", "libx264", "-preset", r["clip_preset"], "-crf", "18",
-                  "-pix_fmt", "yuv420p", "-an", tmp]
+    common_out = ["-frames:v", n, "-r", fps, *clip_args(), "-an", tmp]
     if still is None:  # plain black
         run(["ffmpeg", "-y", "-f", "lavfi", "-i", f"color=c=black:s={w}x{h}:r={fps}",
              "-vf", post.lstrip(","), *common_out], "render klip hitam")
     else:
-        z, x, y = kb_expr(direction, n, r["zoom"] if zoom is None else zoom)
-        vf = f"zoompan=z='{z}':x='{x}':y='{y}':d={n}:s={w}x{h}:fps={fps}{post}"
-        run(["ffmpeg", "-y", "-i", still, "-vf", vf, *common_out], f"render klip {out.name}")
+        vf = kb_filter(direction, n / fps, r["zoom"] if zoom is None else zoom, w, h) + post
+        run(["ffmpeg", "-y", "-loop", "1", "-framerate", fps, "-i", still, "-vf", vf, *common_out],
+            f"render klip {out.name}")
     os.replace(tmp, out)
 
 
-def save_still(img, path: Path, w: int, h: int, scale: int = 2) -> Path:
-    """Stills are prepared at 2× output size so zoompan's integer rounding doesn't jitter."""
+def save_still(img, path: Path, w: int, h: int, scale: float = 1.5) -> Path:
+    """Each source is scaled once, to `scale` (kb_scale, 1.5x) times the output size; motion is done by
+    ffmpeg crop/scale from there."""
     if not path.exists():
-        img = V.cover(img, w * scale, h * scale)
+        img = V.cover(img, _even(w * scale), _even(h * scale))
         path.parent.mkdir(parents=True, exist_ok=True)
         tmp = path.with_name(path.stem + ".part.jpg")
-        img.save(tmp, quality=93)
+        img.save(tmp, quality=92)
         os.replace(tmp, path)
     return path
 
 
+_HASHES: dict = {}
+
+
+def content_hash(p: Path | None) -> str | None:
+    """sha256 of an image file (memoised on path+size+mtime): shot caches follow the image, not its name."""
+    if not p or not Path(p).exists():
+        return None
+    import hashlib
+    st = Path(p).stat()
+    k = (str(p), st.st_size, st.st_mtime_ns)
+    if k not in _HASHES:
+        h = hashlib.sha256()
+        with open(p, "rb") as f:
+            for chunk in iter(lambda: f.read(1 << 20), b""):
+                h.update(chunk)
+        _HASHES[k] = h.hexdigest()[:16]
+    return _HASHES[k]
+
+
+def run_parallel(jobs: list, label: str) -> None:
+    """Run callables on cores-1 workers (each is an ffmpeg process); first error wins."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    from .encode import workers
+    if not jobs:
+        return
+    n = min(workers(), len(jobs))
+    done = 0
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        futs = [ex.submit(j) for j in jobs]
+        for f in as_completed(futs):
+            f.result()
+            done += 1
+            if done == len(jobs) or done % 10 == 0:
+                print(f"  {label}: {done}/{len(jobs)}", flush=True)
+
+
 # ---------------------------------------------------------------- crossfade join
 def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: Path,
-               final: bool, force: bool = False) -> None:
-    """Join clips (each `slot + crossfade` long) so clip k starts exactly at sum(slots[:k])."""
+               final: bool, force: bool = False, post: str | None = None, cwd: Path | None = None) -> None:
+    """Join clips (each `slot + crossfade` long) so clip k starts exactly at sum(slots[:k]).
+
+    final=True: film grain + `post` filter (e.g. burned-in subtitles) + the final encoder
+    (pipeline/encode.py), trimmed to sum(slots). Otherwise a near-lossless intermediate."""
+    from .encode import clip_args, video_args
     D = float(r["crossfade"])
     fps = int(r["fps"])
     r.setdefault("_size", (int(r["width"]), int(r["height"])))
@@ -101,7 +144,7 @@ def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: 
                 xfade_join(cs, ss, gp, r, work, final=False, force=force)
             groups.append(gp)
             gslots.append(sum(ss))
-        return xfade_join(groups, gslots, out, r, work, final, force)
+        return xfade_join(groups, gslots, out, r, work, final, force, post, cwd)
 
     inputs, parts = [], []
     for i, c in enumerate(clips):
@@ -119,23 +162,30 @@ def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: 
             parts.append(f"[{prev}][v{i}]xfade=transition=fade:duration={D}:offset={offset:.4f}[{label}]")
             prev = label
     grain = int(r.get("grain", 0) or 0)
-    if final and grain:
+    if final and (grain or post):
         parts[-1] = parts[-1][: parts[-1].rindex("[out]")] + "[pre]"
-        # coarse film grain: noise at half resolution, upscaled and overlay-blended.
-        # Much cheaper to encode than per-pixel noise and looks more like film.
-        w, h = r["_size"]
-        parts.append(f"color=c=gray:s={w // 2}x{h // 2}:r={fps},noise=alls=30:allf=t,"
-                     f"scale={w}:{h},format=yuv420p[grain]")
-        parts.append(f"[pre][grain]blend=all_mode=overlay:all_opacity={min(1.0, grain / 25):.3f}"
-                     ":shortest=1,format=yuv420p[out]")
-    preset, crf = (r["preset"], r["crf"]) if final else (r["clip_preset"], 17)
-    rate = ["-maxrate", r.get("maxrate", "12M"), "-bufsize", "24M"] if final else []
-    if final:  # drop the trailing crossfade tail so video length == timeline length
-        rate += ["-t", f"{sum(slots):.4f}"]
+        last = "pre"
+        if grain:
+            # coarse film grain: noise at half resolution, upscaled and overlay-blended.
+            w, h = r["_size"]
+            parts.append(f"color=c=gray:s={w // 2}x{h // 2}:r={fps},noise=alls=30:allf=t,"
+                         f"scale={w}:{h},format=yuv420p[grain]")
+            parts.append(f"[pre][grain]blend=all_mode=overlay:all_opacity={min(1.0, grain / 25):.3f}"
+                         ":shortest=1,format=yuv420p[g]")
+            last = "g"
+        parts.append(f"[{last}]{post + ',' if post else ''}format=yuv420p[out]")
+    enc = video_args() + ["-r", str(fps), "-t", f"{sum(slots):.4f}"] if final else clip_args(threads=0)
     tmp = atomic_out(out)
-    run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(parts), "-map", "[out]",
-         "-c:v", "libx264", "-preset", preset, "-crf", crf, *rate, "-pix_fmt", "yuv420p", "-an", tmp],
-        "crossfade/join video")
+    cmd = ["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(parts), "-map", "[out]", *enc, "-an", tmp]
+    if cwd is None:
+        run(cmd, "crossfade/join video")
+    else:
+        import subprocess
+        p = subprocess.run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-nostdin", *map(str, cmd[1:])],
+                           cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                           encoding="utf-8", errors="replace")
+        if p.returncode:
+            raise PipelineError(f"crossfade/join video gagal:\n{p.stderr[-1200:]}")
     os.replace(tmp, out)
 
 
@@ -184,9 +234,9 @@ def mix_audio(narration: Path, bgm: Path | None, out: Path, total: float, r: dic
 
 def mux(video: Path, audio: Path, out: Path, total: float) -> None:
     tmp = atomic_out(out)
+    from .encode import AUDIO, FASTSTART
     run(["ffmpeg", "-y", "-i", video, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy",
-         "-c:a", "aac", "-b:a", "192k", "-t", f"{total:.3f}", "-movflags", "+faststart", tmp],
-        "mux final")
+         *AUDIO, "-t", f"{total:.3f}", *FASTSTART, tmp], "mux final")
     os.replace(tmp, out)
 
 
@@ -257,46 +307,51 @@ def plan_shots(ep: Episode, segs: list[Segment]) -> list[dict]:
 
 def render_shots(ep: Episode, shots: list[dict], w: int, h: int, force: bool,
                  zoom: float | None = None, composite=None, label="klip") -> list[Path]:
+    """Render every shot clip in parallel (cores-1). Cache key = image content hash + motion + duration
+    + resolution + layout version, so renaming/re-importing an identical image reuses the clip."""
     r = ep.render
     D = float(r["crossfade"])
+    scale = float(r.get("kb_scale", 1.5))
     clip_dir = ep.cache / "clips"
     still_dir = ep.cache / "stills"
     clip_dir.mkdir(parents=True, exist_ok=True)
-    paths = []
-    rendered = 0
+    paths, jobs = [], []
     for i, sh in enumerate(shots):
         dur = sh["slot"] + D
-        sig = {k: v for k, v in sh.items() if k != "src"}
-        sig.update(src=file_sig(sh.get("src")), dur=dur, w=w, h=h, zoom=zoom,
-                   fps=r["fps"], comp=bool(composite), font=V.find_font(ep.story),
-                   serif=V.find_serif_font(ep.story), v=4)
+        sig = {k: v for k, v in sh.items() if k not in ("src", "slot")}
+        sig.update(img=content_hash(sh.get("src")), dur=round(dur, 4), w=w, h=h, zoom=zoom, fps=r["fps"],
+                   comp=bool(composite), kb=KB_VERSION, scale=scale, font=V.find_font(ep.story),
+                   serif=V.find_serif_font(ep.story))
         h_ = sha(sig)
         out = clip_dir / f"{label}_{h_}.mp4"
         paths.append(out)
         if out.exists() and not force:
             continue
-        still = None
-        if sh["kind"] != "black":
-            still_path = still_dir / f"{h_}.jpg"
-            if force and still_path.exists():
-                still_path.unlink()
-            if sh["kind"] == "image":
-                img = V.crop_region(V.load_rgb(sh["src"]), sh["crop"], sh["focus"], sh["shift"])
-            elif sh["kind"] == "card":
-                img = V.chapter_card(ep.story, sh["top"], sh["title"], w * 2, h * 2)
-            elif sh["kind"] == "channel":
-                img = C.card_image(sh["card"], w * 2, h * 2)
-            else:
-                img = V.text_card(ep.story, sh["text"], w * 2, h * 2)
-            if composite and sh["kind"] == "image":
-                img = composite(img)
-            still = save_still(img, still_path, w, h)
-        print(f"  [{i + 1}/{len(shots)}] {label} {sh['kind']:<5} {dur:5.2f}s {sh.get('dir', '')}",
-              flush=True)
-        render_clip(still, out, dur, sh.get("dir", "subtle"), r, w, h, zoom,
-                    fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
-        rendered += 1
-    info(f"{rendered} klip dirender, {len(shots) - rendered} dipakai dari cache")
+
+        def job(sh=sh, out=out, h_=h_, dur=dur):
+            still = None
+            if sh["kind"] != "black":
+                still_path = still_dir / f"{h_}.jpg"
+                if force and still_path.exists():
+                    still_path.unlink()
+                if not still_path.exists():
+                    if sh["kind"] == "image":
+                        img = V.crop_region(V.load_rgb(sh["src"]), sh["crop"], sh["focus"], sh["shift"])
+                    elif sh["kind"] == "card":
+                        img = V.chapter_card(ep.story, sh["top"], sh["title"], int(w * scale), int(h * scale))
+                    elif sh["kind"] == "channel":
+                        img = C.card_image(sh["card"], int(w * scale), int(h * scale))
+                    else:
+                        img = V.text_card(ep.story, sh["text"], int(w * scale), int(h * scale))
+                    if composite and sh["kind"] == "image":
+                        img = composite(img)
+                    save_still(img, still_path, w, h, scale)
+                still = still_path
+            render_clip(still, out, dur, sh.get("dir", "subtle"), r, w, h, zoom,
+                        fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
+        jobs.append(job)
+    info(f"{len(jobs)} klip dirender, {len(shots) - len(jobs)} dari cache")
+    run_parallel(jobs, label)
     return paths
 
 
@@ -320,12 +375,45 @@ def _preview_timeline(ep: Episode, keys: set) -> list[Segment]:
     return segs
 
 
+def story_mix(ep: Episode, segs: list[Segment], args, tag: str = "") -> tuple[Path, Path, float]:
+    """The episode's one audio mix (narration + music/ambience/SFX, before the channel outro), shared by
+    the long video and every vertical part. Recomputed only when the timeline, clips or sound.yaml change."""
+    import json
+    total = total_duration(segs)
+    narration = ep.cache / f"narration{tag}.wav"
+    mix = ep.cache / f"mix_story{tag}.wav"
+    meta = mix.with_suffix(".json")
+    cfgp = ep.dir / "sound.yaml"
+    use_sound = not getattr(args, "no_sound", False) and sound.load_config(ep) is not None
+    key = sha({"segs": [(s.kind, s.beat.key if s.beat else "", round(s.slot, 4), round(s.lead, 4),
+                         file_sig(s.audio)) for s in segs],
+               "sound": cfgp.read_text(encoding="utf-8") if use_sound and cfgp.exists() else None,
+               "bgm": None if use_sound else str(pick_bgm(ep, args)), "v": 2})
+    if mix.exists() and narration.exists() and meta.exists() and \
+            json.loads(meta.read_text(encoding="utf-8")).get("key") == key and not getattr(args, "force_mix", False):
+        info(f"Mix audio episode dipakai ulang ({mix.name})")
+        return narration, mix, total
+    write_narration(segs, narration)
+    if use_sound:
+        sound.mix(ep, segs, narration, mix, total)  # music + ambience + sfx from sound.yaml
+    else:
+        bgm = pick_bgm(ep, args)
+        info(f"Musik: {bgm.name if bgm else '(tanpa musik)'}")
+        mix_audio(narration, bgm, mix, total, ep.render)
+    meta.write_text(json.dumps({"key": key, "total": total}), encoding="utf-8")
+    return narration, mix, total
+
+
 def cmd_build(ep: Episode, args) -> None:
+    import time
+    t0 = time.time()
     require_ffmpeg()
     r = ep.render
     sel = ep.parse_beat_range(args.beats) if getattr(args, "beats", None) else None
     keys = {b.key for b in sel} if sel else None
-    step(f"Build {ep.slug} {ep.ep}" + (f"  [preview {sel[0].key}–{sel[-1].key}]" if sel else ""))
+    vertical = getattr(args, "vertical", False)
+    step(f"Build {ep.slug} {ep.ep}" + (" [vertikal]" if vertical else "")
+         + (f"  [preview {sel[0].key}–{sel[-1].key}]" if sel else ""))
     missing = [b for b in ep.missing_images() if keys is None or b.key in keys]
     if missing:
         raise PipelineError("Gambar belum lengkap: " + ", ".join(b.key for b in missing) +
@@ -335,14 +423,25 @@ def cmd_build(ep: Episode, args) -> None:
     fps = int(r["fps"])
     if float(lay["cold_open"] or 0) > 0 and segs and segs[0].kind != "recap" and \
             (sel is None or sel[0] is ep.beats[0]):
-        # a moment of black (ambience fading in) so the first line doesn't start on frame 1
+        # a moment of black (ambience fading in) so the first line doesn't start on frame 1 (long video;
+        # the vertical parts start after it)
         segs.insert(0, Segment("lead", quantize(float(lay["cold_open"]), fps)))
         t = 0.0
         for s in segs:
             s.start = t
             t += s.slot
-    story_total = total_duration(segs)
-    # channel intro/outro wrap the story; the story's own sound layer never reaches them
+
+    step("Audio")
+    tag = "_preview" if sel else ""
+    narration, mix, story_total = story_mix(ep, segs, args, tag)
+
+    if vertical:  # 9:16 parts from the same timeline + the same mix; no channel outro
+        from .vertical import build_vertical
+        build_vertical(ep, args, sel, segs, mix, narration, story_total)
+        info(f"Waktu render: {fmt_ts(time.time() - t0)}")
+        return
+
+    # channel intro/outro wrap the story (long video only); the story's sound layer never reaches them
     ch = C.for_episode(ep)
     intro = ch.segment("intro", fps) if ch and lay["intro"] else None
     outro = ch.segment("outro", fps) if ch else None
@@ -351,24 +450,11 @@ def cmd_build(ep: Episode, args) -> None:
     info(f"Durasi: {fmt_ts(total)} · {len(all_segs)} segmen"
          + (f" (intro {intro.slot:.1f}s + " if intro else " (") + f"cerita {fmt_ts(story_total)}"
          + (f" + outro {outro.slot:.1f}s)" if outro else ")"))
-
-    step("Audio")
-    # the vertical build keeps its own audio files, so both builds can run side by side
-    tag = ("_preview" if sel else "") + ("_v" if getattr(args, "vertical", False) else "")
-    narration = ep.cache / f"narration{tag}.wav"
-    write_narration(segs, narration)
-    mix = ep.cache / f"mix{tag}.wav"
-    if not getattr(args, "no_sound", False) and sound.load_config(ep) is not None:
-        sound.mix(ep, segs, narration, mix, story_total)  # music + ambience + sfx from sound.yaml
-    else:
-        bgm = pick_bgm(ep, args)
-        info(f"Musik: {bgm.name if bgm else '(tanpa musik)'}")
-        mix_audio(narration, bgm, mix, story_total, r)
     if ch:
         wrapped = ep.cache / f"mix_channel{tag}.wav"
         C.wrap_audio(mix, intro, outro, wrapped)
         mix = wrapped
-        info(f"Intro/outro channel '{ch.slug}' ditambahkan")
+        info(f"Outro channel '{ch.slug}' ditambahkan (hanya video panjang)")
     story_starts = [s.start for s in all_segs]  # mix/stems timebase (story from 0)
     t = 0.0  # story segments were timed from 0 for the mix; shift them behind the intro
     for s in all_segs:
@@ -376,15 +462,12 @@ def cmd_build(ep: Episode, args) -> None:
         t += s.slot
     segs = all_segs
 
-    if getattr(args, "vertical", False):  # 9:16 from the same timeline + mix
-        from .vertical import build_vertical
-        return build_vertical(ep, args, sel, segs, story_starts, mix, narration, total, ch)
-
     shots = plan_shots(ep, all_segs)
     clips = render_shots(ep, shots, int(r["width"]), int(r["height"]), args.force)
     step("Crossfade & gabung video")
+    from .encode import encoder
     slots = [s["slot"] for s in shots]
-    video = ep.cache / f"video_{sha([str(c) for c in clips] + slots + [r['crossfade'], r['crf'], r['preset'], r['grain']])}.mp4"
+    video = ep.cache / f"video_{sha([str(c) for c in clips] + slots + [r['crossfade'], r['grain'], encoder()])}.mp4"
     if args.force or not video.exists():
         work = ep.cache / "groups"
         work.mkdir(exist_ok=True)
@@ -405,12 +488,14 @@ def cmd_build(ep: Episode, args) -> None:
         mux(video, mix, out, total)
         write_srt(segs, srt)
         write_description(ep, segs, ep.output / "description.txt")
-        ok(f"Selesai: {out.relative_to(ROOT)}  ({fmt_ts(total)})")
+        ok(f"Selesai: {out.relative_to(ROOT)}  ({fmt_ts(total)}, {out.stat().st_size / 1e6:.0f} MB)")
         ok(f"Subtitle: {srt.relative_to(ROOT)} · deskripsi+chapter: output/description.txt")
         if args.clean:
             shutil.rmtree(ep.cache / "groups", ignore_errors=True)
-
-    manifest = _write_manifest(ep, out, srt, tag, total, segs, story_starts, shots, narration, ch)
+    elapsed = time.time() - t0
+    info(f"Waktu render: {fmt_ts(elapsed)}")
+    manifest = _write_manifest(ep, out, srt, tag, total, segs, story_starts, shots, narration, ch,
+                               render_seconds=round(elapsed, 1))
     if not getattr(args, "no_review", False):
         from .review import review
         review(ep, manifest)
@@ -430,7 +515,8 @@ def _write_manifest(ep, out, srt, tag, total, segs, story_starts, shots, narrati
         rows.append({"kind": s.kind, "key": b.key if b else s.kind, "start": round(s.start, 3),
                      "story_start": round(st, 3), "slot": round(s.slot, 3), "audio_dur": round(s.audio_dur, 3),
                      "lead": s.lead, "chapter": s.chapter, "visual": getattr(b, "visual", None),
-                     "pause_after": getattr(b, "pause_after", None), "text": bool(s.text)})
+                     "pause_after": getattr(b, "pause_after", None), "text": bool(s.text),
+                     "words": len(s.text.split()) if s.text else 0})
     m = {"output": str(out), "srt": str(srt), "total": total, "segments": rows, "shots": shot_rows,
          "narration": str(narration), "stems": {k: str(ep.cache / f"stem_{k}.wav") for k in ("music", "amb", "sfx")},
          "max_shot": float(ep.render["max_shot"]), "channel": ch.slug if ch else None,

@@ -280,6 +280,9 @@ def cmd_covers(ep: Episode, args) -> None:
     from types import SimpleNamespace
     segs = [SimpleNamespace(kind=s["kind"], start=s["start"],
                             beat=ep.resolve_ref(s["key"]) if s["kind"] == "beat" else None) for s in m["segments"]]
-    outdir = Path(m["output"]).parent
-    made = part_covers(ep, m.get("parts") or [], segs, outdir, Path(m["output"]).stem)
+    if m.get("kind") == "vertical_parts":
+        outdir, base = Path(m["outdir"]), m["base"]
+    else:
+        outdir, base = Path(m["output"]).parent, Path(m["output"]).stem
+    made = part_covers(ep, m.get("parts") or [], segs, outdir, base)
     ok(f"{len(made)} cover di {(outdir / 'covers').relative_to(ROOT)} + covers_sheet.png")

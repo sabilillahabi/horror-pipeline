@@ -1,11 +1,16 @@
 # Pipeline Video Cerita Horor Bersambung
 
-CLI Python untuk membuat episode YouTube cerita horor (10–15 menit, 1920×1080):
-narasi **edge-tts**, gambar dari **Google Flow** (dibuat manual), render dengan **ffmpeg**.
+CLI Python untuk cerita horor bersambung: tiap episode = **3–4 part vertikal 1080×1920 (≤ 2:55, untuk YouTube
+Shorts / TikTok / IG Reels / FB Reels)** + **satu video panjang YouTube 1920×1080**. Narasi **Gemini TTS**
+(130–150 wpm), gambar dari **Google Flow** (dibuat manual, 16:9), render dengan **ffmpeg**.
 
 ```
-prompts → (buat gambar di Flow) → check → tts → build → shorts → thumbnail
+prompts → (gambar di Flow) → import-flow → check → tts --plan → tts → build → build --vertical → review
 ```
+
+Panduan lengkap (format part, tempo, render, review, jadwal upload) ada di `SKILL.md` dan `references/`.
+Aset (gambar/audio/suara) tidak ada di `main`: `git fetch origin muse-assets && git checkout origin/muse-assets -- stories assets`.
+Bagian di bawah ini adalah panduan dasar versi awal (edge-tts, `chapters:`) yang masih berlaku untuk perintah dasarnya.
 
 ---
 

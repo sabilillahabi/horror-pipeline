@@ -1,7 +1,7 @@
 """`prompts` and `check` commands."""
 from __future__ import annotations
 
-from .common import ROOT, Episode, ok, step, warn
+from .common import ROOT, Episode, info, ok, step, warn
 
 POSITION_PHRASES = {
     "left": "on the left side of the frame",
@@ -131,9 +131,48 @@ def cmd_prompts(ep: Episode, args) -> None:
         tail.append("")
     out.write_text("\n".join(head + body + tail), encoding="utf-8")
     ok(f"{n} prompt ditulis ke {out.relative_to(ROOT)}")
+    total_new = sum(1 for b in ep.beats if ep.needs_own_image(b))
+    info(f"Gambar baru (Flow, 16:9) episode ini: {total_new} · target {IMG_MIN}–{IMG_MAX}; sisanya reuse + crop")
+    if total_new > IMG_MAX:
+        warn(f"{total_new} gambar baru > {IMG_MAX}: ganti beberapa beat dengan `reuse: <beat>` + "
+             "`crop: wide|closeup_face|detail`")
     for rel, keys in ref_use.items():
         if not (ep.story_dir / rel).exists():
             warn(f"Referensi belum ada: {rel} (dipakai {len(keys)} prompt)")
+
+
+IMG_MIN, IMG_MAX = 25, 30   # new Flow images per episode
+
+
+def format_issues(ep: Episode) -> list[str]:
+    """Episode-format rules (parts, length, pace) — warnings, the build clamps what it can."""
+    from .common import (MAX_SLOW_PER_PART, PARTS_MAX, PARTS_MIN, WORDS_MAX, WORDS_MIN, is_slow_style)
+    from .timeline import cliffhanger
+    out = []
+    if not getattr(ep, "uses_parts", False):
+        out.append("script.yaml masih memakai `chapters:` — ganti jadi `parts:` (3–4 part, masing-masing ≤ 2:55)")
+    n = len(ep.parts)
+    if not PARTS_MIN <= n <= PARTS_MAX:
+        out.append(f"{n} part (harus {PARTS_MIN}–{PARTS_MAX})")
+    words = sum(len(b.text.split()) for b in ep.beats if not b.long_only)
+    if not WORDS_MIN <= words <= WORDS_MAX:
+        out.append(f"{words} kata (target {WORDS_MIN}–{WORDS_MAX} per episode)")
+    r = ep.render
+    for pi, part in enumerate(ep.parts):
+        bs = ep.part_beats(pi)
+        cb = cliffhanger(ep, pi)
+        slow = [b.key for b in bs if is_slow_style(ep.beat_styles.get(b.key, ""))]
+        if len(slow) > MAX_SLOW_PER_PART:
+            out.append(f"Part {pi + 1}: {len(slow)} baris bergaya pelan di styles.yaml (maks {MAX_SLOW_PER_PART}): "
+                       + ", ".join(slow))
+        for b in bs:
+            cap = float(r["cliff_pause"]) if cb is not None and b.key == cb.key else float(r["max_pause"])
+            if b.pause_after is not None and b.pause_after > cap + 1e-6:
+                out.append(f"{b.key}: pause_after {b.pause_after} > {cap} (dipotong otomatis)")
+        if bs and bs[0].visual in ("black", "text_card"):
+            out.append(f"Part {pi + 1} mulai dengan {bs[0].visual} ({bs[0].key}): di vertikal diganti gambar "
+                       "terdekat; lebih baik mulai dengan hook bergambar")
+    return out
 
 
 def cmd_check(ep: Episode, args) -> int:
@@ -170,6 +209,10 @@ def cmd_check(ep: Episode, args) -> int:
         if r not in have_t:
             warn(f"Thumbnail {r} belum ada (download Flow 'thumb_ep{ep.number:02d}_{r}' lalu import-flow)"
                  + (" — pakai fallback `thumbnail:` di script.yaml" if r == "16x9" and ep.script.get("thumbnail") else ""))
+    if len(need) > IMG_MAX:
+        warn(f"{len(need)} gambar baru > {IMG_MAX} (target {IMG_MIN}–{IMG_MAX}); pakai reuse + crop")
+    for x in format_issues(ep):
+        warn(x)
     if missing:
         print(f"\n  {len(missing)} gambar belum ada.")
         return 1

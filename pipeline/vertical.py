@@ -4,8 +4,9 @@ Each 16:9 image is cut to a 9:16 window: centred on the character(s) from `chara
 or slowly panned across scenes without characters. Per-beat overrides in script.yaml:
     vertical_crop_x: 0.0-1.0           # window position, 0 = left edge, 1 = right edge
     vertical_pan: left_to_right | right_to_left | none
-Outputs (output/vertical/): the full video (TikTok), 2-3 minute parts (Instagram/Facebook) cut at
-beat boundaries, and captions.txt.
+Outputs (output/vertical/): one file per script part (`parts:` in script.yaml, each <= 2:55) used as-is
+for YouTube Shorts, TikTok, IG Reels and FB Reels, part covers and captions.txt; the full vertical
+episode only with --full.
 """
 from __future__ import annotations
 
@@ -16,22 +17,19 @@ import random
 import re
 from pathlib import Path
 
-from PIL import Image, ImageFont
+from PIL import Image
 
-from .common import (ROOT, Episode, PipelineError, atomic_out, file_sig, fmt_ts, info, ok, quantize, run,
+from .common import (ROOT, Episode, PipelineError, atomic_out, fmt_ts, info, ok, run,
                      sha, step, warn)
 from . import channel as C
 from . import thumbs
 from . import visuals as V
-from .render import TEXT_CARD_FADE, render_clip, save_still, split_slot, xfade_join
+from .render import TEXT_CARD_FADE, render_clip, save_still, split_slot
 
 W, H = 1080, 1920
 POS_X = {"left": 0.30, "center": 0.50, "centre": 0.50, "middle": 0.50, "foreground": 0.50, "right": 0.70}
 VZOOM = 0.08              # Ken Burns zoom inside the crop (horizontal uses ~0.12)
 PAN_SPEED = 0.04          # max pan speed, share of image width per second ("slow")
-PART_MAX = 180.0          # Instagram/Facebook part length incl. cards
-PART_TARGET = 165.0
-START_CARD, END_CARD = 1.0, 1.5
 HASHTAGS = "#KemenyanMalam #JuruKunciWringinpitu #ceritahoror #horor"
 SUB_FONT, SUB_SIZE, SUB_MAX_W, SUB_MAX_WORDS = "arialbd.ttf", 64, 780, 6   # ~1.8x the horizontal size vs frame width
 SUB_MARGIN_V, SUB_MARGIN_L, SUB_MARGIN_R = 380, 150, 150  # centred; bottom 320 px and right 140 px stay clear
@@ -105,12 +103,25 @@ def crop_plan(ep: Episode, b, src: Path, dur: float, rnd: random.Random, aspect:
     return {"mode": "static", "x0": x, "x1": x, "wf": wf, "box": box, "size": (w, h), "why": why}
 
 
-def plan(ep: Episode, segs) -> list[dict]:
+def plan(ep: Episode, segs, override: dict | None = None) -> list[dict]:
+    """override: {beat key: image beat} — a black/text_card beat in a part's first 3 s is shown as that
+    beat's image with a slow push-in instead (vertical only)."""
     r = ep.render
     fps = int(r["fps"])
     rnd = random.Random(f"{ep.slug}-{ep.ep}-vertical")
     shots, flip = [], 0
+    override = override or {}
     for s in segs:
+        if s.beat is not None and s.beat.key in override:
+            ib = override[s.beat.key]
+            src = ep.image_for(ib)
+            cp = crop_plan(ep, ib, src, s.slot, random.Random(ib.key))
+            shots.append({"kind": "image", "slot": s.slot, "src": src, "crop": ib.crop, "focus": ib.focus,
+                          "key": s.beat.key, "mode": "static", "box": cp["box"], "wf": cp["wf"],
+                          "why": f"3 detik pertama: gambar {ib.key} menggantikan {s.beat.visual}",
+                          "size": cp["size"], "x0": cp["x0"], "x1": cp["x0"], "dir": "zoom_in",
+                          "zoom": VZOOM * 0.6, "stand_in": ib.key})
+            continue
         if s.kind in ("intro", "outro"):
             shots.append({"kind": "channel", "slot": s.slot, "card": s.card, "dir": "static",
                           "fade": C.FADE, "fade_slot": s.card["text_dur"], "key": s.kind})
@@ -158,6 +169,7 @@ def _region_image(sh: dict) -> Image.Image:
 
 def _render_pan(sh: dict, out: Path, dur: float, r: dict, still_dir: Path, h_: str) -> None:
     """Fixed-size 9:16 window sliding across the region (1.5x still, scaled down → smooth)."""
+    from .encode import clip_args
     fps = int(r["fps"])
     n = max(1, round(dur * fps))
     sh_h = int(H * 1.5)
@@ -178,65 +190,56 @@ def _render_pan(sh: dict, out: Path, dur: float, r: dict, still_dir: Path, h_: s
     tmp = atomic_out(out)
     run(["ffmpeg", "-y", "-loop", "1", "-framerate", fps, "-i", still, "-vf",
          f"crop={ww}:{sh_h}:x='{x}':y=0,scale={W}:{H}:flags=lanczos,format=yuv420p",
-         "-frames:v", n, "-r", fps, "-c:v", "libx264", "-preset", r["clip_preset"], "-crf", "18",
-         "-pix_fmt", "yuv420p", "-an", tmp], f"pan {out.name}")
+         "-frames:v", n, "-r", fps, *clip_args(), "-an", tmp], f"pan {out.name}")
     os.replace(tmp, out)
 
 
 def render(ep: Episode, shots: list[dict], force: bool, label="vclip") -> list[Path]:
+    from .render import KB_VERSION, content_hash, run_parallel
     r = ep.render
     D = float(r["crossfade"])
     clip_dir, still_dir = ep.cache / "clips_v", ep.cache / "stills_v"
     clip_dir.mkdir(parents=True, exist_ok=True)
     still_dir.mkdir(parents=True, exist_ok=True)
-    paths, rendered = [], 0
-    for i, sh in enumerate(shots):
+    paths, jobs = [], []
+    for sh in shots:
         dur = sh["slot"] + D
-        sig = {k: v for k, v in sh.items() if k not in ("src", "why")}
+        sig = {k: v for k, v in sh.items() if k not in ("src", "why", "slot", "key")}
         if sh["kind"] == "channel":
             sig["vlayout"] = C.TAGLINE_WIDTH_VERTICAL  # vertical card layout is part of the cache key
-        sig.update(src=file_sig(sh.get("src")), dur=dur, fps=r["fps"], zoom=VZOOM, v=2,
-                   serif=V.find_serif_font(ep.story))
+        sig.update(img=content_hash(sh.get("src")), dur=round(dur, 4), fps=r["fps"], zoom=sh.get("zoom", VZOOM),
+                   v=3, kb=KB_VERSION, serif=V.find_serif_font(ep.story))
         h_ = sha(sig)
         out = clip_dir / f"{label}_{h_}.mp4"
         paths.append(out)
         if out.exists() and not force:
             continue
-        print(f"  [{i + 1}/{len(shots)}] {label} {sh['kind']:<7} {dur:5.2f}s {sh.get('dir', '')}", flush=True)
-        if sh["kind"] == "black":
-            render_clip(None, out, dur, "static", r, W, H)
-        elif sh["kind"] == "image" and sh["mode"] == "pan":
-            _render_pan(sh, out, dur, r, still_dir, h_)
-        else:
-            if sh["kind"] == "image":
-                reg = _region_image(sh)
-                ww = reg.height * 9 / 16
-                x0 = min(max(0, sh["x0"] * reg.width - ww / 2), reg.width - ww)
-                img = reg.crop((int(x0), 0, int(x0 + ww), reg.height))
-            elif sh["kind"] == "text":
-                img = V.text_card(ep.story, sh["text"], W * 2, H * 2)
-            else:  # channel outro
-                img = C.card_image(sh["card"], W * 2, H * 2)
-            still = save_still(img, still_dir / f"{h_}.jpg", W, H)
-            render_clip(still, out, dur, sh.get("dir", "static"), r, W, H,
-                        zoom=VZOOM if sh["kind"] == "image" else None,
-                        fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
-        rendered += 1
-    info(f"{rendered} klip vertikal dirender, {len(shots) - rendered} dari cache")
+
+        def job(sh=sh, out=out, h_=h_, dur=dur):
+            if sh["kind"] == "black":
+                render_clip(None, out, dur, "static", r, W, H)
+            elif sh["kind"] == "image" and sh["mode"] == "pan":
+                _render_pan(sh, out, dur, r, still_dir, h_)
+            else:
+                still = still_dir / f"{h_}.jpg"
+                if not still.exists():
+                    if sh["kind"] == "image":
+                        reg = _region_image(sh)
+                        ww = reg.height * 9 / 16
+                        x0 = min(max(0, sh["x0"] * reg.width - ww / 2), reg.width - ww)
+                        img = reg.crop((int(x0), 0, int(x0 + ww), reg.height))
+                    elif sh["kind"] == "text":
+                        img = V.text_card(ep.story, sh["text"], int(W * 1.5), int(H * 1.5))
+                    else:  # channel outro (full vertical only)
+                        img = C.card_image(sh["card"], int(W * 1.5), int(H * 1.5))
+                    save_still(img, still, W, H)
+                render_clip(still, out, dur, sh.get("dir", "static"), r, W, H,
+                            zoom=sh.get("zoom", VZOOM) if sh["kind"] == "image" else None,
+                            fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
+        jobs.append(job)
+    info(f"{len(jobs)} klip vertikal dirender, {len(shots) - len(jobs)} dari cache")
+    run_parallel(jobs, label)
     return paths
-
-
-def join(ep: Episode, shots, clips, force: bool, name: str) -> Path:
-    r = {**ep.render, "width": W, "height": H, "_size": (W, H)}
-    slots = [s["slot"] for s in shots]
-    video = ep.cache / f"vvideo_{name}_{sha([str(c) for c in clips] + slots + [r['crossfade'], r['crf'], r['grain']])}.mp4"
-    if force or not video.exists():
-        work = ep.cache / "groups_v"
-        work.mkdir(exist_ok=True)
-        xfade_join(clips, slots, video, r, work, final=True, force=force)
-    else:
-        info("Video vertikal dipakai dari cache")
-    return video
 
 
 # ------------------------------------------------------------------ subtitles (ASS)
@@ -344,106 +347,125 @@ def write_srt(path: Path, cue_list) -> None:
 
 
 PART_LUFS, PART_TP = -14.0, -2.5   # AAC overshoots the target peak by ~1 dB
+TAIL_FADE = 0.5                    # each part ends on its cliffhanger: 0.5 s ambience/music fade-out
+FIRST_SECONDS = 3.0                # a part's first 3 s are never black and never a text card
 
 
-def normalize_part(f: Path) -> str:
-    """Two-pass loudnorm of a part's audio to PART_LUFS / PART_TP; video (and cover art) copied untouched."""
+def part_audio(mix: Path, a: float, b: float, out: Path) -> str:
+    """Slice [a, b] of the episode mix, fade the last TAIL_FADE s, normalise to PART_LUFS (static gain +
+    limiter; loudnorm's dynamic mode pumps). The episode mix is never recomputed for vertical."""
     import json as _json
     import subprocess
+    dur = b - a
+    sl = (f"atrim={a:.3f}:{b:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.04,"
+          f"afade=t=out:st={max(0.0, dur - TAIL_FADE):.3f}:d={TAIL_FADE}")
     ln = f"loudnorm=I={PART_LUFS}:TP={PART_TP}:LRA=11"
-    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(f), "-map", "0:a", "-af",
-                        f"{ln}:print_format=json", "-f", "null", "-"], stdout=subprocess.PIPE,
-                       stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(mix), "-af", f"{sl},{ln}:print_format=json",
+                        "-f", "null", "-"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                       encoding="utf-8", errors="replace")
     mm = re.search(r"\{[^{}]*\"input_i\"[^{}]*\}", p.stderr)
     if p.returncode or not mm:
-        raise PipelineError(f"loudnorm {f.name} (ukur) gagal:\n{p.stderr[-600:]}")
+        raise PipelineError(f"loudness part (ukur) gagal:\n{p.stderr[-600:]}")
     d = _json.loads(mm.group(0))
-    # static gain to the target, then a limiter for the peaks (loudnorm's linear mode would give up
-    # on loudness to respect the peak ceiling, and its dynamic mode pumps)
-    gain = PART_LUFS - float(d["input_i"])
-    af = (f"volume={gain:.2f}dB,alimiter=limit={10 ** (PART_TP / 20):.4f}:attack=2:release=80:level=false,"
-          "aresample=48000")
-    tmp = atomic_out(f)
-    run(["ffmpeg", "-y", "-i", f, "-map", "0", "-c:v", "copy", "-af", af, "-c:a", "aac", "-b:a", "192k",
-         "-ar", "48000", "-movflags", "+faststart", tmp], f"loudnorm {f.name}")
-    os.replace(tmp, f)
+    gain = PART_LUFS - float(d["input_i"]) if d["input_i"] not in ("-inf", "inf") else 0.0
+    af = f"{sl},volume={gain:.2f}dB,alimiter=limit={10 ** (PART_TP / 20):.4f}:attack=2:release=80:level=false"
+    tmp = atomic_out(out)
+    run(["ffmpeg", "-y", "-i", mix, "-af", af, "-ar", "48000", "-c:a", "pcm_s16le", tmp], f"audio {out.name}")
+    os.replace(tmp, out)
     return f"{float(d['input_i']):.1f} → {PART_LUFS:.0f} LUFS"
 
 
-def _ff(cmd: list, cwd: Path, desc: str) -> None:
-    import subprocess
-    p = subprocess.run([str(c) for c in cmd], cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                       text=True, encoding="utf-8", errors="replace")
-    if p.returncode:
-        raise PipelineError(f"{desc} gagal:\n{p.stderr[-1200:]}")
+def first_seconds_override(ep: Episode, psegs) -> dict:
+    """{key of a black/text_card beat starting in the first 3 s: the image beat shown instead} — the
+    nearest strong image of the part (cover scoring: tense SFX, characters, close-up; detail crops avoided)."""
+    from .covers import _score
+    from .threads import _sfx_map
+    bad = [s for s in psegs if s.start < FIRST_SECONDS and s.beat is not None
+           and s.beat.visual in ("black", "text_card")]
+    if not bad:
+        return {}
+    imgs = [(i, s.beat) for i, s in enumerate(psegs) if s.beat is not None and s.beat.visual == "image"
+            and ep.image_for(s.beat)]
+    if not imgs:
+        warn("Part tanpa gambar sama sekali: 3 detik pertama tetap hitam/kartu")
+        return {}
+    sfx = _sfx_map(ep)
+    out = {}
+    for s in bad:
+        i0 = psegs.index(s)
+        _, best = max(imgs, key=lambda ib: _score(ep, ib[1], sfx) - 0.35 * abs(ib[0] - i0))
+        out[s.beat.key] = best
+    return out
 
 
-# grain makes CRF alone balloon (≈17 Mbps); cap it so parts stay a sane upload size
-ENC = ["-c:v", "libx264", "-preset", "medium", "-crf", "20", "-maxrate", "8M", "-bufsize", "16M", "-pix_fmt", "yuv420p",
-       "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart"]
+def part_ranges(ep: Episode, segs, sel=None) -> list[dict]:
+    """One range per script part (timeline = episode mix timebase). Trailing long_only beats (e.g. a
+    'Bersambung' card) stay out: a part ends on its cliffhanger."""
+    from .timeline import cliffhanger
+    rows = []
+    beat_segs = [s for s in segs if s.kind == "beat"]
+    if sel:
+        keys = {b.key for b in sel}
+        ss = [s for s in beat_segs if s.beat.key in keys and not s.beat.long_only]
+        return [{"n": 1, "title": "preview", "segs": ss}] if ss else []
+    for pi, part in enumerate(ep.parts):
+        cb = cliffhanger(ep, pi)
+        ss = [s for s in beat_segs if s.beat.chapter == pi]
+        if cb is not None:
+            ss = ss[: [x.beat.key for x in ss].index(cb.key) + 1]
+        if ss:
+            rows.append({"n": pi + 1, "title": part["title"], "segs": ss})
+    return rows
 
 
-# ------------------------------------------------------------------ parts
-def _tension(ep: Episode, s, sfx: dict) -> tuple[int, str]:
-    """How good a cut right after this beat is (higher = tenser), with the reason."""
-    b, score, why = s.beat, 0, []
-    fx = sfx.get(b.key) or {}
-    if fx and any(k in str(fx.get("file", "")) for k in TENSE_SFX):
-        score += 3
-        why.append(f"SFX {fx['file']}")
-    t = (b.text or "").strip()
-    if t.endswith(("?", "!", "...", "…")):
-        score += 2
-        why.append("kalimat menggantung")
-    elif "..." in t or "…" in t:
-        score += 1
-        why.append("jeda dalam kalimat")
-    if b.visual == "black" or (b.pause_after or 0) >= 1.0:
-        score += 1
-        why.append("jeda dramatis")
-    return score, ", ".join(why) or "batas beat"
-
-
-def choose_parts(ep: Episode, segs, total: float) -> list[dict]:
-    from .sound import load_config
-    sfx = {}
-    for k, v in ((load_config(ep) or {}).get("sfx") or {}).items():
-        b = ep.resolve_ref(str(k))
-        if b:
-            sfx[b.key] = v
-    cands = []
-    for s in segs[:-1]:
-        if s.kind == "beat":
-            sc, why = _tension(ep, s, sfx)
-            cands.append({"t": s.start + s.slot, "score": sc, "why": why, "after": s.beat.key})
-    room = PART_MAX - START_CARD - END_CARD          # story seconds per part
-    n = max(1, math.ceil(total / (room - 8)))
-    while True:
-        cuts, a, feasible = [], 0.0, True
-        for i in range(1, n):
-            target = a + (total - a) / (n - i + 1)
-            left = n - i
-            pool = [c for c in cands if a + 60 <= c["t"] <= a + room and total - c["t"] <= left * room + END_CARD]
-            if not pool:
-                feasible = False
-                break
-            best = max(pool, key=lambda c: c["score"] - abs(c["t"] - target) / 15)
-            cuts.append(best)
-            a = best["t"]
-        if feasible and total - a <= room + END_CARD:
-            break
-        n += 1
-        if n > 40:
-            raise PipelineError("Tidak bisa membagi video jadi part ≤ 3 menit di batas beat.")
-    parts, a = [], 0.0
-    for i, c in enumerate(cuts + [None]):
-        b = c["t"] if c else total
-        last = c is None
-        parts.append({"n": i + 1, "a": a, "b": b, "last": last, "why": None if last else c["why"],
-                      "after": None if last else c["after"],
-                      "dur": START_CARD + (b - a) + (0 if last else END_CARD)})
-        a = b
-    return parts
+def _piece(ep: Episode, args, name: str, label: str, psegs, mix: Path, outdir: Path,
+           first_rule: bool = True) -> dict:
+    """Render one vertical video (a part, or the full episode with --full) straight from its segments."""
+    from copy import copy
+    from .render import xfade_join
+    a = psegs[0].start
+    b = psegs[-1].start + psegs[-1].slot
+    dur = b - a
+    rel = []
+    for s in psegs:
+        c = copy(s)
+        c.start = s.start - a
+        rel.append(c)
+    override = first_seconds_override(ep, rel) if first_rule else {}
+    shots = plan(ep, rel, override)
+    clips = render(ep, shots, args.force)
+    cue_list = cues(rel)
+    ass = ep.cache / f"v_{name}.ass"
+    write_ass(ass, cue_list, label, dur)
+    r = {**ep.render, "width": W, "height": H, "_size": (W, H)}
+    video = ep.cache / f"vvideo_{name}.mp4"
+    work = ep.cache / "groups_v"
+    work.mkdir(exist_ok=True)
+    xfade_join(clips, [x["slot"] for x in shots], video, r, work, final=True, force=True,
+               post=f"ass={ass.name}", cwd=ep.cache)
+    audio = ep.cache / f"vaudio_{name}.wav"
+    lufs = part_audio(mix, a, b, audio)
+    out = outdir / f"{name}.mp4"
+    from .encode import AUDIO, FASTSTART
+    tmp = atomic_out(out)
+    run(["ffmpeg", "-y", "-i", video, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", *AUDIO,
+         "-t", f"{dur:.3f}", *FASTSTART, tmp], f"mux {out.name}")
+    os.replace(tmp, out)
+    write_srt(outdir / f"{name}.srt", cue_list)
+    t, first3 = 0.0, []
+    for sh in shots:
+        if t < FIRST_SECONDS:
+            first3.append({"kind": sh["kind"], "key": sh.get("key"), "stand_in": sh.get("stand_in")})
+        t += sh["slot"]
+    words = sum(len(s.text.split()) for s in psegs if s.text)
+    return {"file": out.name, "a": round(a, 3), "b": round(b, 3), "dur": round(dur, 3), "words": words,
+            "wpm": round(words / (dur / 60), 1) if dur else 0, "first_beat": psegs[0].beat.key,
+            "last_beat": psegs[-1].beat.key, "first_line": psegs[0].text, "last_line": psegs[-1].text,
+            "first3": first3, "stand_ins": {k: v.key for k, v in override.items()}, "lufs": lufs,
+            "size_mb": round(out.stat().st_size / 1e6, 1),
+            "crops": [{"key": x["key"], "src": str(x["src"]), "box": x["box"], "wf": x["wf"], "x0": x["x0"],
+                       "x1": x["x1"], "mode": x["mode"], "why": x["why"], "size": x["size"]}
+                      for x in shots if x["kind"] == "image"]}
 
 
 def _hook(ep: Episode, segs, a: float, b: float) -> str:
@@ -468,98 +490,58 @@ def _hook(ep: Episode, segs, a: float, b: float) -> str:
 
 
 # ------------------------------------------------------------------ command
-def build_vertical(ep: Episode, args, sel, segs, story_starts, mix: Path, narration: Path, total: float, ch):
-    from .render import _write_manifest
-    step("Video vertikal 1080x1920")
+def build_vertical(ep: Episode, args, sel, segs, mix: Path, narration: Path, story_total: float) -> Path:
+    """Vertical 1080x1920 parts (YouTube Shorts / TikTok / IG Reels / FB Reels, same files), cut at the
+    script's part boundaries and rendered directly from the shared episode mix. No opening card, no
+    closing card, no channel outro. --full additionally renders the whole episode vertically."""
+    from .covers import part_covers
+    step("Part vertikal 1080x1920 (Shorts/TikTok/Reels)")
     outdir = ep.output / "vertical"
     outdir.mkdir(parents=True, exist_ok=True)
-    name = f"preview_{sel[0].key}-{sel[-1].key}" if sel else ep.ep
-    tag = "_vertical" + ("_preview" if sel else "")
     title = ep.story.get("title", ep.slug)
-    label = f"{title} · Eps {ep.number}"
-
-    shots = plan(ep, segs)
-    clips = render(ep, shots, args.force)
-    step("Crossfade & gabung video vertikal")
-    video = join(ep, shots, clips, args.force, name)
-
-    cue_list = cues(segs)
-    ass = ep.cache / f"v_{name}.ass"
-    write_ass(ass, cue_list, label, total)
-    out = outdir / f"{name}.mp4"
-    srt = outdir / f"{name}.srt"
-    write_srt(srt, cue_list)
-    tmp = atomic_out(out)
-    _ff(["ffmpeg", "-y", "-i", video, "-i", mix, "-vf", f"ass={ass.name}", "-map", "0:v", "-map", "1:a",
-         *ENC, "-t", f"{total:.3f}", tmp], ep.cache, "encode vertikal penuh")
-    os.replace(tmp, out)
-    covers = [thumbs.cover_copy(ep, out)]
-    ok(f"Vertikal penuh: {out.relative_to(ROOT)}  ({fmt_ts(total)})")
-
-    # ---- parts for Instagram / Facebook
-    step("Part Instagram/Facebook (≤ 3 menit, dipotong di batas beat)")
-    parts = choose_parts(ep, segs, total)
-    N = len(parts)
-    for old in outdir.glob(f"{name}_part*.mp4"):
-        old.unlink()
-    card_shots = []
-    for p in parts:
-        card_shots.append({"kind": "text", "slot": START_CARD, "text": f"{label} · Part {p['n']}",
-                           "dir": "static", "fade": 0.25, "key": f"part{p['n']}_start"})
-        if not p["last"]:
-            card_shots.append({"kind": "text", "slot": END_CARD, "text": f"Lanjut ke Part {p['n'] + 1}",
-                               "dir": "static", "fade": 0.3, "key": f"part{p['n']}_end"})
-    card_clips = dict(zip([s["key"] for s in card_shots], render(ep, card_shots, args.force, label="vcard")))
-    captions = []
-    for p in parts:
-        a, b, n = p["a"], p["b"], p["n"]
-        body = b - a
-        pcues = [(x - a + START_CARD, y - a + START_CARD, t) for x, y, t in cue_list
-                 if x >= a - 0.01 and y <= b + 0.01]
-        p_ass = ep.cache / f"v_{name}_part{n}.ass"
-        write_ass(p_ass, pcues, f"{label} · Part {n}", p["dur"])
-        po = outdir / f"{name}_part{n}.mp4"
-        ins = ["-i", card_clips[f"part{n}_start"], "-i", video, "-i", mix]
-        fc = (f"[0:v]trim=0:{START_CARD},setpts=PTS-STARTPTS[c0];"
-              f"[1:v]trim={a:.3f}:{b:.3f},setpts=PTS-STARTPTS,fade=t=in:d=0.3[m];")
-        aud = f"[2:a]atrim={a:.3f}:{b:.3f},asetpts=PTS-STARTPTS,afade=t=in:d=0.3"
-        if p["last"]:
-            fc += "[c0][m]concat=n=2:v=1:a=0"
-        else:
-            ins += ["-i", card_clips[f"part{n}_end"]]
-            fc += f"[3:v]trim=0:{END_CARD},setpts=PTS-STARTPTS[c1];[c0][m][c1]concat=n=3:v=1:a=0"
-            aud += f",afade=t=out:st={max(0.0, body - 0.4):.3f}:d=0.4"
-        ms = int(START_CARD * 1000)
-        fc += f",ass={p_ass.name}[v];{aud},adelay={ms}|{ms},apad=whole_dur={p['dur']:.3f}[a]"
-        tmp = atomic_out(po)
-        _ff(["ffmpeg", "-y", *ins, "-filter_complex", fc, "-map", "[v]", "-map", "[a]", *ENC,
-             "-t", f"{p['dur']:.3f}", tmp], ep.cache, f"encode part {n}")
-        os.replace(tmp, po)
-        normalize_part(po)  # a slice of the episode mix is not -14 LUFS on its own
-        p["file"] = po.name
-        captions += [f"=== Part {n}/{N} · {po.name} · {fmt_ts(p['dur'])} ===",
-                     _hook(ep, segs, a, b), "",
-                     f"{title} · Eps {ep.number} · Part {n}/{N}" + ("" if p["last"] else f" (lanjut ke Part {n + 1})"),
-                     "", HASHTAGS, ""]
-    from .covers import part_covers  # one cover per part (covers.yaml), embedded in each part
-    covers += part_covers(ep, parts, segs, outdir, name)
-    cap = outdir / (f"captions_{name}.txt" if sel else "captions.txt")
-    cap.write_text("\n".join(captions), encoding="utf-8")
-    for p in parts:
-        info(f"Part {p['n']}: {fmt_ts(p['dur'])}  ({fmt_ts(p['a'])}–{fmt_ts(p['b'])})"
-             + (f"  · potong setelah {p['after']} ({p['why']})" if not p["last"] else "  · diakhiri outro"))
-    ok(f"{N} part + {cap.name} di {outdir.relative_to(ROOT)}")
-    if any(covers):
-        info(f"Cover: thumbnail_9x16.jpg untuk video penuh, cover sendiri untuk {len(parts)} part")
-    else:
-        warn("Cover vertikal dilewati: thumbnail/thumbnail_9x16.jpg belum ada (import thumb_epXX_9x16)")
-    (outdir / f"parts_{name}.json").write_text(json.dumps(parts, indent=2, ensure_ascii=False), encoding="utf-8")
-
-    crops = [{"key": s["key"], "src": str(s["src"]), "box": s["box"], "wf": s["wf"], "x0": s["x0"],
-              "x1": s["x1"], "mode": s["mode"], "why": s["why"], "size": s["size"]}
-             for s in shots if s["kind"] == "image"]
-    manifest = _write_manifest(ep, out, srt, tag, total, segs, story_starts, shots, narration, ch,
-                               vertical=True, burned_subs=True, crops=crops, parts=parts)
+    ranges = part_ranges(ep, segs, sel)
+    if not ranges:
+        raise PipelineError("Tidak ada beat untuk part vertikal.")
+    M = len(ranges)
+    base = f"preview_{sel[0].key}-{sel[-1].key}" if sel else ep.ep
+    if not sel:
+        for old in outdir.glob(f"{base}_part*.mp4"):
+            old.unlink()
+    parts = []
+    for pr in ranges:
+        n = pr["n"]
+        name = base if sel else f"{base}_part{n}"
+        label = f"{title} · Eps {ep.number}" + ("" if sel else f" · Part {n}/{M}")
+        step(f"Part {n}/{M}: {pr['segs'][0].beat.key}–{pr['segs'][-1].beat.key}")
+        row = _piece(ep, args, name, label, pr["segs"], mix, outdir)
+        row.update(n=n, title=pr["title"], last=(n == M))
+        parts.append(row)
+        info(f"Part {n}: {fmt_ts(row['dur'])} · {row['wpm']:.0f} wpm · {row['size_mb']:.0f} MB · {row['lufs']}"
+             + (f" · 3 dtk pertama: {', '.join(f'{k}→{v}' for k, v in row['stand_ins'].items())}"
+                if row["stand_ins"] else ""))
+    if not sel:
+        part_covers(ep, parts, segs, outdir, base)   # title from thumbnail_9x16 + "PART N", embedded
+        captions = []
+        for p in parts:
+            captions += [f"=== Part {p['n']}/{M} · {p['file']} · {fmt_ts(p['dur'])} ===",
+                         _hook(ep, segs, p["a"], p["b"]), "",
+                         f"{title} · Eps {ep.number} · Part {p['n']}/{M}", "", HASHTAGS, ""]
+        (outdir / "captions.txt").write_text("\n".join(captions), encoding="utf-8")
+    if getattr(args, "full", False) and not sel:
+        step("Vertikal penuh (--full)")
+        allsegs = [s for s in segs if s.kind == "beat" and not s.beat.long_only]
+        full = _piece(ep, args, base, f"{title} · Eps {ep.number}", allsegs, mix, outdir)
+        thumbs.cover_copy(ep, outdir / full["file"])
+        ok(f"Vertikal penuh: {full['file']} ({fmt_ts(full['dur'])})")
+    (outdir / f"parts_{base}.json").write_text(json.dumps(parts, indent=2, ensure_ascii=False), encoding="utf-8")
+    ok(f"{M} part di {outdir.relative_to(ROOT)}")
+    rows = [{"kind": s.kind, "key": s.beat.key if s.beat else s.kind, "start": round(s.start, 3)} for s in segs]
+    m = {"kind": "vertical_parts", "outdir": str(outdir), "parts": parts, "segments_total": story_total,
+         "segments": rows,
+         "base": base, "max_shot": float(ep.render["max_shot"])}
+    mp = ep.cache / f"render_vertical{'_preview' if sel else ''}.json"
+    mp.write_text(json.dumps(m, indent=2, ensure_ascii=False), encoding="utf-8")
     if not getattr(args, "no_review", False):
         from .review import review
-        review(ep, manifest)
+        review(ep, mp)
+    return mp

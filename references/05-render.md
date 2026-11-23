@@ -1,34 +1,43 @@
-# 05 — Render (horizontal, vertikal, cover, Threads)
+# 05 — Render (video panjang, part vertikal, cover, Threads)
 
-Selalu satu render berat pada satu waktu. Render penuh 14 menit ≈ 45–60 menit per orientasi (CPU biasa);
-cache klip dipakai ulang, jadi render ulang setelah perubahan kecil jauh lebih cepat.
+Satu episode = **satu mix audio** (narasi + musik/ambience/SFX) yang dipakai video panjang dan semua part.
+Mix dihitung sekali dan disimpan di `cache/mix_story.wav`; dibuat ulang hanya kalau timeline, klip, atau
+`sound.yaml` berubah. Render vertikal tidak pernah menjalankan TTS atau mix lagi.
 
-## Preview bab 1 (minta OK user sebelum episode penuh)
+## Urutan
 ```bash
-python horror.py build <slug> <ep> --beats b001-b027             # → output/preview_b001-b027.mp4 + review
-python horror.py build <slug> <ep> --beats b001-b027 --vertical  # → output/vertical/preview_… + part + cover
+python horror.py build <slug> <ep>               # video panjang 1920x1080 → output/epXX.mp4 (+ srt, description, review)
+python horror.py build <slug> <ep> --vertical    # part 1080x1920 → output/vertical/epXX_partN.mp4 (+ cover, captions, review)
+python horror.py build <slug> <ep> --vertical --full   # + episode vertikal penuh (hanya kalau diminta)
+python horror.py threads <slug> <ep>             # opsional
 ```
+Preview sebelum episode penuh: `build --beats b001-b018d` (dan `--vertical`) → minta OK user.
 
-## Episode penuh
-```bash
-python horror.py build <slug> <ep>               # YouTube: output/epXX.mp4, .srt, description.txt, review
-python horror.py build <slug> <ep> --vertical    # TikTok + part IG/FB + cover + captions + review
-python horror.py threads <slug> <ep>             # sesudah vertikal (agar video part ikut dirujuk)
-```
-Yang terjadi otomatis:
-- timeline: cold open 0,5 s → beat (tanpa kartu bab) → kartu "Bersambung" → outro; chapter YouTube di description
-- vertikal: crop 9:16 mengikuti tokoh (posisi dari script, close-up tidak di-pan, pan pelan hanya untuk shot
-  lebar tanpa tokoh), subtitle Arial/Liberation Bold 64 px, maks 2 baris, di tengah, di atas 320 px bawah,
-  140 px kanan kosong; label "Judul · Eps N" kecil di atas
-- part IG/FB: ≤ 3 menit, dipotong di batas beat setelah kalimat menggantung/SFX hit, kartu 1 s "… · Part N"
-  di awal dan 1,5 s "Lanjut ke Part N+1" di akhir; tiap part dinormalisasi sendiri (−14 LUFS, ≤ −1.5 dBTP)
-- cover part: judul dipotong persis dari `thumbnail_9x16.jpg` (`thumbnail/title_epXX.png`, sekali per episode)
-  + "PART N" di bawah "EPISODE N"; latar = gambar terkuat di part itu (SFX hit / close-up tokoh, crop `detail`
-  dihindari, tiap gambar sekali saja), 40% atas digelapkan; disematkan di video part dan disalin `*_cover.jpg`.
-  TikTok tetap `thumbnail_9x16.jpg`. Ganti gambar: `covers.yaml` lalu `python horror.py covers <slug> <ep>`
-  (detik, tanpa render). Cek `covers/covers_sheet.png`.
+## Part vertikal (YouTube Shorts, TikTok, IG Reels, FB Reels — file yang sama)
+- Dipotong di batas `parts:` script.yaml dan dirender langsung per part (bukan dipotong dari video penuh).
+- **Tanpa kartu pembuka**: video langsung main. **3 detik pertama tidak pernah hitam atau kartu teks**: kalau
+  beat pertama part `black`/`text_card`, vertikal menampilkan gambar kuat terdekat dari part itu (skor cover:
+  SFX tegang, tokoh, close-up; crop detail dihindari) dengan push-in pelan. Video panjang tetap hitam.
+- **Tanpa kartu penutup sama sekali**: tidak ada "Lanjut ke Part N+1", tidak ada "Versi lengkap…", tidak ada outro
+  channel. Part berakhir di cliffhanger + jeda 1,0 s dengan fade-out ambience/musik 0,5 s di akhir.
+  Beat `long_only` (mis. kartu "Bersambung") tidak masuk part.
+- Label kecil tetap di atas: "<Judul> · Eps N · Part N/M". Subtitle Arial/Liberation Bold 64 px, maks 2 baris.
+- Cover per part: judul dipotong dari `thumbnail_9x16.jpg` + "PART N", latar gambar terkuat part itu, disematkan
+  di video dan disalin `epXX_partN_cover.jpg`. Ganti gambar: `covers.yaml` → `python horror.py covers <slug> <ep>`.
+- Tiap part dinormalisasi sendiri (−14 LUFS, ≤ −1.5 dBTP). Target ukuran ±20–40 MB per part.
 
-## Mengejar tenggat
-- render bab yang sudah punya audio dulu; TTS sisa bisa menyusul
-- `render: {preset: veryfast}` di story.yaml mempercepat gabung akhir ±3×; kembalikan ke `medium` setelahnya
-- jangan menjalankan horizontal & vertikal bersamaan di mesin dengan RAM < 16 GB
+## Video panjang (YouTube)
+1920x1080, satu per episode, dari mix yang sama. Struktur: cold open 0,5 s → beat (tanpa intro, tanpa kartu
+bab; kartu teks cerita boleh) → outro channel (hitam, tagline italic + bold "— Kemenyan Malam", bisikan
+Vindemiatrix). Outro hanya ada di sini. Chapter YouTube di `description.txt` = awal tiap part. Target < 300 MB.
+
+## Kecepatan & ukuran
+- Encoder: hardware (h264_nvenc / h264_qsv / h264_amf) kalau ada dan lolos tes encode 0,2 s, kalau tidak libx264
+  `-preset veryfast`. CRF/CQ 22, `-maxrate 6M -bufsize 12M`, yuv420p, High profile, 30 fps, keyframe tiap 2 s,
+  +faststart; audio AAC 160 kbps 48 kHz (`pipeline/encode.py`).
+- Ken Burns: tiap gambar diskala sekali ke 1,5× ukuran output (`stills/`), gerakan pakai crop/scale ffmpeg; shot
+  dirender paralel (jumlah core − 1); cache shot = hash isi gambar + gerakan + durasi + resolusi + versi layout
+  (`KB_VERSION`), jadi re-import gambar yang sama atau render ulang setelah perubahan kecil hampir instan.
+- Subtitle vertikal dibakar dalam encode yang sama dengan gabung akhir (tidak ada encode ketiga).
+- Tetap satu render berat pada satu waktu; jangan kill ffmpeg yang sedang jalan.
+- Waktu render dicetak di akhir `build` ("Waktu render: …") dan disimpan di manifest; laporkan ke user.

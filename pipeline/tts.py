@@ -122,12 +122,12 @@ def cmd_tts(ep: Episode, args) -> None:
         step(f"TTS {ep.slug} {ep.ep}  [Gemini]")
         try:
             ch = channel.for_episode(ep)
-            if ch and ch.missing():  # made once per channel; --force here never redoes them
+            if ch and ch.missing() and not getattr(args, "plan", False):  # once per channel; --force never redoes them
                 channel.generate(ep, ch)
             gemini_tts.run(ep, _gemini_jobs(ep, only), args, _apply_effect, FX_VERSION)
         except ModuleNotFoundError as e:
             raise PipelineError(f"Modul belum terpasang ({e.name}): pip install -r requirements.txt")
-        if only is None:
+        if only is None and not getattr(args, "plan", False):
             _finish(ep)
         return
     step(f"TTS {ep.slug} {ep.ep}" + ("  [MODE DUMMY — bukan suara asli]" if args.dummy else ""))
@@ -189,7 +189,21 @@ def _finish(ep: Episode) -> None:
     write_srt(segs, srt)
     write_description(ep, segs, ep.output / "description.txt")
     total = total_duration(segs)
-    ok(f"Audio lengkap. Perkiraan durasi video: {int(total // 60)}m {int(total % 60)}s")
+    ok(f"Audio lengkap. Perkiraan durasi cerita: {int(total // 60)}m {int(total % 60)}s")
     ok(f"Subtitle: {srt.relative_to(ROOT)}")
-    if total < 600 or total > 900:
-        warn("Durasi di luar target 10–15 menit.")
+    from .common import PART_MAX_S, WPM_HIGH, WPM_LOW, fmt_ts
+    rows = {}
+    for sg in segs:
+        if sg.kind == "beat" and not sg.beat.long_only:
+            r = rows.setdefault(sg.chapter, [sg.start, 0.0, 0])
+            r[1] = sg.start + sg.slot
+            r[2] += len(sg.text.split()) if sg.text else 0
+    for ci, (a, b, w) in sorted(rows.items()):
+        d = b - a
+        wpm = w / (d / 60) if d else 0
+        line = f"Part {ci + 1}: {fmt_ts(d)} · {w} kata · {wpm:.0f} wpm"
+        if d > PART_MAX_S or not WPM_LOW <= wpm <= WPM_HIGH:
+            warn(line + ("  > 2:55!" if d > PART_MAX_S else "") + ("" if WPM_LOW <= wpm <= WPM_HIGH
+                                                                 else f"  (batas {WPM_LOW}–{WPM_HIGH} wpm)"))
+        else:
+            info(line)

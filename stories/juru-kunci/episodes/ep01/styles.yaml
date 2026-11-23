@@ -1,64 +1,44 @@
 # Per-beat delivery directions for Gemini TTS (appended to the speaker's default style).
-# Beats not listed here use the speaker's default style only.
+# Default for every speaker: story style + "Tempo sedang, mengalir, tidak diseret." (story.yaml gemini_pace).
+# Rule (since 23 Nov 2026): at most 3 slow/dramatic lines per part (words like "pelan", "lambat",
+# "jeda panjang", "berhenti sejenak"); everything else keeps the flowing default tempo.
+# Beats not listed here use the speaker's default style only — consecutive beats of the same speaker with
+# the same style are sent to Gemini as ONE request (fewer requests).
+#
+# ep01 note: clips were recorded with the old styles and re-paced with `repace` (tts.locked in script.yaml);
+# this file is the reference for any re-recording.
 
-b001: "Pelan, nyaris berbisik, membuka cerita dengan tegang."
-b002: "Pelan dan tegang."
-b003: "Sangat pelan, menekankan kesunyian."
+# --- Part 1: Gerbang (slow lines: b004, b008, b018d)
 b004: "Berbisik, napas tertahan, jeda panjang sebelum kalimat."
 b005: "Berbisik, merinding."
-b006: "Berbisik, makin pelan di akhir kalimat."
-b007: "Tegas tapi pelan, seperti mengingatkan diri sendiri."
 b008: "Berbisik ketakutan, berhenti sejenak sebelum 'dan dia tersenyum padaku'."
-b009: "Datar dan tenang, seperti pergantian babak."
-b010: "Santai dan normal, nada bercerita sehari-hari."
 b011: "Menangis tersedu-sedu, suara pecah dan terputus-putus."
-b012: "Hangat tapi sedih, mengenang."
-b013: "Lelah dan hampa."
-b015: "Sedikit misterius di kalimat terakhir."
-b016: "Lembut dan sedih."
 b017: "Lirih, menahan tangis, lega."
-b018: "Hangat dan penuh sayang."
 b018d: "Menangis pelan, suara bergetar, berbisik di bagian 'tapi warga nggak ngasih tahu Sekar itu apa'."
-b018e: "Ragu, mencoba meyakinkan diri sendiri."
-b020: "Berhenti sejenak, lalu pelan dan berat."
-b022: "Pelan, janggal."
+
+# --- Part 2: Juru Kunci (slow lines: b020, b026b, b027)
+b020: "Berhenti sejenak, lalu berat."
 b023: "Berbisik, tidak nyaman."
-b025: "Sopan dan hormat, tapi datar tanpa emosi, sedikit menunduk."
-b026: "Bingung dan gelisah."
+b025: "Sopan dan hormat, tapi datar tanpa emosi."
 b026b: "Makin pelan dan merinding di bagian 'tapi ke beringin paling besar di tengah'."
 b027: "Berbisik tegang, jeda dramatis sebelum 'Tiga kali'."
-b028: "Berbisik, tiap 'Tok' diberi jeda."
-b032: "Tegas, pelan, berwibawa."
-b035: "Pelan dan serius, seperti menyerahkan pusaka."
 b036: "Sopan tapi menolak, sedikit kesal."
 b037: "Rendah dan dingin, mengancam halus, tekan kata 'Adikmu'."
-b038b: "Berat dan sedih, ada rasa bersalah yang disembunyikan."
-b040: "Sangat serius, pelan."
+
+# --- Part 3: Tiga Aturan (slow lines: b041, b045, b061)
 b041: "Lambat, setiap kata ditekan."
-b042: "Lambat dan berbisik, seperti takut didengar."
 b043: "Ragu, suara tercekat, berhenti."
-b045: "Berbisik sangat serius, penuh peringatan."
-b046: "Bingung dan cemas."
-b047: "Tegas dan dingin, menutup pembicaraan."
-b049: "Pelan, mulai curiga."
-b050: "Berbisik merinding, jeda sebelum 'ke arah makam'."
+b045: "Berbisik sangat serius, jeda dramatis, penuh peringatan."
 b055: "Kaget lalu pura-pura santai, tertawa kecil yang dipaksakan."
-b055a: "Pelan dan heran, sedikit merinding."
 b057: "Sopan, hormat, datar, hampir seperti hafalan."
-b058: "Sedikit sinis dan tidak nyaman."
 b061: "Berbisik pelan, membaca tulisan dengan suara bergetar."
-b061b: "Curiga, menekankan kata 'sengaja'."
-b063: "Tegang, menekankan 'malam Jumat Kliwon'."
-b066: "Berbisik, beri jeda di antara 'Tiga kali. Berhenti. Lalu tiga kali lagi'."
-b067: "Takut tapi nekat, napas sedikit memburu."
-b067c: "Berbisik kaget."
-b068: "Berbisik merinding."
+
+# --- Part 4: Tusuk Konde (slow lines: b074, b077)
+b066: "Berbisik tegang, beri jeda singkat di antara 'Tiga kali. Berhenti. Lalu tiga kali lagi'."
 b069: "Cepat dan panik di akhir."
 b070: "Panik, napas memburu."
-b071: "Pelan dan janggal."
 b073: "Tenang, lembut, sedikit terlalu tenang sampai terasa aneh."
 b074: "Pelan, merinding."
 b075: "Polos dan ringan, seperti menyampaikan titipan biasa."
 b076: "Berbisik ngeri."
 b077: "Sangat pelan, ngeri, jeda panjang sebelum 'memang kehilangan tusuk kondenya'."
-b078: "Datar dan pelan."

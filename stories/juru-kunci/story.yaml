@@ -10,10 +10,13 @@ style_block: "Dark semi-realistic digital painting, muted colors, cinematic ligh
 # Per-beat overrides live in episodes/epXX/styles.yaml and are appended to the default style.
 tts_engine: gemini
 gemini_language: id-ID
+# Added to every speaker's style (pace rule since 23 Nov 2026: 130-150 wpm). styles.yaml lines marked slow
+# (max 3 per part) leave it out.
+gemini_pace: "Tempo sedang, mengalir, tidak diseret."
 gemini_voices:
   narrator:
     voice: id-id-assistant-1
-    style: "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita pelan dan intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Beri jeda alami di koma dan titik-titik."
+    style: "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik."
   bayu:
     voice: id-id-assistant-1
     style: "Sama dengan narator."
@@ -22,7 +25,7 @@ gemini_voices:
     style: "Perempuan muda 19 tahun dari desa di Jawa Tengah, suara lembut dan polos, sedikit logat Jawa."
   mbah_karto:
     voice: Algenib
-    style: "Kakek Jawa berusia 75 tahun, suara serak dan berat, bicara sangat pelan dan tegas, logat Jawa kental, setiap kata ditekan seperti peringatan."
+    style: "Kakek Jawa berusia 75 tahun, suara serak dan berat, bicara tegas dan berwibawa, logat Jawa kental, terdengar seperti peringatan."
   warga:
     voice: Iapetus
     style: "Bapak-bapak desa Jawa usia 55 tahun, sopan dan hormat tapi terdengar datar dan janggal, logat Jawa."

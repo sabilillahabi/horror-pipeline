@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import base64
 import difflib
-import io
 import json
 import os
 import re
@@ -271,7 +270,12 @@ def synth(client, params: dict, path, max_attempts: int = 8) -> None:
 
 
 def run(ep: Episode, jobs: list[dict], args, apply_effect, fx_version: int) -> None:
+    if getattr(args, "plan", False):  # request plan only: no key, no network
+        return _run(ep, jobs, args, apply_effect, fx_version, None)
     ring = KeyRing(api_keys())
+    src = ".env" if (_split(read_env_file().get("GEMINI_API_KEYS")) or
+                     _split(read_env_file().get("GEMINI_API_KEY"))) else "environment"
+    info(f"API key: {len(ring.keys)} dari {src} (mulai {ring.label})")
     try:
         _run(ep, jobs, args, apply_effect, fx_version, ring)
     except PipelineError as e:  # API errors can echo request details; keys never reach the log
@@ -287,66 +291,227 @@ def _client(key: str):
         api_version="v1beta", retry_options=types.HttpRetryOptions(attempts=1)))
 
 
-def _run(ep: Episode, jobs: list[dict], args, apply_effect, fx_version: int, ring: KeyRing) -> None:
+# ------------------------------------------------------------------ styles
+def style_for(ep: Episode, speaker: str, key: str) -> str:
+    """Speaker style + pace rule + styles.yaml line. The pace phrase ("tempo sedang, mengalir, tidak
+    diseret", story.yaml `gemini_pace`) is left out only for the few lines styles.yaml marks as slow."""
+    from .common import DEFAULT_PACE, is_slow_style
+    cfg = speaker_cfg(ep, speaker)
+    beat = ep.beat_styles.get(key, "")
+    pace = str(ep.story.get("gemini_pace", DEFAULT_PACE) or "")
+    parts = [str(cfg.get("style") or ""), "" if is_slow_style(beat) else pace, beat]
+    return " ".join(x.strip() for x in parts if x and x.strip())
+
+
+# ------------------------------------------------------------------ merged requests
+MERGE_MAX_CHARS = 900     # one request holds at most this much text ...
+MERGE_MAX_BEATS = 6       # ... and at most this many beats
+MERGE_HINT = "Beri jeda singkat yang jelas di antara paragraf."
+SPLIT_SIL_DB, SPLIT_SIL_MIN = -38, 0.16
+
+
+def plan_requests(ep: Episode, todo: list[dict]) -> list[list[dict]]:
+    """Consecutive beats (script order) of the same speaker, style and part → one request."""
+    order = {b.key: i for i, b in enumerate([b for b in ep.beats if b.text])}
+    groups: list[list[dict]] = []
+    for j in todo:
+        g = groups[-1] if groups else None
+        b = ep.by_key.get(j["key"])
+        if (g and b is not None and j["key"] != "recap" and g[-1]["key"] != "recap"
+                and order.get(j["key"]) == order.get(g[-1]["key"], -9) + 1
+                and ep.by_key[g[-1]["key"]].chapter == b.chapter
+                and g[-1]["speaker"] == j["speaker"] and g[-1]["params"]["style"] == j["params"]["style"]
+                and len(g) < MERGE_MAX_BEATS
+                and sum(len(x["text"]) for x in g) + len(j["text"]) <= MERGE_MAX_CHARS):
+            g.append(j)
+        else:
+            groups.append([j])
+    return groups
+
+
+def _silences(path) -> tuple[list[tuple[float, float]], float]:
+    import subprocess
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-i", str(path), "-af",
+                        f"silencedetect=noise={SPLIT_SIL_DB}dB:d={SPLIT_SIL_MIN}", "-f", "null", "-"],
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding="utf-8", errors="replace")
+    with wave.open(str(path), "rb") as w:
+        total = w.getnframes() / w.getframerate()
+    st = [float(x) for x in re.findall(r"silence_start:\s*(-?[\d.]+)", p.stderr)]
+    en = [float(x) for x in re.findall(r"silence_end:\s*([\d.]+)", p.stderr)]
+    sil = [(max(0.0, a), en[i] if i < len(en) else total) for i, a in enumerate(st)]
+    return sil, total
+
+
+def split_points(path, texts: list[str]) -> tuple[list[tuple[float, float]] | None, str]:
+    """[(start, end)] per text, cut in the pauses between them, or (None, reason).
+
+    The k-th cut goes in the pause nearest to where the text lengths say it should be (dynamic
+    programming over the detected pauses); then every piece's duration is checked against its share of
+    the text. A piece far off its expected length means a wrong cut → caller falls back to per-beat."""
+    sil, total = _silences(path)
+    head = sil[0][1] if sil and sil[0][0] <= 0.05 else 0.0
+    tail = sil[-1][0] if sil and sil[-1][1] >= total - 0.05 else total
+    inner = [x for x in sil if x[0] > head + 0.05 and x[1] < tail - 0.05]
+    n = len(texts)
+    if len(inner) < n - 1:
+        return None, f"{len(inner)} jeda, perlu {n - 1}"
+    lens = [max(1, len(" ".join(t.split()))) for t in texts]
+    speech = tail - head
+    cum, expect = 0, []
+    for L in lens[:-1]:
+        cum += L
+        expect.append(head + speech * cum / sum(lens))
+    mids = [(a + b) / 2 for a, b in inner]
+    INF = float("inf")
+    # best[k][i]: cost of placing cut k at pause i
+    best = [[INF] * len(inner) for _ in range(n - 1)]
+    back = [[-1] * len(inner) for _ in range(n - 1)]
+    for i in range(len(inner)):
+        best[0][i] = abs(mids[i] - expect[0])
+    for k in range(1, n - 1):
+        for i in range(k, len(inner)):
+            prev = min(range(k - 1, i), key=lambda q: best[k - 1][q])
+            best[k][i] = best[k - 1][prev] + abs(mids[i] - expect[k])
+            back[k][i] = prev
+    i = min(range(len(inner)), key=lambda q: best[n - 2][q])
+    picks = [i]
+    for k in range(n - 2, 0, -1):
+        i = back[k][i]
+        picks.append(i)
+    picks.reverse()
+    pieces, a = [], head
+    for k, pi in enumerate(picks + [None]):
+        if pi is None:
+            b = tail
+        else:
+            b = inner[pi][0]
+        pieces.append((max(0.0, a - 0.06), min(total, b + 0.18)))
+        if pi is not None:
+            a = inner[pi][1]
+    # verify: each piece's speech length vs its share of the text
+    for k, ((a, b), L) in enumerate(zip(pieces, lens)):
+        exp = speech * L / sum(lens)
+        got = b - a
+        lo, hi = (0.4, 2.2) if exp < 1.5 else (0.6, 1.6)
+        if not (lo <= got / exp <= hi):
+            return None, f"potongan {k + 1}: {got:.1f}s, harusnya ±{exp:.1f}s"
+    return pieces, "ok"
+
+
+def _cut(src, dst, a: float, b: float) -> None:
+    with wave.open(str(src), "rb") as w:
+        rate, ch, sw = w.getframerate(), w.getnchannels(), w.getsampwidth()
+        w.setpos(int(a * rate))
+        data = w.readframes(int((b - a) * rate))
+    tmp = atomic_out(dst)
+    with wave.open(str(tmp), "wb") as o:
+        o.setnchannels(ch)
+        o.setsampwidth(sw)
+        o.setframerate(rate)
+        o.writeframes(data)
+    os.replace(tmp, dst)
+
+
+def _run(ep: Episode, jobs: list[dict], args, apply_effect, fx_version: int, ring: KeyRing | None) -> None:
     """jobs: [{key, text, speaker, effect}]"""
-    src = ".env" if (_split(read_env_file().get("GEMINI_API_KEYS")) or
-                     _split(read_env_file().get("GEMINI_API_KEY"))) else "environment"
-    info(f"API key: {len(ring.keys)} dari {src} (mulai {ring.label})")
-    key = ring.key
     model = str(ep.story.get("gemini_model") or DEFAULT_MODEL)
     lang = ep.story.get("gemini_language", "id-ID")
     out_dir = ep.audio_dir
     raw_dir = out_dir / "raw"
     raw_dir.mkdir(parents=True, exist_ok=True)
-
-    verify_voices(ep, sorted({j["speaker"] for j in jobs}), key)
+    plan_only = bool(getattr(args, "plan", False))
 
     manifest_path = out_dir / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     todo = []
     for j in jobs:
         cfg = speaker_cfg(ep, j["speaker"])
-        style = " ".join(s.strip() for s in (str(cfg.get("style") or ""), ep.beat_styles.get(j["key"], ""))
-                         if s and s.strip())
         p = {"engine": "gemini", "model": model, "voice": str(cfg["voice"]), "language": lang,
-             "style": style, "text": j["text"], "v": GEMINI_VERSION}
+             "style": style_for(ep, j["speaker"], j["key"]), "text": j["text"], "v": GEMINI_VERSION}
         j["params"], j["raw_hash"] = p, sha(p)
         j["hash"] = sha({**p, "effect": j["effect"], "fx": fx_version})
         wav = ep.audio_path(j["key"])
+        if ep.tts_locked and wav.exists() and not args.force:
+            continue  # tts.locked: existing (e.g. re-paced) clips are final
         if not args.force and wav.exists() and manifest.get(j["key"]) == j["hash"]:
             continue
         todo.append(j)
+    # raw clip still valid (e.g. only the effect changed) → no API call needed
+    def raw_ok(j):
+        raw, meta = raw_dir / f"{j['key']}.wav", raw_dir / f"{j['key']}.json"
+        return (not args.force and raw.exists() and meta.exists()
+                and json.loads(meta.read_text(encoding="utf-8")).get("hash") == j["raw_hash"])
+    need = [j for j in todo if not raw_ok(j)]
+    groups = plan_requests(ep, need)
     step(f"Gemini TTS · {model} · {lang}")
-    info(f"{len(jobs) - len(todo)} sudah ada, {len(todo)} akan dibuat")
+    info(f"{len(jobs) - len(todo)} sudah ada, {len(todo)} akan dibuat · request: {len(groups)} "
+         f"(tanpa penggabungan: {len(need)})" + ("  [tts.locked]" if ep.tts_locked else ""))
+    if plan_only:
+        for g in groups:
+            if len(g) > 1:
+                info(f"  1 request: {', '.join(x['key'] for x in g)}  ({g[0]['speaker']}, "
+                     f"{sum(len(x['text']) for x in g)} huruf)")
+        ok(f"Rencana: {len(groups)} request Gemini untuk {len(need)} klip (hemat {len(need) - len(groups)})")
+        return
 
+    verify_voices(ep, sorted({j["speaker"] for j in jobs}), ring.key)
     client = _client(ring.key)
-    for i, j in enumerate(todo, 1):
-        raw = raw_dir / f"{j['key']}.wav"
-        meta = raw_dir / f"{j['key']}.json"
-        # raw clip still valid (e.g. only the effect changed) → no API call needed
-        cached = (not args.force and raw.exists() and meta.exists()
-                  and json.loads(meta.read_text(encoding="utf-8")).get("hash") == j["raw_hash"])
-        while not cached:
+    calls = 0
+
+    def call(params, path) -> None:
+        nonlocal client, calls
+        while True:
             try:
-                synth(client, j["params"], raw)
-                break
+                calls += 1
+                synth(client, params, path)
+                return
             except DailyQuota as e:
                 spent = ring.label
                 if not ring.next():
-                    left = len(todo) - i + 1
+                    done = sum(1 for j in todo if j.get("done"))
                     raise PipelineError(
-                        f"Kuota harian habis di semua {len(ring.keys)} key. Selesai {len(jobs) - left}/"
-                        f"{len(jobs)}, sisa {left} beat. Jalankan lagi setelah kuota reset; klip yang "
-                        f"sudah jadi tidak dibuat ulang.\n  {e}")
+                        f"Kuota harian habis di semua {len(ring.keys)} key. Selesai {len(jobs) - len(todo) + done}/"
+                        f"{len(jobs)}, sisa {len(todo) - done} beat ({calls - 1} request dipakai). Jalankan lagi "
+                        f"setelah kuota reset; klip yang sudah jadi tidak dibuat ulang.\n  {e}")
                 warn(f"Kuota harian {spent} habis → pindah ke {ring.label}")
                 client = _client(ring.key)
-        if not cached:
-            meta.write_text(json.dumps({"hash": j["raw_hash"], **j["params"]}, indent=2, ensure_ascii=False),
-                            encoding="utf-8")
+
+    def save_meta(j, extra=None):
+        (raw_dir / f"{j['key']}.json").write_text(
+            json.dumps({"hash": j["raw_hash"], **j["params"], **(extra or {})}, indent=2, ensure_ascii=False),
+            encoding="utf-8")
+
+    fallbacks = 0
+    for gi, g in enumerate(groups, 1):
+        if len(g) == 1:
+            call(g[0]["params"], raw_dir / f"{g[0]['key']}.wav")
+            save_meta(g[0])
+            continue
+        merged = raw_dir / f"_merged_{sha([x['key'] for x in g])}.wav"
+        mp = {**g[0]["params"], "text": "\n\n".join(x["text"] for x in g),
+              "style": f"{g[0]['params']['style']} {MERGE_HINT}"}
+        call(mp, merged)
+        pieces, why = split_points(merged, [x["text"] for x in g])
+        if pieces:
+            for x, (a, b) in zip(g, pieces):
+                _cut(merged, raw_dir / f"{x['key']}.wav", a, b)
+                save_meta(x, {"merged_with": [y["key"] for y in g], "cut": [round(a, 3), round(b, 3)]})
+            info(f"  [{gi}/{len(groups)}] {g[0]['key']}–{g[-1]['key']}: 1 request → {len(g)} klip")
+        else:
+            fallbacks += 1
+            warn(f"  {g[0]['key']}–{g[-1]['key']}: potongan meragukan ({why}) → request per beat")
+            for x in g:
+                call(x["params"], raw_dir / f"{x['key']}.wav")
+                save_meta(x)
+        merged.unlink(missing_ok=True)
+
+    for i, j in enumerate(todo, 1):
+        raw = raw_dir / f"{j['key']}.wav"
         apply_effect(raw, ep.audio_path(j["key"]), j["effect"])
         manifest[j["key"]] = j["hash"]
+        j["done"] = True
         manifest_path.write_text(json.dumps(manifest, indent=2), encoding="utf-8")
-        p = j["params"]
-        print(f"  [{i}/{len(todo)}] {j['key']}  ({p['voice']}"
-              f"{'' if j['effect'] == 'none' else ', ' + j['effect']}{', cache' if cached else ''})", flush=True)
-    ok(f"Klip Gemini di {out_dir.relative_to(ROOT)}")
+        print(f"  [{i}/{len(todo)}] {j['key']}  ({j['params']['voice']}"
+              f"{'' if j['effect'] == 'none' else ', ' + j['effect']})", flush=True)
+    ok(f"Klip Gemini di {out_dir.relative_to(ROOT)} · request dipakai: {calls} "
+       f"(tanpa penggabungan: {len(need)}; {fallbacks} blok jatuh ke per-beat)")

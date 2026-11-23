@@ -30,18 +30,36 @@ DEFAULT_RENDER = {
     "max_shot": 12.0,          # max seconds a single image/crop stays on screen
     "crossfade": 0.5,          # seconds
     "pause_after": 0.35,       # default silence after each beat
-    "chapter_end_pause": 1.2,  # silence after the last beat of a chapter
+    "max_pause": 0.6,          # hard cap on pause_after (pace rule: 130-150 wpm)
+    "cliff_pause": 1.0,        # pause after a part's last (cliffhanger) beat; also its cap
+    "max_black": 1.5,          # a black beat lasts at most this long (unless its line is longer)
     "recap_pause": 0.8,
     "chapter_card": 3.0,       # seconds
     "zoom": 0.12,              # Ken Burns zoom amount (0.12 = 12%)
     "grain": 8,                # film grain strength (0 = off)
     "bgm_volume": 0.16,
     "duck": True,              # lower music while someone is speaking
-    "crf": 19,
-    "preset": "medium",        # final encode preset
+    "crf": 22,                 # see pipeline/encode.py (hardware encoder or libx264 veryfast)
+    "preset": "veryfast",
     "clip_preset": "veryfast", # per-shot intermediate encode preset
-    "chunk_size": 24,          # shots per crossfade batch
+    "chunk_size": 48,          # shots per crossfade batch
+    "kb_scale": 1.5,           # sources are scaled once to this multiple of the output size
 }
+
+# Words in a styles.yaml direction that make Gemini read slowly; at most MAX_SLOW_PER_PART lines per part.
+SLOW_WORDS = ("pelan", "lambat", "jeda panjang", "jeda dramatis", "berhenti sejenak", "diseret", "sangat serius",
+              "ditekan", "berat")
+MAX_SLOW_PER_PART = 3
+DEFAULT_PACE = "Tempo sedang, mengalir, tidak diseret."
+WORDS_MIN, WORDS_MAX = 1100, 1300       # words per episode
+PARTS_MIN, PARTS_MAX = 3, 4             # parts per episode
+PART_MAX_S, PART_TARGET = 175.0, (150.0, 170.0)   # <= 2:55 (YouTube Shorts), target 2:30-2:50
+WPM_LOW, WPM_HIGH, WPM_TARGET = 120, 165, (130, 150)
+
+
+def is_slow_style(text: str) -> bool:
+    t = (text or "").lower()
+    return any(w in t for w in SLOW_WORDS)
 
 
 class PipelineError(Exception):
@@ -128,6 +146,18 @@ def run(cmd: list, desc: str = "ffmpeg") -> None:
     if proc.returncode != 0:
         tail = "\n".join(proc.stderr.strip().splitlines()[-15:])
         raise PipelineError(f"{desc} gagal (kode {proc.returncode}):\n{tail}")
+
+
+_FFV: list = []
+
+
+def filter_script_flag() -> str:
+    """ffmpeg 7+: `-/filter_complex <file>`; ffmpeg 6 (e.g. Linux distro builds): `-filter_complex_script`."""
+    if not _FFV:
+        out = subprocess.run(["ffmpeg", "-hide_banner", "-version"], stdout=subprocess.PIPE, text=True).stdout
+        m = re.search(r"ffmpeg version n?(\d+)", out)
+        _FFV.append(int(m.group(1)) if m else 7)
+    return "-/filter_complex" if _FFV[0] >= 7 else "-filter_complex_script"
 
 
 def probe_duration(path: Path) -> float:
@@ -253,6 +283,11 @@ class Beat:
     raw: dict = field(default_factory=dict)
 
     @property
+    def long_only(self) -> bool:
+        """`long_only: true` (e.g. a "Bersambung" card): in the long video only, never in a vertical part."""
+        return bool(self.raw.get("long_only"))
+
+    @property
     def num(self) -> int | None:
         """Numeric part of the id: 18 for `18`, `b018` and `b018a`."""
         return id_number(self.id)
@@ -329,9 +364,21 @@ class Episode:
         styles = self.dir / "styles.yaml"
         self.beat_styles = ({beat_key(k): str(v or "") for k, v in self._load(styles).items()}
                             if styles.exists() else {})
-        self.chapters = []
+        self.chapters = []          # = parts (the old `chapters:` key is still read)
         self.beats: list[Beat] = []
         self._load_beats()
+
+    @property
+    def parts(self) -> list[dict]:
+        return self.chapters
+
+    def part_beats(self, i: int) -> list[Beat]:
+        return [b for b in self.beats if b.chapter == i]
+
+    @property
+    def tts_locked(self) -> bool:
+        """script.yaml `tts: {locked: true}`: existing clips are never regenerated (e.g. re-paced ep01)."""
+        return bool((self.script.get("tts") or {}).get("locked"))
 
     # ---------------------------------------------------------------- loading
     @staticmethod
@@ -379,15 +426,16 @@ class Episode:
         return chars
 
     def _load_beats(self) -> None:
-        chapters = self.script.get("chapters") or []
+        chapters = self.script.get("parts") or self.script.get("chapters") or []
         if not chapters:
-            raise PipelineError("script.yaml tidak punya 'chapters'.")
+            raise PipelineError("script.yaml tidak punya 'parts:' (atau 'chapters:' versi lama).")
+        self.uses_parts = bool(self.script.get("parts"))
         seen = {}
         for ci, ch in enumerate(chapters):
-            self.chapters.append({"title": str(ch.get("title", f"Bab {ci + 1}")), "index": ci})
+            self.chapters.append({"title": str(ch.get("title", f"Part {ci + 1}")), "index": ci})
             for b in ch.get("beats") or []:
                 if "id" not in b:
-                    raise PipelineError(f"Ada beat tanpa 'id' di bab {ci + 1}.")
+                    raise PipelineError(f"Ada beat tanpa 'id' di part {ci + 1}.")
                 key = beat_key(b["id"])
                 if key in seen:
                     raise PipelineError(f"ID beat dobel: {b['id']}")

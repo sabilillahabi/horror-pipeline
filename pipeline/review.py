@@ -16,7 +16,8 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-from .common import ROOT, Episode, PipelineError, fmt_ts, info, ok, step
+from .common import (PART_MAX_S, ROOT, WPM_HIGH, WPM_LOW, Episode, PipelineError, fmt_ts, info, ok,
+                     step)
 
 LUFS_TARGET, LUFS_TOL, TP_MAX = -14.0, 1.0, -1.0
 BED_MAX_GAP, BED_MIN_GAP = 26.0, 12.0     # bed (music+ambience) in pauses vs voice during speech
@@ -173,8 +174,8 @@ def chapters(ep: Episode, m: dict) -> dict:
     issues = []
     if not stamps or stamps[0][0] not in ("00:00", "00:00:00"):
         issues.append("timestamp pertama bukan 00:00")
-    if len([x for x in stamps if x[1].startswith("Bab")]) != len(want):
-        issues.append(f"{len(stamps)} timestamp untuk {len(want)} bab")
+    if len([x for x in stamps if x[1].startswith(("Bab", "Part"))]) != len(want):
+        issues.append(f"{len(stamps)} timestamp untuk {len(want)} part")
     return {"file": desc.name, "stamps": stamps, "issues": issues}
 
 
@@ -253,10 +254,10 @@ def threads_check(ep: Episode) -> dict | None:
 
 
 # ------------------------------------------------------------------ contact sheets
-def contact_sheets(m: dict, ep: Episode) -> list[Path]:
+def contact_sheets(m: dict, ep: Episode, prefix: str = "review_sheet") -> list[Path]:
     out, srt = Path(m["output"]), Path(m["srt"])
     base = out.parent
-    for old in base.glob("review_sheet_*.png"):
+    for old in base.glob(f"{prefix}_[0-9]*.png"):
         old.unlink()
     vertical = bool(m.get("vertical"))
     cols, rows, thumb = (6, 3, 300) if vertical else (SHEET_COLS, SHEET_ROWS, THUMB_W)
@@ -287,7 +288,7 @@ def contact_sheets(m: dict, ep: Episode) -> list[Path]:
                 label = f"{fmt_ts(t)}  {segs[0]['key'] if segs else ''}"
                 d.rectangle((x, y, x + fnt.getlength(label) + 10, y + 26), fill=(0, 0, 0))
                 d.text((x + 5, y + 3), label, font=fnt, fill=(255, 210, 60))
-            p = base / f"review_sheet_{n // per + 1:02d}.png"
+            p = base / f"{prefix}_{n // per + 1:02d}.png"
             sheet.save(p)
             sheets.append(p)
         return sheets
@@ -342,6 +343,145 @@ def crop_maps(m: dict) -> list[Path]:
 
 
 # ------------------------------------------------------------------ report
+def wpm_by_part(ep: Episode, m: dict) -> list[dict]:
+    """Words per minute per script part, from the long video's segments (part = beat range incl. pauses)."""
+    rows = {}
+    for s in m["segments"]:
+        if s["kind"] != "beat" or s["chapter"] is None:
+            continue
+        b = ep.resolve_ref(s["key"])
+        if b is not None and b.long_only:
+            continue
+        r = rows.setdefault(s["chapter"], {"n": s["chapter"] + 1, "a": s["start"], "b": 0.0, "words": 0})
+        r["b"] = s["start"] + s["slot"]
+        r["words"] += s.get("words", 0)
+    out = []
+    for r in rows.values():
+        r["dur"] = r["b"] - r["a"]
+        r["wpm"] = r["words"] / (r["dur"] / 60) if r["dur"] else 0.0
+        out.append(r)
+    return sorted(out, key=lambda r: r["n"])
+
+
+# ------------------------------------------------------------------ vertical parts
+FIRST_S, LUMA_MIN = 3.0, 20.0
+
+
+def _first_lumas(f: Path) -> list[tuple[float, float]]:
+    """Mean luma (0-255) of frames every 0.25 s over the first 3 s."""
+    p = subprocess.run(["ffmpeg", "-hide_banner", "-nostats", "-t", f"{FIRST_S:.2f}", "-i", str(f), "-an", "-vf",
+                        "fps=4,scale=270:-2,signalstats,metadata=print:key=lavfi.signalstats.YAVG",
+                        "-f", "null", "-"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+                       encoding="utf-8", errors="replace")
+    ts = [float(x) for x in re.findall(r"pts_time:([\d.]+)", p.stderr)]
+    ys = [float(x) for x in re.findall(r"YAVG=([\d.]+)", p.stderr)]
+    return list(zip(ts, ys))
+
+
+def _first_second_db(f: Path) -> float:
+    s = _ff(["-t", "1", "-i", f, "-vn", "-af", "astats=measure_overall=RMS_level:measure_perchannel=none",
+             "-f", "null", "-"])
+    m = re.findall(r"RMS level dB:\s*(-?[\d.]+|-inf)", s)
+    return float(m[-1]) if m and m[-1] != "-inf" else -120.0
+
+
+def first_frames_sheet(parts: list[dict], outdir: Path) -> Path:
+    """output/vertical/first_frames.png: frame 0 of every part, labelled."""
+    from .covers import contact_sheet
+    tmp = Path(tempfile.mkdtemp(prefix="ff_", dir=outdir))
+    try:
+        paths, labels = [], []
+        for p in parts:
+            png = tmp / f"p{p['n']}.png"
+            _ff(["-i", outdir / p["file"], "-frames:v", "1", "-an", png])
+            paths.append(png)
+            labels.append(f"Part {p['n']} · {fmt_ts(p['dur'])} · {p['wpm']:.0f} wpm")
+        return contact_sheet(paths, labels, outdir / "first_frames.png")
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def review_parts(ep: Episode, m: dict) -> Path:
+    outdir = Path(m["outdir"])
+    step(f"Review part vertikal ({len(m['parts'])} part)")
+    passes, fixes, warns, rows = [], [], [], []
+    for p in m["parts"]:
+        f = outdir / p["file"]
+        if not f.is_file():
+            fixes.append(f"Part {p['n']}: file {p['file']} tidak ada")
+            continue
+        dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0",
+                                    str(f)], stdout=subprocess.PIPE, text=True).stdout.strip() or 0)
+        L = loudness(f)
+        lum = _first_lumas(f)
+        dark = [(t, y) for t, y in lum if y < LUMA_MIN]
+        cards = [x for x in p.get("first3", []) if x["kind"] in ("text", "black", "channel")]
+        db1 = _first_second_db(f)
+        wpm = p["words"] / (dur / 60) if dur else 0
+        iss = []
+        if dur > PART_MAX_S + 0.05:
+            iss.append(f"durasi {fmt_ts(dur)} > 2:55")
+        if dark:
+            iss.append(f"3 detik pertama gelap (luma {min(y for _, y in dark):.0f} < {LUMA_MIN:.0f} "
+                       f"di {', '.join(f'{t:.2f}s' for t, _ in dark[:4])})")
+        if cards:
+            iss.append("3 detik pertama berisi " + ", ".join(f"{x['kind']} ({x['key']})" for x in cards))
+        if db1 < SILENCE_DB:
+            iss.append(f"detik pertama hening ({db1:.0f} dB)")
+        if not (WPM_LOW <= wpm <= WPM_HIGH):
+            iss.append(f"tempo {wpm:.0f} wpm (batas {WPM_LOW}–{WPM_HIGH})")
+        if abs(L["I"] - LUFS_TARGET) > LUFS_TOL:
+            iss.append(f"loudness {L['I']:.1f} LUFS")
+        if L["TP"] is None or L["TP"] > TP_MAX:
+            iss.append(f"true peak {L['TP']} dBTP")
+        size = f.stat().st_size / 1e6
+        if size > 40:
+            warns.append(f"Part {p['n']}: {size:.0f} MB (target 20–40 MB)")
+        cover = f.with_name(f.stem + "_cover.jpg").exists()
+        rows.append({**p, "dur": dur, "wpm": wpm, "I": L["I"], "TP": L["TP"], "db1": db1, "size": size,
+                     "luma_min": min((y for _, y in lum), default=0), "issues": iss, "cover": cover})
+        (fixes if iss else passes).append(f"Part {p['n']}: " + ("; ".join(iss) if iss else
+                                          f"{fmt_ts(dur)}, {wpm:.0f} wpm, 3 dtk pertama terang (luma ≥ "
+                                          f"{min((y for _, y in lum), default=0):.0f}), detik 1 {db1:.0f} dB"))
+    sheet = first_frames_sheet([r for r in rows], outdir) if rows else None
+    sheets = []
+    for r in rows:
+        f = outdir / r["file"]
+        sheets += contact_sheets({"output": str(f), "srt": str(f.with_suffix(".srt")), "burned_subs": True,
+                                  "vertical": True, "segments": []}, ep, prefix=f"review_sheet_part{r['n']}")
+    crop_sheets = crop_maps({"output": str(outdir / "x.mp4"), "crops": [c for r in rows for c in r.get("crops", [])]})
+    TB = thumbs_check(ep)
+    (fixes if TB else passes).append("Thumbnail 16x9 + 9x16: " + ("ada" if not TB else "; ".join(TB)))
+
+    rep = [f"# Review — part vertikal {m['base']}", "",
+           f"{dt.datetime.now():%Y-%m-%d %H:%M} · {len(rows)} part · first frames: first_frames.png", "",
+           "| Part | Durasi | Kata | WPM | Ukuran | LUFS / TP | Luma min 0–3 s | Detik 1 | Cover | Status |",
+           "|---|---|---|---|---|---|---|---|---|---|"]
+    for r in rows:
+        rep.append(f"| {r['n']} | {fmt_ts(r['dur'])} | {r['words']} | {r['wpm']:.0f} | {r['size']:.0f} MB | "
+                   f"{r['I']:.1f} / {r['TP']:.1f} | {r['luma_min']:.0f} | {r['db1']:.0f} dB | "
+                   f"{'✓' if r['cover'] else '✗'} | {'**' + '; '.join(r['issues']) + '**' if r['issues'] else 'OK'} |")
+    rep += ["", "## Baris pertama / terakhir", ""]
+    for r in rows:
+        rep += [f"- **Part {r['n']}** ({r['first_beat']}–{r['last_beat']})",
+                f"  - hook: {r['first_line']}", f"  - cliffhanger: {r['last_line']}"]
+        if r.get("stand_ins"):
+            rep.append("  - 3 detik pertama: " + ", ".join(f"{k} diganti gambar {v}" for k, v in r["stand_ins"].items()))
+    rep += ["", "## Contact sheet", ""] + [f"- {x.name}" for x in sheets + crop_sheets]
+    notes = outdir / f"review_visual_{m['base']}_parts.md"
+    rep += ["", "### Cek visual", ""]
+    rep += (notes.read_text(encoding="utf-8").strip().splitlines() if notes.exists()
+            else [f"- (belum dicek — tulis temuan di {notes.name})"])
+    rep += ["", "## Hasil", "", "**PASS**", ""] + [f"- {x}" for x in passes]
+    rep += ["", "**PERINGATAN**", ""] + ([f"- {x}" for x in warns] or ["- tidak ada"])
+    rep += ["", "**NEEDS FIX**", ""] + ([f"- {x}" for x in fixes] or ["- tidak ada"])
+    path = outdir / "review_report.md"
+    path.write_text("\n".join(rep) + "\n", encoding="utf-8")
+    ok(f"Review: {path.relative_to(ROOT)} · {sheet.name if sheet else '-'} · {len(fixes)} NEEDS FIX, "
+       f"{len(warns)} peringatan")
+    return path
+
+
 def review(ep: Episode, manifest: Path | None = None) -> Path:
     if manifest is None:
         cands = sorted(ep.cache.glob("render*.json"), key=lambda p: p.stat().st_mtime)
@@ -349,6 +489,8 @@ def review(ep: Episode, manifest: Path | None = None) -> Path:
             raise PipelineError(f"Belum ada render untuk direview. Jalankan dulu: build {ep.slug} {ep.ep}")
         manifest = cands[-1]
     m = json.loads(manifest.read_text(encoding="utf-8"))
+    if m.get("kind") == "vertical_parts":
+        return review_parts(ep, m)
     out = Path(m["output"])
     if not out.exists():
         raise PipelineError(f"Video tidak ada: {out}")
@@ -365,6 +507,14 @@ def review(ep: Episode, manifest: Path | None = None) -> Path:
     if B:
         b_ok = BED_MIN_GAP <= B["gap"] <= BED_MAX_GAP
         (passes if b_ok else fixes).append(f"Bed di jeda {B['gap']:.1f} dB di bawah suara (batas {BED_MIN_GAP:.0f}–{BED_MAX_GAP:.0f})")
+
+    W_ = wpm_by_part(ep, m)
+    for w in W_:
+        ok_ = WPM_LOW <= w["wpm"] <= WPM_HIGH
+        (passes if ok_ else fixes).append(f"Tempo part {w['n']}: {w['wpm']:.0f} wpm ({w['words']} kata / "
+                                          f"{fmt_ts(w['dur'])}; batas {WPM_LOW}–{WPM_HIGH})")
+        if w["dur"] > PART_MAX_S + 0.05:
+            fixes.append(f"Part {w['n']} {fmt_ts(w['dur'])} > 2:55 (batas YouTube Shorts)")
 
     LS = long_shots(m)
     if LS:

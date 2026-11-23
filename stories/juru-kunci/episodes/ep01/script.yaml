@@ -1,5 +1,6 @@
 # Juru Kunci - Episode 1: Pulang
-# Target durasi: ~11-13 menit (sekitar 1.500 kata narasi + jeda)
+# Format (sejak 23 Nov 2026): 4 part, masing-masing <= 2:55, tempo 130-150 wpm.
+# Klip TTS ep01 di-repace (atempo) dari rekaman lama, jadi teks tidak diubah (tts.locked).
 # Catatan field:
 #   visual: image (default) | black | text_card
 #   card_text: teks yang tampil di layar untuk visual text_card
@@ -7,6 +8,8 @@
 #   characters_in_scene: tokoh yang ada di gambar + posisinya (untuk prompt Flow)
 
 episode: 1
+tts:
+  locked: true   # clips re-paced with `repace`; tts must not regenerate them
 title: "Pulang"
 youtube_title: "Warga Desa Tiba-Tiba Memanggilku Juru Kunci | Juru Kunci Eps 1"
 thumbnail:
@@ -14,7 +17,7 @@ thumbnail:
   text: "JANGAN DITERIMA"
 recap: ""
 
-chapters:
+parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last line = cliffhanger
 
   # ------------------------------------------------------------------
   - title: "Gerbang"
@@ -45,7 +48,7 @@ chapters:
         speaker: narrator
         text: "Lalu aku melihatnya."
         visual: black
-        pause_after: 1.2
+        pause_after: 0.6
 
       - id: b005
         speaker: narrator
@@ -70,14 +73,14 @@ chapters:
         text: "Tapi malam itu, dia menoleh. Dan dia tersenyum padaku."
         scene: "Close-up of her face turning over her shoulder toward the viewer, faint sad smile, empty dark eyes, moonlight on pale skin, mist"
         characters_in_scene: [{name: sumirah, position: center}]
-        pause_after: 1.5
+        pause_after: 0.6
 
       - id: b009
         speaker: narrator
         text: "Tiga minggu sebelumnya."
         visual: text_card
         card_text: "TIGA MINGGU SEBELUMNYA"
-        pause_after: 1.0
+        pause_after: 0.6
 
       # --- JAKARTA ---
       - id: b010
@@ -165,6 +168,10 @@ chapters:
         scene: "Close-up of her face, tears falling, looking down, voice trembling, dim interior"
         characters_in_scene: [{name: sekar, position: center}]
 
+  # ------------------------------------------------------------------
+  - title: "Juru Kunci"
+    beats:
+
       - id: b018e
         speaker: narrator
         text: "Kata dokter puskesmas, serangan jantung. Umurnya memang sudah delapan puluh tiga. Wajar. Aku mencoba percaya itu."
@@ -182,7 +189,7 @@ chapters:
         speaker: narrator
         text: "Tapi ada yang aneh."
         visual: black
-        pause_after: 0.8
+        pause_after: 0.6
 
       - id: b021
         speaker: narrator
@@ -235,18 +242,15 @@ chapters:
         text: "Di sekelilingnya ada puluhan makam tua. Batu nisannya sudah miring dan berlumut. Dan anehnya, semua nisan di sana menghadap ke arah yang sama. Bukan ke kiblat... tapi ke beringin paling besar di tengah."
         scene: "Rows of old tilted moss-covered gravestones all facing toward the largest and oldest banyan tree in the center of the graveyard, its trunk twisted like many bodies, eerie grey daylight"
         characters_in_scene: []
-        pause_after: 1.0
+        pause_after: 0.6
 
       # --- GANTUNGAN KECIL CHAPTER 1 ---
       - id: b027
         speaker: narrator
         text: "Dan malam pertama di rumah kakek, seseorang mengetuk pintu. Tiga kali."
         visual: black
-        pause_after: 1.5
+        pause_after: 0.6
 
-  # ------------------------------------------------------------------
-  - title: "Kunci Kuningan"
-    beats:
 
       - id: b028
         speaker: narrator
@@ -326,6 +330,10 @@ chapters:
         reuse: b037
         crop: closeup_face
 
+  # ------------------------------------------------------------------
+  - title: "Tiga Aturan"
+    beats:
+
       - id: b038c
         speaker: narrator
         text: "Menjaga dari apa? Itu yang mau aku tanyakan. Tapi Mbah Karto sudah lebih dulu bicara lagi, seolah pertanyaan itu memang nggak boleh ditanyakan."
@@ -361,7 +369,7 @@ chapters:
         text: "Telu..."
         reuse: b039
         crop: detail
-        pause_after: 1.0
+        pause_after: 0.6
 
       - id: b044
         speaker: narrator
@@ -374,7 +382,7 @@ chapters:
         text: "Jangan menerima apa pun dari perempuan di gerbang makam."
         visual: text_card
         card_text: "3. JANGAN MENERIMA APA PUN DARI PEREMPUAN DI GERBANG MAKAM"
-        pause_after: 1.0
+        pause_after: 0.6
 
       - id: b046
         speaker: narrator
@@ -399,18 +407,15 @@ chapters:
         text: "Tapi lentera itu nggak belok ke arah rumahnya."
         reuse: b048
         crop: detail
-        pause_after: 0.8
+        pause_after: 0.6
 
       - id: b050
         speaker: narrator
         text: "Lentera itu berjalan lurus... ke arah makam."
         scene: "Wide dark night shot of a lonely road leading to seven giant banyan trees on a hill, a tiny lantern light heading toward the graveyard gate, mist"
         characters_in_scene: []
-        pause_after: 1.5
+        pause_after: 0.6
 
-  # ------------------------------------------------------------------
-  - title: "Tusuk Konde"
-    beats:
 
       - id: b051
         speaker: narrator
@@ -489,7 +494,11 @@ chapters:
         text: "Halaman pertamanya cuma berisi satu kalimat. Kalau kamu membaca ini, Le, berarti Mbah sudah gagal melindungimu."
         visual: text_card
         card_text: "Kalau kamu membaca ini, Le, berarti Mbah sudah gagal melindungimu."
-        pause_after: 1.2
+        pause_after: 1    # cliffhanger (part end)
+
+  # ------------------------------------------------------------------
+  - title: "Tusuk Konde"
+    beats:
 
       - id: b061a
         speaker: narrator
@@ -502,7 +511,7 @@ chapters:
         text: "Tapi ada beberapa halaman di tengah yang sobek. Bukan sobek karena tua. Sobekannya rapi, seperti sengaja dipotong pakai silet."
         scene: "Close-up of a notebook spine where several pages were cleanly cut out with a blade, only thin paper stubs remaining"
         characters_in_scene: []
-        pause_after: 0.8
+        pause_after: 0.6
 
       - id: b062
         speaker: narrator
@@ -557,7 +566,7 @@ chapters:
         text: "Aku sampai di gerbang. Gemboknya sudah terbuka."
         scene: "Close-up of an old rusted iron padlock hanging open on the graveyard gate latch, moonlight"
         characters_in_scene: []
-        pause_after: 0.8
+        pause_after: 0.6
 
       - id: b068
         speaker: narrator
@@ -575,7 +584,7 @@ chapters:
         speaker: narrator
         text: "Aku lari pulang tanpa menoleh sekali pun."
         visual: black
-        pause_after: 0.8
+        pause_after: 0.6
 
       - id: b071
         speaker: narrator
@@ -606,24 +615,24 @@ chapters:
         text: "Tadi ada ibu-ibu nitip ini buat Mas. Pakai kebaya hijau. Katanya Mas pasti kenal."
         reuse: b073
         crop: closeup_face
-        pause_after: 1.2
+        pause_after: 0.6
 
       - id: b076
         speaker: narrator
         text: "Aturan ketiga. Jangan menerima apa pun dari perempuan di gerbang makam."
         visual: black
-        pause_after: 1.0
+        pause_after: 0.6
 
       - id: b077
         speaker: narrator
         text: "Dan aku baru sadar. Sanggul perempuan itu tadi... memang kehilangan tusuk kondenya."
         reuse: b006
         crop: detail
-        pause_after: 2.0
+        pause_after: 1    # cliffhanger (part end)
 
       - id: b078
         speaker: narrator
         text: "Bersambung."
         visual: text_card
         card_text: "BERSAMBUNG — Episode 2 tayang Kamis, 18.00 WIB"
-        pause_after: 2.0
+        long_only: true    # long video only: a part never ends on a closing card

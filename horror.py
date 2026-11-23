@@ -90,14 +90,24 @@ def main(argv=None) -> int:
     sp = add("tts", "buat audio per beat + SRT")
     tts_args(sp)
     sp.add_argument("--beats", help="hanya beat ini, mis. b008,b011 (untuk tes; SRT tidak dibuat)")
+    sp.add_argument("--plan", action="store_true",
+                    help="Gemini: tampilkan rencana request (beat yang digabung) tanpa memanggil API")
     sp = add("build", "render video episode 1920x1080")
     sp.add_argument("--force", action="store_true", help="render ulang semua klip")
     sp.add_argument("--beats", help="preview sebagian, mis. b001-b027 → output/preview_b001-b027.mp4")
+    sp.add_argument("--full", action="store_true",
+                    help="dengan --vertical: render juga episode vertikal penuh (default: hanya part)")
     sp.add_argument("--vertical", action="store_true",
-                    help="versi 9:16 1080x1920 + part 2-3 menit + captions.txt di output/vertical/")
+                    help="part vertikal 1080x1920 (satu file per part di script.yaml, <= 2:55) + cover + captions")
     build_args(sp)
 
     add("review", "cek teknis render terakhir → output/review_report.md + contact sheet")
+    sp = add("repace", "percepat klip TTS yang sudah ada (atempo, pitch tetap) tanpa request TTS baru")
+    sp.add_argument("--tempo", type=float, default=1.3, help="faktor kecepatan (coba 1.2-1.3)")
+    sp.add_argument("--max-gap", type=float, default=0.5,
+                    help="jeda di dalam klip yang lebih panjang dari ini dipendekkan (detik, 0 = mati)")
+    sp.add_argument("--beats", help="hanya beat ini, mis. b041,b042")
+    sp.add_argument("--sample", help="buat satu contoh (output/repace_sample_*.wav) tanpa mengubah klip")
     sp = add("threads", "thread Threads per bab → output/threads/bab<N>.md + gambar")
     sp.add_argument("--thumb-only", action="store_true",
                     help="hanya thumbnail di post 1, tanpa gambar adegan 4:5")
@@ -163,6 +173,9 @@ def main(argv=None) -> int:
         elif args.cmd == "threads":
             from pipeline.threads import cmd_threads
             cmd_threads(ep, args)
+        elif args.cmd == "repace":
+            from pipeline.repace import cmd_repace
+            cmd_repace(ep, args)
         elif args.cmd == "review":
             from pipeline.review import cmd_review
             cmd_review(ep, args)

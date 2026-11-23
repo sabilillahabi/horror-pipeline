@@ -1,51 +1,46 @@
-# 07 — Paket upload & caption
+# 07 — Paket upload, caption & jadwal
 
 | Platform | File | Catatan |
 |----------|------|---------|
-| YouTube | `output/epXX.mp4`, `thumbnail/thumbnail_16x9.jpg`, `output/epXX.srt` (id) | judul = `youtube_title`; deskripsi dari `description.txt` (chapter 00:00 …) |
-| TikTok | `output/vertical/epXX.mp4` | cover `thumbnail_9x16.jpg` |
-| IG / FB | `output/vertical/epXX_partN.mp4` | upload sebagai **Reels**; cover pilih manual "Edit cover" → `epXX_partN_cover.jpg` |
-| Threads | `output/threads/babN.md` + `images/` | ganti `[LINK YOUTUBE]` setelah video YouTube tayang |
+| YouTube Shorts, TikTok, IG Reels, FB Reels | `output/vertical/epXX_partN.mp4` | **file yang sama** di keempatnya; cover `epXX_partN_cover.jpg` (IG/FB: "Edit cover"; TikTok/Shorts: pilih frame/cover) |
+| YouTube (video panjang) | `output/epXX.mp4`, `thumbnail/thumbnail_16x9.jpg`, `output/epXX.srt` (id) | judul = `youtube_title`; deskripsi dari `description.txt` (chapter = awal tiap part, 00:00 …) |
+| Threads (opsional) | `output/threads/babN.md` + `images/` | ganti `[LINK YOUTUBE]` setelah video panjang tayang |
 
-Upload YouTube dulu — link-nya dipakai di Threads dan Facebook.
+Upload IG/FB sebagai **Reels** (post video biasa di FB memotong 9:16 jadi 4:5). Di YouTube, isi "Related video"
+tiap Short dengan part berikutnya; part terakhir → video panjang episode itu (setelah tayang).
 
-## Caption IG/FB per part (`output/vertical/captions_igfb.md`)
-Tulis sendiri dari isi part (jangan bocorkan akhir part/episode), 3 paragraf pendek, sudut pandang "aku":
-hook/adegan pembuka → perkembangan → kalimat menggantung; lalu `🎧 <Judul> · Eps N · Part N/M — lanjut ke Part N+1`.
-Part terakhir: "tamat episode N. Episode N+1 tayang <jadwal dari kartu Bersambung>".
-Penutup: IG `▶ Episode lengkap dengan narasi suara, musik, dan efek: link di bio` (link IG tidak bisa diklik);
-FB `… : [LINK YOUTUBE]`.
-Hashtag IG: `#KemenyanMalam #JuruKunciWringinpitu #ceritahoror #horor #ceritahororjawa #kisahmistis #horrorindonesia`;
-FB: 3 tag pertama. Hindari gaya "lebay" (huruf kapital semua, banyak emoji).
+## Jadwal mingguan (WIB) — 3 episode per minggu
+Maksimal **2 upload part per hari**, jam **12:00 dan 19:00**, di keempat platform short-video sekaligus (file sama).
 
-## Threads
-Satu thread per bab, post ≤ 480 karakter (emoji dihitung byte UTF-8), putus di batas kalimat. Post 1 = hook + 🧵 +
-label "<Judul> · Eps N · Bab N" + `thumbnail_16x9.jpg` apa adanya; maks 2 gambar adegan 4:5 (`--thumb-only` tanpa
-gambar adegan). Post terakhir: cliffhanger utuh + "Bersambung..." + "🎧 Versi lengkapnya ada di YouTube, dengan narasi
-suara, musik, dan efek: [LINK YOUTUBE]" + satu topic tag `#KemenyanMalam`.
+| Hari | 12:00 | 18:00 (YouTube, video panjang) | 19:00 |
+|------|-------|-------|-------|
+| Senin | Ep A Part 1 | | Ep A Part 2 |
+| Selasa | Ep A Part 3 | | Ep A Part 4 |
+| Rabu | Ep B Part 1 | **Ep A** | Ep B Part 2 |
+| Kamis | Ep B Part 3 | | Ep B Part 4 |
+| Jumat | Ep C Part 1 | **Ep B** | Ep C Part 2 |
+| Sabtu | Ep C Part 3 | | Ep C Part 4 |
+| Minggu | slot cadangan (part ke-4 / susulan) | **Ep C** | slot cadangan |
 
-## Format 4:5 (feed biasa, bukan Reels)
-Belum dibuat otomatis. Kalau user butuh, tawarkan render 1080x1350 dengan logika crop yang sama (±1,5 jam).
+Aturan:
+- Video panjang tiap episode tayang di YouTube jam **18:00 pada hari setelah part terakhirnya** (episode 3 part:
+  part terakhir Selasa/Kamis/Sabtu 12:00, panjangnya tetap besok jam 18:00; slot 19:00 yang kosong boleh dipakai
+  susulan).
+- Kalau ada part yang tertunda, pakai slot Minggu; jangan pernah lebih dari 2 part per hari.
+- **Satu file per slot.** Jangan pernah batch-upload beberapa part sekaligus; jadwalkan tiap part di slotnya
+  (fitur jadwal platform boleh, tapi satu part per slot).
+- Butuh 3 episode jadi per minggu: simpan minimal satu episode stok.
+- Threads opsional (kalau dipakai: sesudah video panjang tayang, satu thread per part).
 
-## Release strategy: Shorts first (since 23 Nov 2026)
-The long videos weren't getting views on a new channel, so each episode is released as parts first and the long
-video comes after all parts are out.
-- Parts are the vertical IG/FB parts, used as-is for **YouTube Shorts, TikTok, IG Reels and FB Reels**.
-- Every part must be **<= 2:55** including cards (YouTube Shorts max is 3:00). Re-split if needed; more parts is fine.
-- Target part format: no opening card, the first 1-2 s are story audio/hook; small persistent label at the top
-  "<Title> · Eps N · Part N/M"; end card "Lanjut ke Part N+1"; last part ends with "Versi lengkap ada di YouTube
-  Kemenyan Malam" before the outro. If the current build still has the 1 s opening card, report it to Bil.
-- On YouTube, set each Short's "Related video" to the next part; the last part -> the long episode.
+## Caption part (`output/vertical/captions.txt` → tulis ulang sendiri)
+Dari isi part (jangan bocorkan akhir part/episode), 2–3 kalimat pendek, sudut pandang "aku": hook → kalimat
+menggantung; lalu `🎧 <Judul> · Eps N · Part N/M`. Part terakhir: "Versi lengkap episode N ada di YouTube Kemenyan
+Malam." (hanya di caption — video tidak punya kartu penutup). IG: `▶ link di bio`; FB/YouTube: `[LINK YOUTUBE]`.
+Hashtag IG/TikTok: `#KemenyanMalam #JuruKunciWringinpitu #ceritahoror #horor #ceritahororjawa #kisahmistis
+#horrorindonesia`; FB/Shorts: 3 tag pertama. Hindari gaya "lebay" (huruf kapital semua, banyak emoji).
 
-### Weekly schedule (WIB), 2 episodes per week
-| Day | 12:00 | 18:00 | 19:00 | 21:00 | 23:00 |
-|-----|-------|-------|-------|-------|-------|
-| Mon | Ep A Part 1 | | Ep A Part 2 | | |
-| Tue | Ep A Part 3 | | Ep A Part 4 | | |
-| Wed | Ep A Part 5 | | Ep A Part 6 | | |
-| Thu | Ep B Part 1 | **Ep A long (YouTube)** | Ep B Part 2 + Threads Ep A Bab 1 | Threads Bab 2 | Threads Bab 3 |
-| Fri | Ep B Part 3 | | Ep B Part 4 | | |
-| Sat | Ep B Part 5 | | Ep B Part 6 | | |
-| Sun | | **Ep B long (YouTube)** | Threads Ep B Bab 1 | Threads Bab 2 | Threads Bab 3 |
-Shorts go to YouTube Shorts, TikTok, IG and FB at the same time. If an episode has 7+ parts, add a 16:00 slot.
-Two finished episodes are needed every week, so keep at least one episode of stock.
+## Threads (opsional)
+Satu thread per part, post ≤ 480 karakter (emoji dihitung byte UTF-8), putus di batas kalimat. Post 1 = hook + 🧵 +
+label "<Judul> · Eps N · Part N" + `thumbnail_16x9.jpg`; maks 2 gambar adegan 4:5 (`--thumb-only` tanpa gambar
+adegan). Post terakhir: cliffhanger utuh + "Bersambung..." + "🎧 Versi lengkapnya ada di YouTube: [LINK YOUTUBE]"
++ satu topic tag `#KemenyanMalam`.

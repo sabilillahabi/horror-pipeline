@@ -17,7 +17,8 @@ NAME = "horror-serial"
 
 INCLUDE = [
     "horror.py", "requirements.txt", "README.md", ".gitignore",
-    "pipeline/*.py", "scripts/auto_tts.py", "scripts/make_muse_skill.py",
+    "pipeline/*.py", "scripts/auto_tts.py", "scripts/make_muse_skill.py", "scripts/push_assets.py",
+    "scripts/disable_tts_task.ps1",
     "channels/*.yaml", "channels/*/audio/*.wav", "channels/*/audio/raw/*.json",
     "assets/fonts/README.txt",
     "stories/*/story.yaml", "stories/*/sound_assets.yaml",

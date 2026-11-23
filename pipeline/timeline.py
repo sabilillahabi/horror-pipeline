@@ -63,8 +63,9 @@ def build_timeline(ep: Episode, beats: list[Beat] | None = None, recap: bool = T
 
     beat_list = ep.beats if full else beats
     last_in_chapter = {}
-    for b in ep.beats:
-        last_in_chapter[b.chapter] = b.key
+    for b in ep.beats:          # the cliffhanger (not a trailing long_only card) gets the part-end pause
+        if not b.long_only or b.chapter not in last_in_chapter:
+            last_in_chapter[b.chapter] = b.key
     current_ch = None
     for i, b in enumerate(beat_list):
         if full and cards and b.chapter != current_ch:
@@ -75,15 +76,12 @@ def build_timeline(ep: Episode, beats: list[Beat] | None = None, recap: bool = T
             }))
         current_ch = b.chapter
         p, d = audio_of(b.key, b.text)
-        if b.pause_after is not None:
-            pause = b.pause_after
-        elif full and last_in_chapter.get(b.chapter) == b.key:
-            pause = r["chapter_end_pause"]
-        else:
-            pause = r["pause_after"]
+        pause = pause_for(ep, b, last_in_chapter.get(b.chapter) == b.key)
         if not full and final_hold is not None and i == len(beat_list) - 1:
             pause = max(pause, final_hold)
         slot = max(d + pause, b.min_duration or 0.0, 0.5)
+        if b.visual == "black":  # black screen: max_black, or just the line if it is longer
+            slot = min(slot, max(float(r["max_black"]), d + 0.15))
         segs.append(Segment("beat", quantize(slot, fps), p, d, beat=b, text=b.text,
                             chapter=b.chapter))
 
@@ -95,6 +93,23 @@ def build_timeline(ep: Episode, beats: list[Beat] | None = None, recap: bool = T
         s.start = t
         t += s.slot
     return segs
+
+
+def pause_for(ep: Episode, b: Beat, part_end: bool) -> float:
+    """Pace rule: pause_after ≤ max_pause (0.6 s); a part's last beat (its cliffhanger) gets cliff_pause
+    (1.0 s), which is also its cap. A `long_only` closing card after the cliffhanger keeps the cliffhanger's
+    pause on the cliffhanger itself."""
+    r = ep.render
+    cap = float(r["cliff_pause"]) if part_end else float(r["max_pause"])
+    if b.pause_after is not None:
+        return min(float(b.pause_after), cap)
+    return float(r["cliff_pause"]) if part_end else min(float(r["pause_after"]), cap)
+
+
+def cliffhanger(ep: Episode, part: int) -> Beat | None:
+    """The beat a part ends on: its last beat that is not long_only."""
+    bs = [b for b in ep.part_beats(part) if not b.long_only]
+    return bs[-1] if bs else None
 
 
 def total_duration(segs: list[Segment]) -> float:
@@ -198,7 +213,8 @@ def write_description(ep: Episode, segs: list[Segment], out: Path) -> None:
     for s in segs:
         if s.kind in ("card", "beat") and s.chapter is not None and s.chapter not in seen:
             seen.add(s.chapter)
-            stamps.append((s.start, f"Bab {roman(s.chapter + 1)}: {ep.chapters[s.chapter]['title']}"))
+            label = "Part" if getattr(ep, "uses_parts", False) else "Bab"
+            stamps.append((s.start, f"{label} {s.chapter + 1}: {ep.chapters[s.chapter]['title']}"))
     if stamps:
         stamps[0] = (0.0, stamps[0][1])
         lines += [f"{fmt_ts(t)} {name}" for t, name in stamps]
