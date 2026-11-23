@@ -36,6 +36,10 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 
 Sebelum mulai baca `references/08-lessons.md` — semua bug di sana sudah pernah terjadi.
 
+Rilis: **Shorts dulu, long belakangan** — jadwal mingguan dan aturan part ≤ 2:55 ada di `references/07-publish.md`.
+Kalau workspace punya browser yang login ke akun Google Bil dan Bil minta kamu sendiri yang generate gambar di Flow
+atau download suara di Pixabay, ikuti `references/09-flow-and-pixabay-browser.md`.
+
 ## Output Contract (per episode, di `stories/<slug>/episodes/epXX/`)
 - `output/epXX.mp4` (YouTube, 1920x1080, −14 LUFS ±1, true peak ≤ −1 dBTP) + `epXX.srt` + `description.txt` (chapter)
 - `thumbnail/thumbnail_16x9.jpg` (1280x720, < 2 MB) dan `thumbnail_9x16.jpg` (1080x1920)
