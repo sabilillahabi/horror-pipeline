@@ -16,7 +16,7 @@ prompt_suffix: "No text, no captions, no watermark."
 
 # Opsional: override pengaturan render (lihat DEFAULT_RENDER di pipeline/common.py)
 render:
-  grain: 8
+  grain: 2
   bgm_volume: 0.16
 
 characters:

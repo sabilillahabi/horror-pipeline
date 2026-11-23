@@ -388,7 +388,7 @@ def story_mix(ep: Episode, segs: list[Segment], args, tag: str = "") -> tuple[Pa
     key = sha({"segs": [(s.kind, s.beat.key if s.beat else "", round(s.slot, 4), round(s.lead, 4),
                          file_sig(s.audio)) for s in segs],
                "sound": cfgp.read_text(encoding="utf-8") if use_sound and cfgp.exists() else None,
-               "bgm": None if use_sound else str(pick_bgm(ep, args)), "v": 2})
+               "bgm": None if use_sound else str(pick_bgm(ep, args)), "v": 3})
     if mix.exists() and narration.exists() and meta.exists() and \
             json.loads(meta.read_text(encoding="utf-8")).get("key") == key and not getattr(args, "force_mix", False):
         info(f"Mix audio episode dipakai ulang ({mix.name})")
@@ -399,7 +399,10 @@ def story_mix(ep: Episode, segs: list[Segment], args, tag: str = "") -> tuple[Pa
     else:
         bgm = pick_bgm(ep, args)
         info(f"Musik: {bgm.name if bgm else '(tanpa musik)'}")
-        mix_audio(narration, bgm, mix, total, ep.render)
+        raw = mix.with_name(mix.stem + "_raw.wav")
+        mix_audio(narration, bgm, raw, total, ep.render)
+        sound._loudnorm(raw, mix)   # same -14 LUFS target as the sound.yaml path
+        raw.unlink(missing_ok=True)
     meta.write_text(json.dumps({"key": key, "total": total}), encoding="utf-8")
     return narration, mix, total
 

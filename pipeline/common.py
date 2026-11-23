@@ -36,7 +36,7 @@ DEFAULT_RENDER = {
     "recap_pause": 0.8,
     "chapter_card": 3.0,       # seconds
     "zoom": 0.12,              # Ken Burns zoom amount (0.12 = 12%)
-    "grain": 8,                # film grain strength (0 = off)
+    "grain": 2,                # film grain strength (0 = off); 2 keeps parts ~35 MB, 5+ hits the 6M cap
     "bgm_volume": 0.16,
     "duck": True,              # lower music while someone is speaking
     "crf": 22,                 # see pipeline/encode.py (hardware encoder or libx264 veryfast)
