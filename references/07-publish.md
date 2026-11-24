@@ -4,7 +4,7 @@
 |----------|------|---------|
 | YouTube Shorts, TikTok, IG Reels, FB Reels | `output/vertical/epXX_partN.mp4` | **file yang sama** di keempatnya; cover `epXX_partN_cover.jpg` (IG/FB: "Edit cover"; TikTok/Shorts: pilih frame/cover) |
 | YouTube (video panjang) | `output/epXX.mp4`, `thumbnail/thumbnail_16x9.jpg`, `output/epXX.srt` (id) | judul = `youtube_title`; deskripsi dari `description.txt` (chapter = awal tiap part, 00:00 …) |
-| Threads (opsional) | `output/threads/babN.md` + `images/` | ganti `[LINK YOUTUBE]` setelah video panjang tayang |
+| Threads (opsional) | `output/threads/partN.md` + `images/` | diposting barengan Short part N; ganti `[LINK SHORTS PART N]` |
 
 Upload IG/FB sebagai **Reels** (post video biasa di FB memotong 9:16 jadi 4:5). Di YouTube, isi "Related video"
 tiap Short dengan part berikutnya; part terakhir → video panjang episode itu (setelah tayang).
@@ -30,7 +30,7 @@ Aturan:
 - **Satu file per slot.** Jangan pernah batch-upload beberapa part sekaligus; jadwalkan tiap part di slotnya
   (fitur jadwal platform boleh, tapi satu part per slot).
 - Butuh 3 episode jadi per minggu: simpan minimal satu episode stok.
-- Threads opsional (kalau dipakai: sesudah video panjang tayang, satu thread per part).
+- Threads opsional: satu thread per part, diposting di slot yang sama dengan Short part itu (lihat bawah).
 
 ## Judul & deskripsi per platform → `stories/<slug>/episodes/epXX/publish.md`
 Tulis sendiri dari isi script (bukan dari `captions.txt` otomatis), satu file per episode, siap copy-paste: per part
@@ -60,8 +60,14 @@ Format judul part: `<hook singkat> | <Judul> Eps N Part N/M` (mis. "Perempuan di
 Juru Kunci Eps 1 Part 1/4"). Tiap part judul berbeda; jangan "Part 2" saja.
 `[LINK YOUTUBE]` di FB diganti setelah video panjang tayang (caption yang sudah terbit boleh diedit).
 
-## Threads (opsional)
-Satu thread per part, post ≤ 480 karakter (emoji dihitung byte UTF-8), putus di batas kalimat. Post 1 = hook + 🧵 +
-label "<Judul> · Eps N · Part N" + `thumbnail_16x9.jpg`; maks 2 gambar adegan 4:5 (`--thumb-only` tanpa gambar
-adegan). Post terakhir: cliffhanger utuh + "Bersambung..." + "🎧 Versi lengkapnya ada di YouTube: [LINK YOUTUBE]"
-+ satu topic tag `#KemenyanMalam`.
+## Threads (opsional) — 1 thread per part, barengan dengan Short-nya
+`python horror.py threads <slug> <ep>` (sesudah `build --vertical`) → `output/threads/part<N>.md` + `images/`.
+- **Jumlah thread = jumlah part video** (3–4). Thread part N diposting **di slot yang sama dengan Short part N**
+  (12:00 / 19:00), tepat setelah Short-nya tayang.
+- Post 1 = hook + 🧵 + label "<Judul> · Eps N · Part N/M" + cover part (`epXX_partN_cover.jpg`, sama dengan Short).
+  Maks 2 gambar adegan 4:5 (`--thumb-only` tanpa gambar adegan). Post ≤ 480 karakter (emoji = byte UTF-8), putus di
+  batas kalimat, maks 15 post.
+- Post terakhir: cliffhanger utuh + "Bersambung ke Part N+1..." + `🎧 Versi videonya: [LINK SHORTS PART N]` +
+  `#KemenyanMalam`. Ganti `[LINK SHORTS PART N]` dengan link Short yang baru diupload (YouTube Shorts atau TikTok).
+- Part terakhir: "Bersambung..." + link Short + "Versi lengkap Episode N tayang di YouTube Kemenyan Malam."
+  (link video panjang bisa ditambahkan sebagai balasan setelah tayang).

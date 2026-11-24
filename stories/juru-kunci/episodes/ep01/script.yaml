@@ -175,6 +175,7 @@ parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last lin
 
       # --- HOOK (bridge from the previous part's cliffhanger; recorded 24 Nov 2026)
       - id: h02
+        hook: true          # bridge hook: opens video part (and its Threads thread)
         speaker: narrator
         text: 'Kakekku ditemukan bersujud di gerbang makam, menggenggam sesuatu yang warga rahasiakan.'
         reuse: b003
@@ -344,6 +345,7 @@ parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last lin
 
       # --- HOOK (bridge from the previous part's cliffhanger; recorded 24 Nov 2026)
       - id: h03
+        hook: true          # bridge hook: opens video part (and its Threads thread)
         speaker: narrator
         text: 'Empat puluh tahun kakekku menjaga desa ini, sampai napas terakhir. Malam itu, giliranku.'
         reuse: b034
@@ -517,6 +519,7 @@ parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last lin
 
       # --- HOOK (bridge from the previous part's cliffhanger; recorded 24 Nov 2026)
       - id: h04
+        hook: true          # bridge hook: opens video part (and its Threads thread)
         speaker: narrator
         text: '"Kalau kamu membaca ini, Le, berarti Mbah sudah gagal melindungimu." Itu halaman pertama buku kakek.'
         reuse: b060

@@ -1,6 +1,6 @@
 """`threads` command: one Threads thread per chapter from script.yaml (no new images, no TTS).
 
-Output in output/threads/: bab<N>.md (numbered posts, character counts, image per post), images/ with
+Output in output/threads/: part<N>.md (one thread per video part, posted right after that part's Short) (numbered posts, character counts, image per post), images/ with
 the episode thumbnail on post 1 (thumbnail_16x9.jpg as is), at most 2 scene images per thread as
 1080x1350 (4:5) crops, and threads.json (read by `review`). --thumb-only: thumbnail only.
 
@@ -29,6 +29,7 @@ MAX_SCENE_IMAGES = 2                  # 4:5 scene images per thread (post 1 alwa
 W, H = 1080, 1350
 TOPIC_TAG = "#KemenyanMalam"          # Threads allows one topic tag per post
 LINK = "[LINK YOUTUBE]"
+SHORT_LINK = "[LINK SHORTS PART {n}]"   # filled in by hand after the Short is up
 TENSE_SFX = ("hit", "knock", "impact", "boom", "whoosh", "humming", "kentongan")
 VOCATIVES = ("dek", "mbah", "mas", "le", "nduk", "pak", "bu", "sekar", "kang", "lik")
 SCARY = ("makam", "gerbang", "jangan", "tersenyum", "menoleh", "mati", "meninggal", "kunci", "mengetuk",
@@ -208,12 +209,14 @@ def _part_video(ep: Episode, chapter: int) -> str | None:
 
 # ------------------------------------------------------------------ command
 def build_chapter(ep: Episode, ci: int, cfg: dict, outdir: Path, sfx: dict, thumb_only: bool = False) -> dict:
-    beats = [b for b in ep.beats if b.chapter == ci]
+    # one thread per video part, posted right after that part's Short (same slot); long_only beats left out
+    beats = [b for b in ep.beats if b.chapter == ci and not b.long_only]
     beat_by_key = {b.key: b for b in beats}
     title = ep.story.get("title", ep.slug)
-    label = f"{title} · Eps {ep.number} · Bab {ci + 1}"
-    n_bab = f"bab{ci + 1}"
-    over = cfg.get(n_bab) or {}
+    n_parts = len(ep.chapters)
+    label = f"{title} · Eps {ep.number} · Part {ci + 1}/{n_parts}"
+    n_bab = f"part{ci + 1}"
+    over = cfg.get(n_bab) or cfg.get(f"bab{ci + 1}") or {}
 
     # hook: best line from the first 80% (no ending spoilers), plus the line before it if it fits
     cut = max(1, int(len(beats) * 0.8))
@@ -233,8 +236,13 @@ def build_chapter(ep: Episode, ci: int, cfg: dict, outdir: Path, sfx: dict, thum
     post1 = f"{hook}\n\n🧵 {label}"
 
     # closing: cliffhanger = the chapter's last spoken lines (they end the last post)
-    closing = (f"\n\nBersambung...\n\n🎧 Versi lengkapnya ada di YouTube, dengan narasi suara, musik, "
-               f"dan efek: {LINK}\n{TOPIC_TAG}")
+    # the long video is not out yet when a part goes up: link that part's Short; the last part announces the long video
+    if ci + 1 < n_parts:
+        closing = (f"\n\nBersambung ke Part {ci + 2}...\n\n🎧 Versi videonya (narasi suara, musik, efek): "
+                   f"{SHORT_LINK.format(n=ci + 1)}\n{TOPIC_TAG}")
+    else:
+        closing = (f"\n\nBersambung...\n\n🎧 Versi videonya: {SHORT_LINK.format(n=ci + 1)}\n"
+                   f"Versi lengkap Episode {ep.number} tayang di YouTube Kemenyan Malam.\n{TOPIC_TAG}")
     us = units(ep, beats)
     posts_u = split_posts(us, sfx, beat_by_key, tlen(closing))
     texts = [post1] + [_render(p) for p in posts_u]
@@ -275,14 +283,18 @@ def build_chapter(ep: Episode, ci: int, cfg: dict, outdir: Path, sfx: dict, thum
             media[pi] = b
     img_dir = outdir / "images"
     img_dir.mkdir(parents=True, exist_ok=True)
-    for old in img_dir.glob(f"{n_bab}_post*.jpg"):
+    for old in list(img_dir.glob(f"{n_bab}_post*.jpg")) + list(img_dir.glob(f"bab{ci + 1}_post*.jpg")):
         old.unlink()
     files = {}
     # post 1: the episode thumbnail, as is (fallback: the key image cropped to 4:5)
     from . import thumbs
     thumb = thumbs.path(ep, "16x9")
+    cover = ep.output / "vertical" / f"{ep.ep}_part{ci + 1}_cover.jpg"   # same cover as the part's Short
     f1 = img_dir / f"{n_bab}_post01.jpg"
-    if thumb.exists():
+    if cover.exists():
+        shutil.copy2(cover, f1)
+        files[1] = (f1.name, cover.name)
+    elif thumb.exists():
         shutil.copy2(thumb, f1)
         files[1] = (f1.name, "thumbnail_16x9")
     elif key_b:
@@ -321,6 +333,8 @@ def cmd_threads(ep: Episode, args) -> None:
         cfg = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     sfx = _sfx_map(ep)
     summary = []
+    for old in outdir.glob("bab*.md"):   # old per-chapter files
+        old.unlink()
     for ci in range(len(ep.chapters)):
         r = build_chapter(ep, ci, cfg, outdir, sfx, thumb_only=getattr(args, "thumb_only", False))
         summary.append(r)
