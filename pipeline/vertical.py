@@ -387,6 +387,33 @@ def part_audio(mix: Path, a: float, b: float, out: Path) -> str:
     return f"{float(d['input_i']):.1f} → {PART_LUFS:.0f} LUFS"
 
 
+TP_MAX_FILE = -1.0   # what review accepts; AAC can overshoot the WAV limiter by ~2 dB
+
+
+def fix_true_peak(out: Path, video: Path, audio: Path, dur: float, tries: int = 3) -> None:
+    """Measure the muxed part; if AAC pushed the true peak above -1 dBTP, limit the WAV lower by the overshoot
+    and re-mux (video copied). Only peaks are touched, so loudness stays at -14 LUFS."""
+    from .encode import AUDIO, FASTSTART
+    from .review import loudness
+    ceiling = PART_TP
+    for _ in range(tries):
+        tp = loudness(out)["TP"]
+        if tp is not None and tp <= TP_MAX_FILE - 0.1:
+            return
+        ceiling -= (tp if tp is not None else 0.0) - (TP_MAX_FILE - 0.3)
+        lim = audio.with_name(audio.stem + "_lim.wav")
+        run(["ffmpeg", "-y", "-i", audio, "-af",
+             f"alimiter=limit={10 ** (ceiling / 20):.4f}:attack=1:release=60:level=false",
+             "-ar", "48000", "-c:a", "pcm_s16le", lim], f"limiter {out.name}")
+        os.replace(lim, audio)
+        tmp = atomic_out(out)
+        run(["ffmpeg", "-y", "-i", video, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", *AUDIO,
+             "-t", f"{dur:.3f}", *FASTSTART, tmp], f"mux {out.name}")
+        os.replace(tmp, out)
+        info(f"{out.name}: true peak {tp:.1f} dBTP → limiter {ceiling:.1f} dB, mux ulang")
+    warn(f"{out.name}: true peak masih di atas {TP_MAX_FILE} dBTP setelah {tries}x koreksi")
+
+
 def first_seconds_override(ep: Episode, psegs) -> dict:
     """{key of a black/text_card beat starting in the first 3 s: the image beat shown instead} — the
     nearest strong image of the part (cover scoring: tense SFX, characters, close-up; detail crops avoided)."""
@@ -463,6 +490,7 @@ def _piece(ep: Episode, args, name: str, label: str, psegs, mix: Path, outdir: P
     run(["ffmpeg", "-y", "-i", video, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", *AUDIO,
          "-t", f"{dur:.3f}", *FASTSTART, tmp], f"mux {out.name}")
     os.replace(tmp, out)
+    fix_true_peak(out, video, audio, dur)
     write_srt(outdir / f"{name}.srt", cue_list)
     t, first3 = 0.0, []
     for sh in shots:
