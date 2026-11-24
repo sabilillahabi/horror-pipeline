@@ -7,15 +7,25 @@ python horror.py tts <slug> <ep> --beats b008,b011  # tes beberapa beat (untuk m
 python horror.py channel-tts <slug> <ep>            # outro channel (sekali per channel; --force untuk ulang)
 ```
 
-## Tempo (wajib): 130–150 wpm
-Ep01 lama jalan ±85 wpm — terlalu lambat untuk Shorts. Aturannya sekarang:
-- Voice dan karakter tokoh tetap sama. Style default setiap pembicara = style tokoh di `story.yaml` +
-  `gemini_pace` (default **"Tempo sedang, mengalir, tidak diseret."**). Style tokoh tidak boleh berisi
-  "pelan"/"lambat".
-- Baris pelan/dramatis hanya lewat `styles.yaml`, **maks 3 per part**. Baris yang ditandai pelan tidak mendapat
-  frasa tempo. `check` memperingatkan kalau lebih.
+## Tempo (wajib): patokan = ep01 final, ±115 wpm
+Bil sudah memutuskan (24 Nov 2026): ep01 final ±115 wpm terasa pas; 134 wpm terlalu cepat; 85 wpm terlalu lambat.
+**Target 110–130 wpm** (kata ÷ durasi part). `review` dan ringkasan `tts` menandai < 105 atau > 135.
+- Style default setiap pembicara = style tokoh di `story.yaml` + `gemini_pace` (**"Tempo tenang, mengalir, tidak
+  terburu-buru."**). Style tokoh tidak boleh berisi "pelan"/"lambat"/"cepat".
+- Baris pelan/dramatis hanya lewat `styles.yaml`, **maks 3 per part**. `check` memperingatkan kalau lebih.
 - `pause_after` maks 0,6 s, 1,0 s hanya di cliffhanger part, beat hitam maks 1,5 s (dipotong otomatis).
-- `review` mengukur wpm per part (kata ÷ durasi part) dan menandai < 120 atau > 165.
+
+### Aturan keputusan tempo — jalankan sendiri, JANGAN tanya Bil
+Setelah `tts`, baca ringkasan wpm per part (atau `review`), lalu:
+| Rata-rata episode | Tindakan |
+|---|---|
+| 105–135 wpm | pakai apa adanya |
+| < 105 wpm (mis. klip lama dengan style lambat) | `repace <slug> <ep> --tempo 1.2 --max-gap 0.8` (= setelan ep01 final) |
+| > 135 wpm | `repace <slug> <ep> --tempo 0.9 --max-gap 0.8` |
+- Klip hook jembatan atau baris baru yang direkam belakangan: `repace … --tempo 1.0 --max-gap 0.8 --beats <id>` (hanya
+  potong hening), dan jalankan SETELAH repace seluruh episode (repace global ikut mengubah klip itu).
+- Jangan pernah memakai tempo di atas 1.25 atau menghitung tempo untuk mengejar angka tertentu (contoh salah: 1.43).
+- Hanya kalau setelah langkah di atas masih di luar 105–135: laporkan angka per part ke Bil.
 
 ## Lebih sedikit request
 Beat berurutan dalam satu part dengan pembicara dan style yang sama dikirim sebagai **satu** request Gemini
@@ -25,16 +35,15 @@ per beat. Laporan akhir: `request dipakai: X (tanpa penggabungan: Y; Z blok jatu
 style ke baris yang tidak butuh — style berbeda memutus penggabungan. Ep01 dengan styles.yaml baru: 56 request
 untuk 95 klip (dulu 95).
 
-## Mengatur ulang tempo klip lama tanpa kuota: `repace`
+## Mengatur ulang tempo klip tanpa kuota: `repace`
 ```bash
-python horror.py repace <slug> <ep> --sample b008 --tempo 1.3   # satu contoh → output/repace_sample_*.wav, DENGARKAN
-python horror.py repace <slug> <ep> --tempo 1.3                 # semua klip
+python horror.py repace <slug> <ep> --tempo 1.2 --max-gap 0.8                      # setelan ep01 final (default)
+python horror.py repace <slug> <ep> --tempo 1.0 --max-gap 0.8 --beats h02,h03,h04  # hook/baris baru: potong hening saja
 ```
 atempo (pitch tetap) dari klip mentah `audio/gemini/raw/`, efek dipasang ulang sesudahnya, hening awal/akhir
-dipotong, jeda di dalam klip > 0,5 s dipendekkan (`--max-gap`). Klip asli dicadangkan sekali ke
-`audio/gemini/_orig/`; jalankan lagi dengan tempo lain kapan saja (selalu dari raw). Setelahnya `script.yaml` berisi
-`tts: {locked: true}` — `tts` tidak akan membuat ulang klip (style default berubah, tanpa kunci semua klip akan
-di-generate ulang dan menghabiskan kuota). Batas wajar 1,2–1,3; di atas itu cek suara serak/terburu-buru.
+dipotong, jeda di dalam klip > `--max-gap` dipendekkan. Klip asli dicadangkan sekali ke `audio/gemini/_orig/`; selalu
+dihitung dari raw, jadi aman diulang. Setelahnya `script.yaml` berisi `tts: {locked: true}` — `tts` tidak akan membuat
+ulang klip yang sudah ada.
 
 ## Lain-lain
 - Model `gemini-3.8-flash-tts`; voice per tokoh dari `story.yaml` (`gemini_voices`).

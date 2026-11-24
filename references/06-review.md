@@ -7,14 +7,14 @@
 ## Part vertikal (`output/vertical/review_report.md`) — FAIL = NEEDS FIX
 Per part: durasi **> 2:55** · **salah satu frame di 3 detik pertama gelap** (luma rata-rata < 20, dicek tiap
 0,25 s) · **3 detik pertama berisi kartu teks/hitam** (dari rencana shot) · **detik pertama hening** (< −50 dB) ·
-tempo di luar **120–165 wpm** · loudness/true peak. Tabel per part: durasi, kata, wpm, ukuran (peringatan
+tempo di luar **105–135 wpm** (patokan ep01 final ±115) · loudness/true peak. Tabel per part: durasi, kata, wpm, ukuran (peringatan
 > 40 MB), LUFS/TP, luma minimum, level detik pertama, cover; plus hook (baris pertama) dan cliffhanger
 (baris terakhir) tiap part.
 **`output/vertical/first_frames.png`** = frame pertama semua part berdampingan — selalu buka dan cek: harus gambar
 yang jelas, bukan hitam/kartu. Contact sheet per part: `review_sheet_partN_XX.png`; peta crop `review_crops_*.png`.
 
 ## Video panjang — pemeriksaan otomatis (review_report.md)
-tempo per part (120–165 wpm) dan durasi part (≤ 2:55) · loudness (−14 ±1 LUFS, TP ≤ −1, LRA) · jarak musik+ambience di jeda vs suara (12–26 dB) · gambar > 12 s
+tempo per part (105–135 wpm) dan durasi part (≤ 2:55) · loudness (−14 ±1 LUFS, TP ≤ −1, LRA) · jarak musik+ambience di jeda vs suara (12–26 dB) · gambar > 12 s
 (peringatan saja, jangan diubah otomatis) · hening > 3 s / layar hitam / gambar beku yang tidak disengaja ·
 subtitle tumpang tindih/terlalu cepat/tagline masuk subtitle · chapter YouTube (satu per part, mulai 00:00) ·
 thumbnail (ukuran, < 2 MB) · Threads (post > 500, thread > 15 post).
@@ -37,5 +37,5 @@ terpotong — saran override", "Gambar kurang Jawa", "Lainnya"), lalu jalankan `
 - Kreatif (gambar kurang Jawa, crop kurang pas karena data posisi) → laporkan dengan saran konkret:
   `vertical_crop_x: 0.6`, `position: right`, atau "regenerate b026b dengan culture lock". Jangan ubah tanpa izin.
 - Durasi audio di beat hitam panjang: pastikan tidak ada > 2 s yang cuma hening/room tone.
-- Tempo < 120 wpm: kurangi baris pelan di styles.yaml / jeda; untuk klip yang sudah ada, `repace` (03) tanpa kuota.
+- Tempo di luar 105–135 wpm: ikuti aturan keputusan tempo di 03 (repace 1.2 / 0.9), tanpa kuota.
   Part > 2:55: pindahkan batas part ke cliffhanger lebih awal (01), jangan memotong di tengah kalimat.

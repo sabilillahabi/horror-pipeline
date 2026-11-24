@@ -28,8 +28,8 @@
 ## Dari peralihan ke format part (23 Nov 2026)
 17. **Ep01 jalan ±85 wpm** — terlalu lambat untuk Shorts. Penyebab: style default "bercerita pelan", hampir semua
     baris di styles.yaml bilang "pelan"/"jeda panjang", dan pause 1–2 s. Sekarang: frasa tempo di semua style,
-    maks 3 baris pelan per part, pause ≤ 0,6 s (1,0 s cliffhanger). `review` menandai < 120 wpm.
-18. **Jangan generate ulang hanya untuk mempercepat**: `repace` (atempo 1,2–1,3 + potong hening + pendekkan jeda
+    maks 3 baris pelan per part, pause ≤ 0,6 s (1,0 s cliffhanger). Patokan akhirnya ±115 wpm (lihat 30).
+18. **Jangan generate ulang hanya untuk mempercepat**: `repace` (atempo 1,2 + potong hening + pendekkan jeda
     dalam klip) memakai klip yang ada. Setelah itu `tts.locked: true` — tanpa itu, perubahan style default membuat
     `tts` menganggap semua klip usang dan menghabiskan kuota.
 19. **Part ≤ 2:55 termasuk semuanya.** Kartu pembuka 1 s + "Lanjut ke Part" 1,5 s dulu memakan waktu dan membuat
@@ -59,3 +59,6 @@
     setelah render. Selalu: `tts` dulu (ringkasan di akhir mencetak durasi + wpm tiap part), pastikan tiap part
     **≤ 2:52** (sisakan ±3 s), baru `build`. Kalau mepet: `pause_after` level part (0,15–0,2) atau `repace` satu baris
     paling lambat. True peak di atas −1 dBTP sekarang dikoreksi otomatis setelah encode (part dan video panjang).
+30. **Tempo final ep01 = patokan: ±115 wpm** (repace 1.2, max-gap 0.8). Versi 1.3 (±134 wpm) menurut Bil kecepatan.
+    Target lama 130–150 wpm di dokumen membuat Muse menghitung tempo 1.43 dan bertanya ke Bil — sekarang target
+    110–130, review menandai < 105 / > 135, dan aturan keputusan tempo di 03 tidak perlu konfirmasi.

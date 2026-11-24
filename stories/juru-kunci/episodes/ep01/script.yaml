@@ -1,5 +1,5 @@
 # Juru Kunci - Episode 1: Pulang
-# Format (sejak 23 Nov 2026): 4 part, masing-masing <= 2:55, tempo 130-150 wpm.
+# Format (sejak 23 Nov 2026): 4 part, masing-masing <= 2:55. Final: repace 1.2 / max-gap 0.8, ~115 wpm (patokan tempo).
 # Klip TTS ep01 di-repace (atempo) dari rekaman lama, jadi teks tidak diubah (tts.locked).
 # Catatan field:
 #   visual: image (default) | black | text_card

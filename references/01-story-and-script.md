@@ -7,7 +7,7 @@ Kunci script dulu, baru generate apa pun. Mengubah teks/beat setelah TTS & gamba
   menggantikan bab: ditulis di `script.yaml` sebagai `parts:` (judul + beats). Chapter YouTube video panjang =
   awal tiap part.
 - **Panjang script tetap 1.100–1.300 kata per episode**: padat, detail, banyak dialog, semua suara tokoh tetap
-  dipakai, narator "aku". Pada 130–150 wpm itu ±8–10 menit = 3–4 part.
+  dipakai, narator "aku". Pada ±115 wpm (patokan ep01) itu ±10–11 menit = **4 part** (3 part hanya kalau ≤ ±950 kata).
 - **Tiap part adalah unit sendiri:** baris pertama = hook (langsung masuk ke kejadian/pertanyaan, bukan
   pembukaan), baris terakhir = cliffhanger (kalimat menggantung/ancaman/temuan). Penonton Shorts bisa mulai dari
   part mana pun.
@@ -22,7 +22,7 @@ Kunci script dulu, baru generate apa pun. Mengubah teks/beat setelah TTS & gamba
   `title`) sebelum memotong teks.
 - Part pertama tidak dibuka dengan layar hitam/kartu teks; kalau terpaksa, vertikal menggantinya dengan gambar
   terdekat (lihat 05), tapi lebih baik hook bergambar.
-- Tempo: 130–150 wpm (lihat 03). `pause_after` maks 0,6 s; 1,0 s hanya di cliffhanger part; beat hitam maks
+- Tempo: ±115 wpm seperti ep01 final (target 110–130, lihat 03). `pause_after` maks 0,6 s; 1,0 s hanya di cliffhanger part; beat hitam maks
   1,5 s. Nilai lebih besar dipotong otomatis dan `check` memperingatkan.
 - Gambar: **25–30 gambar Flow baru per episode** (16:9 saja), sisanya `reuse` + `crop` (wide / closeup_face /
   detail). `prompts` dan `check` mencetak jumlahnya dan memperingatkan di atas 30.

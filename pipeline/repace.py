@@ -7,7 +7,7 @@ than --max-gap (0.5 s, before the tempo change) are shortened to it — the old 
 left 1-2 s gaps mid-line. The originals are never touched:
 the first run copies the effect-applied clips to audio/gemini/_orig/ as a backup.
 
-    python horror.py repace juru-kunci 1 --tempo 1.25          # all beats
+    python horror.py repace juru-kunci 1 --tempo 1.2 --max-gap 0.8   # all beats (ep01 final setting)
     python horror.py repace juru-kunci 1 --tempo 1.2 --beats b041,b042
     python horror.py repace juru-kunci 1 --tempo 1.25 --sample b008   # one clip → output/repace_sample_*.wav
 
@@ -28,7 +28,7 @@ TRIM = ("silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.06,
 
 def tempo_filter(tempo: float) -> str:
     if not 0.5 <= tempo <= 2.0:
-        raise PipelineError("--tempo harus 0.5–2.0 (coba 1.2–1.3)")
+        raise PipelineError("--tempo harus 0.5–2.0 (setelan ep01 final: 1.2)")
     return f"atempo={tempo:.4f}"
 
 

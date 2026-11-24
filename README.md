@@ -2,7 +2,7 @@
 
 CLI Python untuk cerita horor bersambung: tiap episode = **3–4 part vertikal 1080×1920 (≤ 2:55, untuk YouTube
 Shorts / TikTok / IG Reels / FB Reels)** + **satu video panjang YouTube 1920×1080**. Narasi **Gemini TTS**
-(130–150 wpm), gambar dari **Google Flow** (dibuat manual, 16:9), render dengan **ffmpeg**.
+(±115 wpm, patokan ep01), gambar dari **Google Flow** (dibuat manual, 16:9), render dengan **ffmpeg**.
 
 ```
 prompts → (gambar di Flow) → import-flow → check → tts --plan → tts → build → build --vertical → review

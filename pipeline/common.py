@@ -30,7 +30,7 @@ DEFAULT_RENDER = {
     "max_shot": 12.0,          # max seconds a single image/crop stays on screen
     "crossfade": 0.5,          # seconds
     "pause_after": 0.35,       # default silence after each beat
-    "max_pause": 0.6,          # hard cap on pause_after (pace rule: 130-150 wpm)
+    "max_pause": 0.6,          # hard cap on pause_after (pace rule: ~115 wpm like ep01 final)
     "cliff_pause": 1.0,        # pause after a part's last (cliffhanger) beat; also its cap
     "max_black": 1.5,          # a black beat lasts at most this long (unless its line is longer)
     "recap_pause": 0.8,
@@ -50,11 +50,12 @@ DEFAULT_RENDER = {
 SLOW_WORDS = ("pelan", "lambat", "jeda panjang", "jeda dramatis", "berhenti sejenak", "diseret", "sangat serius",
               "ditekan", "berat")
 MAX_SLOW_PER_PART = 3
-DEFAULT_PACE = "Tempo sedang, mengalir, tidak diseret."
+DEFAULT_PACE = "Tempo tenang, mengalir, tidak terburu-buru."
 WORDS_MIN, WORDS_MAX = 1100, 1300       # words per episode
 PARTS_MIN, PARTS_MAX = 3, 4             # parts per episode
 PART_MAX_S, PART_TARGET = 175.0, (150.0, 170.0)   # <= 2:55 (YouTube Shorts), target 2:30-2:50
-WPM_LOW, WPM_HIGH, WPM_TARGET = 120, 165, (130, 150)
+# Pace = ep01 final (approved by Bil 24 Nov 2026): ~115 wpm. Target 110-130; review flags < 105 or > 135.
+WPM_LOW, WPM_HIGH, WPM_TARGET = 105, 135, (110, 130)
 
 
 def is_slow_style(text: str) -> bool:

@@ -103,8 +103,8 @@ def main(argv=None) -> int:
 
     add("review", "cek teknis render terakhir → output/review_report.md + contact sheet")
     sp = add("repace", "percepat klip TTS yang sudah ada (atempo, pitch tetap) tanpa request TTS baru")
-    sp.add_argument("--tempo", type=float, default=1.3, help="faktor kecepatan (coba 1.2-1.3)")
-    sp.add_argument("--max-gap", type=float, default=0.5,
+    sp.add_argument("--tempo", type=float, default=1.2, help="faktor kecepatan (setelan ep01 final: 1.2)")
+    sp.add_argument("--max-gap", type=float, default=0.8,
                     help="jeda di dalam klip yang lebih panjang dari ini dipendekkan (detik, 0 = mati)")
     sp.add_argument("--beats", help="hanya beat ini, mis. b041,b042")
     sp.add_argument("--sample", help="buat satu contoh (output/repace_sample_*.wav) tanpa mengubah klip")

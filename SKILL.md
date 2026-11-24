@@ -1,6 +1,6 @@
 ---
 name: "horror_serial"
-description: "Produksi cerita horor bersambung di Muse AI: tiap episode = 3-4 part vertikal (<= 2:55, dipakai sama untuk YouTube Shorts/TikTok/IG Reels/FB Reels) + satu video panjang YouTube 16:9. Dari script.yaml (parts) sampai file siap upload: prompt gambar Google Flow (user generate di Flow lalu diimport), narasi Gemini TTS 130-150 wpm (request digabung), lapisan suara, render cepat (encoder hardware/veryfast, shot paralel), outro channel (video panjang saja), cover per part, caption, jadwal 3 episode/minggu, review teknis + visual. Pakai saat user mau membuat / melanjutkan episode cerita horor (mis. Juru Kunci, channel Kemenyan Malam)."
+description: "Produksi cerita horor bersambung di Muse AI: tiap episode = 3-4 part vertikal (<= 2:55, dipakai sama untuk YouTube Shorts/TikTok/IG Reels/FB Reels) + satu video panjang YouTube 16:9. Dari script.yaml (parts) sampai file siap upload: prompt gambar Google Flow (user generate di Flow lalu diimport), narasi Gemini TTS ±115 wpm seperti ep01 final (request digabung), lapisan suara, render cepat (encoder hardware/veryfast, shot paralel), outro channel (video panjang saja), cover per part, caption, jadwal 3 episode/minggu, review teknis + visual. Pakai saat user mau membuat / melanjutkan episode cerita horor (mis. Juru Kunci, channel Kemenyan Malam)."
 ---
 
 # Horror Serial Pipeline (Muse AI)
@@ -25,7 +25,9 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 ## Format (sejak 23 Nov 2026) — patuhi tanpa diminta
 - Episode = **3–4 part** di `script.yaml` (`parts:`), tiap part 2:30–2:50, **wajib ≤ 2:55**; 1.100–1.300 kata per
   episode; baris pertama part = hook, baris terakhir = cliffhanger; part 2–4 dibuka "hook jembatan" (01).
-- Tempo **130–150 wpm**: style default + "tempo sedang, mengalir, tidak diseret"; maks 3 baris pelan per part;
+- Tempo = **ep01 final, ±115 wpm** (target 110–130): style default + "tempo tenang, mengalir, tidak terburu-buru";
+  klip lama yang lambat `repace --tempo 1.2 --max-gap 0.8`. Ikuti aturan keputusan di 03 — jangan tanya Bil soal tempo;
+  maks 3 baris pelan per part;
   `pause_after` ≤ 0,6 s (1,0 s cliffhanger); beat hitam ≤ 1,5 s (03).
 - 25–30 gambar Flow baru per episode, sisanya `reuse` + `crop` (02).
 - Satu gambar 16:9 harus bagus di landscape dan vertikal: subjek di sepertiga tengah, pinggir = suasana, dua tokoh
@@ -58,7 +60,7 @@ Kalau workspace punya browser yang login ke akun Google Bil dan Bil minta kamu s
 atau download suara di Pixabay, ikuti `references/09-flow-and-pixabay-browser.md`.
 
 ## Output Contract (per episode, di `stories/<slug>/episodes/epXX/`)
-- `output/vertical/epXX_partN.mp4` — 3–4 part, masing-masing ≤ 2:55, 120–165 wpm, −14 LUFS / ≤ −1.5 dBTP,
+- `output/vertical/epXX_partN.mp4` — 3–4 part, masing-masing ≤ 2:55, 105–135 wpm, −14 LUFS / ≤ −1.5 dBTP,
   ±20–40 MB, 3 detik pertama gambar (bukan hitam/kartu), tanpa kartu penutup; sama untuk Shorts/TikTok/IG/FB
 - `output/vertical/covers/epXX_partN_cover.jpg` + `covers_sheet.png`; `first_frames.png`; `captions.txt`
 - `output/epXX.mp4` (YouTube, 1920x1080, < 300 MB, −14 LUFS ±1, true peak ≤ −1 dBTP, outro channel di akhir)

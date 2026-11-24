@@ -12,9 +12,9 @@ composition_block: "Main subject centered in the middle third of the frame, impo
 # Per-beat overrides live in episodes/epXX/styles.yaml and are appended to the default style.
 tts_engine: gemini
 gemini_language: id-ID
-# Added to every speaker's style (pace rule since 23 Nov 2026: 130-150 wpm). styles.yaml lines marked slow
+# Added to every speaker's style (pace = ep01 final, ~115 wpm, target 110-130). styles.yaml lines marked slow
 # (max 3 per part) leave it out.
-gemini_pace: "Tempo sedang, mengalir, tidak diseret."
+gemini_pace: "Tempo tenang, mengalir, tidak terburu-buru."
 gemini_voices:
   narrator:
     voice: id-id-assistant-1

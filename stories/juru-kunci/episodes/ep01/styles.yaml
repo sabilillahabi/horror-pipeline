@@ -1,5 +1,5 @@
 # Per-beat delivery directions for Gemini TTS (appended to the speaker's default style).
-# Default for every speaker: story style + "Tempo sedang, mengalir, tidak diseret." (story.yaml gemini_pace).
+# Default for every speaker: story style + story.yaml gemini_pace ("Tempo tenang, mengalir, tidak terburu-buru.").
 # Rule (since 23 Nov 2026): at most 3 slow/dramatic lines per part (words like "pelan", "lambat",
 # "jeda panjang", "berhenti sejenak"); everything else keeps the flowing default tempo.
 # Beats not listed here use the speaker's default style only — consecutive beats of the same speaker with

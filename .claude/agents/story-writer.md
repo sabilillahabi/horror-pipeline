@@ -11,7 +11,7 @@ Follow references/01-story-and-script.md exactly:
 - Each part stands alone: first line = hook, last line = cliffhanger. Parts 2-4 open with a "bridge hook":
   one narrator sentence (10-15 words) that restates the previous part's cliffhanger stakes in NEW words and
   raises a question (see references/01 for the ep01 examples); its image reuses a strong earlier image (wide).
-- Pace 130-150 wpm: pause_after <= 0.6 s (1.0 s only on a part's cliffhanger), black beats <= 1.5 s,
+- Pace ~115 wpm like ep01 final (target 110-130): pause_after <= 0.6 s (1.0 s only on a part's cliffhanger), black beats <= 1.5 s,
   at most 3 slow/dramatic lines per part in styles.yaml; leave ordinary lines without a style.
 - 25-30 new Flow images per episode (16:9); reuse + crop (wide/closeup_face/detail) for the rest.
 - Culture lock: rural Central Java (joglo, gapura, kijing/nisan), no European elements, no readable text.
