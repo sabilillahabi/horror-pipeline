@@ -32,12 +32,33 @@ Aturan:
 - Butuh 3 episode jadi per minggu: simpan minimal satu episode stok.
 - Threads opsional (kalau dipakai: sesudah video panjang tayang, satu thread per part).
 
-## Caption part (`output/vertical/captions.txt` → tulis ulang sendiri)
-Dari isi part (jangan bocorkan akhir part/episode), 2–3 kalimat pendek, sudut pandang "aku": hook → kalimat
-menggantung; lalu `🎧 <Judul> · Eps N · Part N/M`. Part terakhir: "Versi lengkap episode N ada di YouTube Kemenyan
-Malam." (hanya di caption — video tidak punya kartu penutup). IG: `▶ link di bio`; FB/YouTube: `[LINK YOUTUBE]`.
-Hashtag IG/TikTok: `#KemenyanMalam #JuruKunciWringinpitu #ceritahoror #horor #ceritahororjawa #kisahmistis
-#horrorindonesia`; FB/Shorts: 3 tag pertama. Hindari gaya "lebay" (huruf kapital semua, banyak emoji).
+## Judul & deskripsi per platform → `stories/<slug>/episodes/epXX/publish.md`
+Tulis sendiri dari isi script (bukan dari `captions.txt` otomatis), satu file per episode, siap copy-paste: per part
+satu blok per platform (YouTube Shorts, TikTok, IG Reels, FB Reels), lalu blok video panjang, jadwal, dan nama file cover.
+Contoh jadi: `stories/juru-kunci/episodes/ep01/publish.md`.
+
+**Aturan isi (semua platform)**
+- Bahasa Indonesia santai, sudut pandang "aku". Tidak membocorkan cliffhanger part itu atau twist part sesudahnya
+  (hook boleh dari tengah part). Tanpa huruf kapital semua, maks 1–2 emoji (🎧 ▶).
+- Hook = situasi + rasa ganjil konkret ("menyisir rambut dengan sisir yang nggak ada"), bukan kata sifat kosong
+  ("seram banget!").
+- Label seri selalu ada: `🎧 <Judul> · Eps N · Part N/M`. Part terakhir: tambah "Versi lengkap Episode N ada di
+  YouTube Kemenyan Malam."
+- Hashtag lengkap (7): `#KemenyanMalam #JuruKunciWringinpitu #ceritahoror #horor #ceritahororjawa #kisahmistis
+  #horrorindonesia` (ganti tag judul untuk cerita lain). Hashtag pendek (3) = tiga pertama.
+
+**Per platform**
+| | Judul | Deskripsi / caption | Link | Hashtag |
+|---|---|---|---|---|
+| YouTube Shorts | kolom judul, ≤ 70 huruf + ` #shorts` di akhir (maks 100) | 2–3 kalimat hook + label seri | **tanpa link** (tidak bisa diklik di Shorts) — pakai "Related video" ke part berikutnya, part terakhir → video panjang | 3 |
+| TikTok | **tidak ada kolom judul**: baris pertama caption = judul (≤ 70 huruf) | baris kosong, 2–3 kalimat hook, label seri | tidak ada | 7 |
+| IG Reels | **tidak ada kolom judul**: baris pertama caption = judul | baris kosong, hook, label seri, `▶ link di bio` | link di bio (caption tidak bisa diklik) | 7 |
+| FB Reels | **tidak ada kolom judul**: baris pertama = judul | baris kosong, hook, label seri, `▶ [LINK YOUTUBE]` (bisa diklik) | link video panjang setelah tayang | 3 |
+| YouTube (panjang) | `youtube_title` dari script.yaml (≤ 70 huruf terlihat penuh, maks 100) + 1 alternatif | 2 baris pertama = hook (yang terlihat sebelum "lainnya"), sinopsis 3–4 kalimat tanpa spoiler, "Juru Kunci · Episode N: <judul>", ajakan subscribe, **Chapter** (salin dari `output/description.txt`, mulai 00:00), hashtag | link part/Shorts boleh | 5 di deskripsi + 10–15 tag di kolom Tag |
+
+Format judul part: `<hook singkat> | <Judul> Eps N Part N/M` (mis. "Perempuan di Gerbang Makam Menyisir Rambut |
+Juru Kunci Eps 1 Part 1/4"). Tiap part judul berbeda; jangan "Part 2" saja.
+`[LINK YOUTUBE]` di FB diganti setelah video panjang tayang (caption yang sudah terbit boleh diedit).
 
 ## Threads (opsional)
 Satu thread per part, post ≤ 480 karakter (emoji dihitung byte UTF-8), putus di batas kalimat. Post 1 = hook + 🧵 +

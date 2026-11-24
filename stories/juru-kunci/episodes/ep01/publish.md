@@ -16,14 +16,14 @@ Video panjang `output/ep01.mp4` hanya ke YouTube. Satu file per slot, jangan bat
 Catatan:
 - IG/FB: "Edit cover" lalu pilih `epXX_partN_cover.jpg`. TikTok/Shorts: pilih frame/cover.
 - YouTube Shorts: isi **Related video** tiap Short dengan part berikutnya (Part 1 → Part 2, Part 2 → Part 3, Part 3 → Part 4). **Part 4 → video panjang** (setelah tayang Rabu 18:00).
-- Setelah video panjang tayang, ganti semua `[LINK YOUTUBE]` di caption FB/Shorts dengan link-nya (atau edit caption yang sudah terbit).
+- Setelah video panjang tayang, ganti `[LINK YOUTUBE]` di caption FB dengan link-nya (caption yang sudah terbit boleh diedit). Shorts tanpa link — pakai Related video.
 
 ---
 
 ## Part 1 · "Gerbang"
 
 **Judul**
-- TikTok / IG / FB: `Perempuan di Gerbang Makam Menyisir Rambut | Juru Kunci Eps 1 Part 1/4`
+- TikTok / IG / FB (tidak ada kolom judul — sudah jadi baris pertama caption di bawah): `Perempuan di Gerbang Makam Menyisir Rambut | Juru Kunci Eps 1 Part 1/4`
 - YouTube Shorts: `Perempuan di Gerbang Makam Menyisir Rambut | Juru Kunci Eps 1 Part 1/4 #shorts`
 
 **YouTube Shorts (deskripsi)**
@@ -31,13 +31,14 @@ Catatan:
 Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempuan berkebaya hijau yang menyisir rambut dengan sisir yang nggak ada. Padahal semuanya baru dimulai tiga minggu sebelumnya.
 
 🎧 Juru Kunci · Eps 1 · Part 1/4
-▶ Lanjut nonton: [LINK YOUTUBE]
 
 #KemenyanMalam #JuruKunciWringinpitu #ceritahoror
 ```
 
 **TikTok**
 ```
+Perempuan di Gerbang Makam Menyisir Rambut | Juru Kunci Eps 1 Part 1/4
+
 Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempuan berkebaya hijau yang menyisir rambut dengan sisir yang nggak ada. Padahal semuanya baru dimulai tiga minggu sebelumnya.
 
 🎧 Juru Kunci · Eps 1 · Part 1/4
@@ -47,6 +48,8 @@ Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempua
 
 **IG Reels**
 ```
+Perempuan di Gerbang Makam Menyisir Rambut | Juru Kunci Eps 1 Part 1/4
+
 Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempuan berkebaya hijau yang menyisir rambut dengan sisir yang nggak ada. Padahal semuanya baru dimulai tiga minggu sebelumnya.
 
 🎧 Juru Kunci · Eps 1 · Part 1/4
@@ -57,6 +60,8 @@ Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempua
 
 **FB Reels**
 ```
+Perempuan di Gerbang Makam Menyisir Rambut | Juru Kunci Eps 1 Part 1/4
+
 Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempuan berkebaya hijau yang menyisir rambut dengan sisir yang nggak ada. Padahal semuanya baru dimulai tiga minggu sebelumnya.
 
 🎧 Juru Kunci · Eps 1 · Part 1/4
@@ -70,7 +75,7 @@ Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempua
 ## Part 2 · "Juru Kunci"
 
 **Judul**
-- TikTok / IG / FB: `Sejak Hari Itu Semua Warga Memanggilku Juru Kunci | Eps 1 Part 2/4`
+- TikTok / IG / FB (tidak ada kolom judul — sudah jadi baris pertama caption di bawah): `Sejak Hari Itu Semua Warga Memanggilku Juru Kunci | Eps 1 Part 2/4`
 - YouTube Shorts: `Sejak Hari Itu Semua Warga Memanggilku Juru Kunci | Eps 1 Part 2/4 #shorts`
 
 **YouTube Shorts (deskripsi)**
@@ -78,13 +83,14 @@ Jam 00:07, aku berdiri sendirian di gerbang makam desa. Di undakan, ada perempua
 Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang menangis. Mereka cuma diam sambil terus melirik ke arahku. Lalu seorang bapak tua mencium tanganku dan menyebut gelar yang nggak kumengerti.
 
 🎧 Juru Kunci · Eps 1 · Part 2/4
-▶ Lanjut nonton: [LINK YOUTUBE]
 
 #KemenyanMalam #JuruKunciWringinpitu #ceritahoror
 ```
 
 **TikTok**
 ```
+Sejak Hari Itu Semua Warga Memanggilku Juru Kunci | Eps 1 Part 2/4
+
 Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang menangis. Mereka cuma diam sambil terus melirik ke arahku. Lalu seorang bapak tua mencium tanganku dan menyebut gelar yang nggak kumengerti.
 
 🎧 Juru Kunci · Eps 1 · Part 2/4
@@ -94,6 +100,8 @@ Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang men
 
 **IG Reels**
 ```
+Sejak Hari Itu Semua Warga Memanggilku Juru Kunci | Eps 1 Part 2/4
+
 Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang menangis. Mereka cuma diam sambil terus melirik ke arahku. Lalu seorang bapak tua mencium tanganku dan menyebut gelar yang nggak kumengerti.
 
 🎧 Juru Kunci · Eps 1 · Part 2/4
@@ -104,6 +112,8 @@ Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang men
 
 **FB Reels**
 ```
+Sejak Hari Itu Semua Warga Memanggilku Juru Kunci | Eps 1 Part 2/4
+
 Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang menangis. Mereka cuma diam sambil terus melirik ke arahku. Lalu seorang bapak tua mencium tanganku dan menyebut gelar yang nggak kumengerti.
 
 🎧 Juru Kunci · Eps 1 · Part 2/4
@@ -117,7 +127,7 @@ Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang men
 ## Part 3 · "Tiga Aturan"
 
 **Judul**
-- TikTok / IG / FB: `Tiga Aturan yang Nggak Boleh Kulanggar | Juru Kunci Eps 1 Part 3/4`
+- TikTok / IG / FB (tidak ada kolom judul — sudah jadi baris pertama caption di bawah): `Tiga Aturan yang Nggak Boleh Kulanggar | Juru Kunci Eps 1 Part 3/4`
 - YouTube Shorts: `Tiga Aturan yang Nggak Boleh Kulanggar | Juru Kunci Eps 1 Part 3/4 #shorts`
 
 **YouTube Shorts (deskripsi)**
@@ -125,13 +135,14 @@ Kakek dimakamkan di tengah tujuh beringin, dan nggak ada satu pun warga yang men
 Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lenteranya nggak belok ke arah rumahnya. Sementara itu, adikku mulai berubah, dan warga terus datang membawa macam-macam untukku.
 
 🎧 Juru Kunci · Eps 1 · Part 3/4
-▶ Lanjut nonton: [LINK YOUTUBE]
 
 #KemenyanMalam #JuruKunciWringinpitu #ceritahoror
 ```
 
 **TikTok**
 ```
+Tiga Aturan yang Nggak Boleh Kulanggar | Juru Kunci Eps 1 Part 3/4
+
 Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lenteranya nggak belok ke arah rumahnya. Sementara itu, adikku mulai berubah, dan warga terus datang membawa macam-macam untukku.
 
 🎧 Juru Kunci · Eps 1 · Part 3/4
@@ -141,6 +152,8 @@ Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lent
 
 **IG Reels**
 ```
+Tiga Aturan yang Nggak Boleh Kulanggar | Juru Kunci Eps 1 Part 3/4
+
 Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lenteranya nggak belok ke arah rumahnya. Sementara itu, adikku mulai berubah, dan warga terus datang membawa macam-macam untukku.
 
 🎧 Juru Kunci · Eps 1 · Part 3/4
@@ -151,6 +164,8 @@ Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lent
 
 **FB Reels**
 ```
+Tiga Aturan yang Nggak Boleh Kulanggar | Juru Kunci Eps 1 Part 3/4
+
 Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lenteranya nggak belok ke arah rumahnya. Sementara itu, adikku mulai berubah, dan warga terus datang membawa macam-macam untukku.
 
 🎧 Juru Kunci · Eps 1 · Part 3/4
@@ -164,7 +179,7 @@ Mbah Karto cuma memberiku tiga aturan, lalu pamit dengan lentera di tangan. Lent
 ## Part 4 · "Tusuk Konde"
 
 **Judul**
-- TikTok / IG / FB: `Malam Jumat Kliwon, Aku Nggak Boleh Tidur | Juru Kunci Eps 1 Part 4/4`
+- TikTok / IG / FB (tidak ada kolom judul — sudah jadi baris pertama caption di bawah): `Malam Jumat Kliwon, Aku Nggak Boleh Tidur | Juru Kunci Eps 1 Part 4/4`
 - YouTube Shorts: `Malam Jumat Kliwon, Aku Nggak Boleh Tidur | Juru Kunci Eps 1 Part 4/4 #shorts`
 
 **YouTube Shorts (deskripsi)**
@@ -173,13 +188,14 @@ Malam ini Jumat Kliwon, jadi aku duduk di teras dengan kopi hitam dan senter. Me
 
 🎧 Juru Kunci · Eps 1 · Part 4/4
 Versi lengkap Episode 1 ada di YouTube Kemenyan Malam.
-▶ [LINK YOUTUBE]
 
 #KemenyanMalam #JuruKunciWringinpitu #ceritahoror
 ```
 
 **TikTok**
 ```
+Malam Jumat Kliwon, Aku Nggak Boleh Tidur | Juru Kunci Eps 1 Part 4/4
+
 Malam ini Jumat Kliwon, jadi aku duduk di teras dengan kopi hitam dan senter. Menunggu ayam berkokok. Lalu dari arah makam terdengar kentongan, tiga kali, berhenti, tiga kali lagi.
 
 🎧 Juru Kunci · Eps 1 · Part 4/4
@@ -190,6 +206,8 @@ Versi lengkap Episode 1 ada di YouTube Kemenyan Malam.
 
 **IG Reels**
 ```
+Malam Jumat Kliwon, Aku Nggak Boleh Tidur | Juru Kunci Eps 1 Part 4/4
+
 Malam ini Jumat Kliwon, jadi aku duduk di teras dengan kopi hitam dan senter. Menunggu ayam berkokok. Lalu dari arah makam terdengar kentongan, tiga kali, berhenti, tiga kali lagi.
 
 🎧 Juru Kunci · Eps 1 · Part 4/4
@@ -201,6 +219,8 @@ Versi lengkap Episode 1 ada di YouTube Kemenyan Malam.
 
 **FB Reels**
 ```
+Malam Jumat Kliwon, Aku Nggak Boleh Tidur | Juru Kunci Eps 1 Part 4/4
+
 Malam ini Jumat Kliwon, jadi aku duduk di teras dengan kopi hitam dan senter. Menunggu ayam berkokok. Lalu dari arah makam terdengar kentongan, tiga kali, berhenti, tiga kali lagi.
 
 🎧 Juru Kunci · Eps 1 · Part 4/4

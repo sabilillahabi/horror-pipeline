@@ -48,7 +48,7 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 | 8 | Video panjang, lalu part vertikal (satu per satu) | `build`, `build --vertical` | 05 |
 | 9 | Cover part (+ Threads opsional) | otomatis di `build --vertical`; `covers`, `threads` | 05, 07 |
 | 10 | Review teknis + **cek visual oleh kamu** (`first_frames.png`!) | otomatis setelah build; `review` | 06 |
-| 11 | Paket upload + caption + jadwal | tabel & jadwal di 07 | 07 |
+| 11 | `publish.md`: judul + deskripsi + hashtag per platform, jadwal | aturan per platform di 07 | 07 |
 
 Sebelum mulai baca `references/08-lessons.md` — semua bug di sana sudah pernah terjadi.
 
