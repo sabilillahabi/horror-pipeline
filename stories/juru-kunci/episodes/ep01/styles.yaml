@@ -42,3 +42,9 @@ b074: "Pelan, merinding."
 b075: "Polos dan ringan, seperti menyampaikan titipan biasa."
 b076: "Berbisik ngeri."
 b077: "Sangat pelan, ngeri, jeda panjang sebelum 'memang kehilangan tusuk kondenya'."
+
+# --- Part hooks (bridge lines added 24 Nov 2026; default tempo, tense)
+h02: "Tegang dan menahan suara, langsung masuk, seperti melanjutkan cerita yang terputus."
+h03: "Tegang dan menahan suara, langsung masuk, tekan kata 'giliranku'."
+h04: "Membaca kutipan dengan suara bergetar, lalu kalimat terakhir datar dan dingin."
+

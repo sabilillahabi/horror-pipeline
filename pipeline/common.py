@@ -432,7 +432,9 @@ class Episode:
         self.uses_parts = bool(self.script.get("parts"))
         seen = {}
         for ci, ch in enumerate(chapters):
-            self.chapters.append({"title": str(ch.get("title", f"Part {ci + 1}")), "index": ci})
+            self.chapters.append({"title": str(ch.get("title", f"Part {ci + 1}")), "index": ci,
+                                  # part-level default pause between beats (still capped by max_pause)
+                                  "pause_after": _opt_float(ch.get("pause_after"))})
             for b in ch.get("beats") or []:
                 if "id" not in b:
                     raise PipelineError(f"Ada beat tanpa 'id' di part {ci + 1}.")

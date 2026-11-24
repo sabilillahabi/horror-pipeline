@@ -24,7 +24,7 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 
 ## Format (sejak 23 Nov 2026) — patuhi tanpa diminta
 - Episode = **3–4 part** di `script.yaml` (`parts:`), tiap part 2:30–2:50, **wajib ≤ 2:55**; 1.100–1.300 kata per
-  episode; baris pertama part = hook, baris terakhir = cliffhanger (01).
+  episode; baris pertama part = hook, baris terakhir = cliffhanger; part 2–4 dibuka "hook jembatan" (01).
 - Tempo **130–150 wpm**: style default + "tempo sedang, mengalir, tidak diseret"; maks 3 baris pelan per part;
   `pause_after` ≤ 0,6 s (1,0 s cliffhanger); beat hitam ≤ 1,5 s (03).
 - 25–30 gambar Flow baru per episode, sisanya `reuse` + `crop` (02).

@@ -103,7 +103,9 @@ def pause_for(ep: Episode, b: Beat, part_end: bool) -> float:
     cap = float(r["cliff_pause"]) if part_end else float(r["max_pause"])
     if b.pause_after is not None:
         return min(float(b.pause_after), cap)
-    return float(r["cliff_pause"]) if part_end else min(float(r["pause_after"]), cap)
+    part_default = ep.parts[b.chapter].get("pause_after") if b.chapter < len(ep.parts) else None
+    default = float(part_default) if part_default is not None else float(r["pause_after"])
+    return float(r["cliff_pause"]) if part_end else min(default, cap)
 
 
 def cliffhanger(ep: Episode, part: int) -> Beat | None:

@@ -11,6 +11,15 @@ Kunci script dulu, baru generate apa pun. Mengubah teks/beat setelah TTS & gamba
 - **Tiap part adalah unit sendiri:** baris pertama = hook (langsung masuk ke kejadian/pertanyaan, bukan
   pembukaan), baris terakhir = cliffhanger (kalimat menggantung/ancaman/temuan). Penonton Shorts bisa mulai dari
   part mana pun.
+- **Part 2, 3, 4 dibuka dengan "hook jembatan"**: satu kalimat narator (±10–15 kata, 4–6 s) yang meringkas taruhan
+  cliffhanger part sebelumnya *dengan kata baru* sekaligus memancing pertanyaan — bukan menyalin kalimatnya, bukan
+  "sebelumnya…". Contoh ep01: "Kakekku ditemukan bersujud di gerbang makam, menggenggam sesuatu yang warga
+  rahasiakan." · "Empat puluh tahun kakekku menjaga desa ini, sampai napas terakhir. Malam itu, giliranku." ·
+  "'Kalau kamu membaca ini, Le, berarti Mbah sudah gagal melindungimu.' Itu halaman pertama buku kakek."
+  Gambarnya boleh `reuse` gambar kuat dari part sebelumnya (wide), jangan text_card/hitam. Hook jembatan ikut di
+  video panjang (berfungsi sebagai pembuka chapter). Hitung durasinya dalam batas 2:55.
+- Kalau part terlalu mepet 2:55: turunkan jeda default part itu (`pause_after: 0.2` di level part, di bawah
+  `title`) sebelum memotong teks.
 - Part pertama tidak dibuka dengan layar hitam/kartu teks; kalau terpaksa, vertikal menggantinya dengan gambar
   terdekat (lihat 05), tapi lebih baik hook bergambar.
 - Tempo: 130–150 wpm (lihat 03). `pause_after` maks 0,6 s; 1,0 s hanya di cliffhanger part; beat hitam maks

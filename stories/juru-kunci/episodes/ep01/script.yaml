@@ -170,7 +170,15 @@ parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last lin
 
   # ------------------------------------------------------------------
   - title: "Juru Kunci"
+    pause_after: 0.2    # part-level default (was 0.35) so the hook fits in 2:55
     beats:
+
+      # --- HOOK (bridge from the previous part's cliffhanger; recorded 24 Nov 2026)
+      - id: h02
+        speaker: narrator
+        text: 'Kakekku ditemukan bersujud di gerbang makam, menggenggam sesuatu yang warga rahasiakan.'
+        reuse: b003
+        crop: wide
 
       - id: b018e
         speaker: narrator
@@ -333,6 +341,13 @@ parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last lin
   # ------------------------------------------------------------------
   - title: "Tiga Aturan"
     beats:
+
+      # --- HOOK (bridge from the previous part's cliffhanger; recorded 24 Nov 2026)
+      - id: h03
+        speaker: narrator
+        text: 'Empat puluh tahun kakekku menjaga desa ini, sampai napas terakhir. Malam itu, giliranku.'
+        reuse: b034
+        crop: wide
 
       - id: b038c
         speaker: narrator
@@ -499,6 +514,13 @@ parts:   # 3-4 parts; each <= 2:55 (YouTube Shorts), first line = hook, last lin
   # ------------------------------------------------------------------
   - title: "Tusuk Konde"
     beats:
+
+      # --- HOOK (bridge from the previous part's cliffhanger; recorded 24 Nov 2026)
+      - id: h04
+        speaker: narrator
+        text: '"Kalau kamu membaca ini, Le, berarti Mbah sudah gagal melindungimu." Itu halaman pertama buku kakek.'
+        reuse: b060
+        crop: wide
 
       - id: b061a
         speaker: narrator

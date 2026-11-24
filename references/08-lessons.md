@@ -49,3 +49,6 @@
 26. **Vertikal cuma memakai ±⅓ lebar gambar.** Tokoh di ujung kiri + ujung kanan, atau benda kunci di pinggir, hilang
     di Shorts. Sejak 24 Nov 2026 setiap prompt Flow memuat kalimat komposisi tengah (`composition_block`) dan adegan
     dua tokoh memakai `center-left`/`center-right`; `check` memperingatkan posisi `left` + `right`.
+27. **Part 2–4 ep01 awalnya tanpa hook** — kalimat pertamanya kelanjutan cerita ("Kata dokter puskesmas…"), jadi penonton
+    yang mulai dari part itu langsung swipe. Ditambal 24 Nov 2026 dengan 3 hook jembatan (h02–h04, 3 request TTS,
+    gambar reuse). Sejak itu hook jembatan wajib ditulis di script sejak awal (01).
