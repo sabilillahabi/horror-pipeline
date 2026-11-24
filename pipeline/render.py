@@ -124,7 +124,8 @@ def run_parallel(jobs: list, label: str) -> None:
 
 # ---------------------------------------------------------------- crossfade join
 def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: Path,
-               final: bool, force: bool = False, post: str | None = None, cwd: Path | None = None) -> None:
+               final: bool, force: bool = False, post: str | None = None, cwd: Path | None = None,
+               overlay: tuple | None = None) -> None:
     """Join clips (each `slot + crossfade` long) so clip k starts exactly at sum(slots[:k]).
 
     final=True: film grain + `post` filter (e.g. burned-in subtitles) + the final encoder
@@ -144,7 +145,7 @@ def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: 
                 xfade_join(cs, ss, gp, r, work, final=False, force=force)
             groups.append(gp)
             gslots.append(sum(ss))
-        return xfade_join(groups, gslots, out, r, work, final, force, post, cwd)
+        return xfade_join(groups, gslots, out, r, work, final, force, post, cwd, overlay)
 
     inputs, parts = [], []
     for i, c in enumerate(clips):
@@ -162,7 +163,7 @@ def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: 
             parts.append(f"[{prev}][v{i}]xfade=transition=fade:duration={D}:offset={offset:.4f}[{label}]")
             prev = label
     grain = int(r.get("grain", 0) or 0)
-    if final and (grain or post):
+    if final and (grain or post or overlay):
         parts[-1] = parts[-1][: parts[-1].rindex("[out]")] + "[pre]"
         last = "pre"
         if grain:
@@ -173,7 +174,16 @@ def xfade_join(clips: list[Path], slots: list[float], out: Path, r: dict, work: 
             parts.append(f"[pre][grain]blend=all_mode=overlay:all_opacity={min(1.0, grain / 25):.3f}"
                          ":shortest=1,format=yuv420p[g]")
             last = "g"
-        parts.append(f"[{last}]{post + ',' if post else ''}format=yuv420p[out]")
+        if post:
+            parts.append(f"[{last}]{post}[po]")
+            last = "po"
+        if overlay:  # (png in cwd, x, y[, enable expr]) — channel watermark on top of everything
+            png, x, y = overlay[:3]
+            en = overlay[3] if len(overlay) > 3 and overlay[3] else None
+            parts.append(f"movie={png},format=rgba[wm]")
+            parts.append(f"[{last}][wm]overlay={x}:{y}" + (f":enable='{en}'" if en else "") + "[ov]")
+            last = "ov"
+        parts.append(f"[{last}]format=yuv420p[out]")
     enc = video_args() + ["-r", str(fps), "-t", f"{sum(slots):.4f}"] if final else clip_args(threads=0)
     tmp = atomic_out(out)
     cmd = ["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(parts), "-map", "[out]", *enc, "-an", tmp]
@@ -470,11 +480,15 @@ def cmd_build(ep: Episode, args) -> None:
     step("Crossfade & gabung video")
     from .encode import encoder
     slots = [s["slot"] for s in shots]
-    video = ep.cache / f"video_{sha([str(c) for c in clips] + slots + [r['crossfade'], r['grain'], encoder()])}.mp4"
+    # channel watermark, bottom-right, hidden during the outro (which already says "— Kemenyan Malam")
+    wm = C.watermark(ch, False, ep.cache, int(r["width"]), int(r["height"]))
+    if wm and outro:
+        wm = (*wm, f"lt(t,{total - outro.slot:.3f})")
+    video = ep.cache / f"video_{sha([str(c) for c in clips] + slots + [r['crossfade'], r['grain'], encoder(), wm])}.mp4"
     if args.force or not video.exists():
         work = ep.cache / "groups"
         work.mkdir(exist_ok=True)
-        xfade_join(clips, slots, video, r, work, final=True, force=args.force)
+        xfade_join(clips, slots, video, r, work, final=True, force=args.force, cwd=ep.cache, overlay=wm)
     else:
         info("Video gabungan dipakai dari cache")
 

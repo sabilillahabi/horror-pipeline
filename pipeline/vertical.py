@@ -480,8 +480,9 @@ def _piece(ep: Episode, args, name: str, label: str, psegs, mix: Path, outdir: P
     video = ep.cache / f"vvideo_{name}.mp4"
     work = ep.cache / "groups_v"
     work.mkdir(exist_ok=True)
+    wm = C.watermark(C.for_episode(ep), True, ep.cache, W, H)   # "Kemenyan Malam" under the part label
     xfade_join(clips, [x["slot"] for x in shots], video, r, work, final=True, force=True,
-               post=f"ass={ass.name}", cwd=ep.cache)
+               post=f"ass={ass.name}", cwd=ep.cache, overlay=wm)
     audio = ep.cache / f"vaudio_{name}.wav"
     lufs = part_audio(mix, a, b, audio)
     out = outdir / f"{name}.mp4"

@@ -52,3 +52,6 @@
 27. **Part 2–4 ep01 awalnya tanpa hook** — kalimat pertamanya kelanjutan cerita ("Kata dokter puskesmas…"), jadi penonton
     yang mulai dari part itu langsung swipe. Ditambal 24 Nov 2026 dengan 3 hook jembatan (h02–h04, 3 request TTS,
     gambar reuse). Sejak itu hook jembatan wajib ditulis di script sejak awal (01).
+28. **Watermark lupa dipasang di ep01** — sekarang otomatis di setiap render (channel yaml `watermark:`), jadi tidak
+    bisa terlupa lagi. Rentang `--beats b001-b004` sempat ikut menangkap `h04` (nomor sama) — diperbaiki: akhiran
+    rentang hanya mencocokkan beat dengan awalan huruf yang sama.

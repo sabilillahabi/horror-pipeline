@@ -21,4 +21,11 @@ structure:
 # Outro visual: pure black, tagline (italic serif, one sentence per line, ~66% of frame width)
 # over the signature (bold serif, proportionally smaller)
 text_color: "#E8E2D6"
+
+# Watermark on every video (approved 24 Nov 2026): channel name in the signature font, ~60% opacity.
+# Vertical parts: centred just under the "Title · Eps N · Part N/M" label. Long video: bottom-right, hidden
+# during the outro. `watermark: false` turns it off.
+watermark:
+  text: "Kemenyan Malam"
+  opacity: 0.6
 # tagline_font / signature_font: optional paths; default Georgia Italic / Georgia Bold

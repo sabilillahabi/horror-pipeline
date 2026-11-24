@@ -22,6 +22,9 @@ Preview sebelum episode penuh: `build --beats b001-b018d` (dan `--vertical`) →
   channel. Part berakhir di cliffhanger + jeda 1,0 s dengan fade-out ambience/musik 0,5 s di akhir.
   Beat `long_only` (mis. kartu "Bersambung") tidak masuk part.
 - Label kecil tetap di atas: "<Judul> · Eps N · Part N/M". Subtitle Arial/Liberation Bold 64 px, maks 2 baris.
+- **Watermark "Kemenyan Malam"** (gaya yang disetujui 24 Nov 2026): serif tebal krem (font tanda tangan outro),
+  ±60% opasitas + bayangan halus, 44 px, tengah atas tepat di bawah label part. Jangan pindah ke kanan/bawah
+  (tertutup tombol & caption TikTok/Reels/Shorts).
 - Cover per part: judul dipotong dari `thumbnail_9x16.jpg` + "PART N", latar gambar terkuat part itu, disematkan
   di video dan disalin `epXX_partN_cover.jpg`. Ganti gambar: `covers.yaml` → `python horror.py covers <slug> <ep>`.
 - Tiap part dinormalisasi sendiri (−14 LUFS, ≤ −1.5 dBTP). Target ukuran ±20–40 MB per part.
@@ -30,6 +33,9 @@ Preview sebelum episode penuh: `build --beats b001-b018d` (dan `--vertical`) →
 1920x1080, satu per episode, dari mix yang sama. Struktur: cold open 0,5 s → beat (tanpa intro, tanpa kartu
 bab; kartu teks cerita boleh) → outro channel (hitam, tagline italic + bold "— Kemenyan Malam", bisikan
 Vindemiatrix). Outro hanya ada di sini. Chapter YouTube di `description.txt` = awal tiap part. Target < 300 MB.
+Watermark "Kemenyan Malam" 42 px di pojok kanan bawah, hilang saat outro (outro sudah menulis "— Kemenyan Malam").
+Setelan di `channels/<channel>.yaml` → `watermark: {text, opacity}` (`watermark: false` mematikan); tampilan di
+`pipeline/channel.py` (`WM_LAYOUT`, naikkan `WM_VERSION` kalau diubah).
 
 ## Kecepatan & ukuran
 - Encoder: hardware (h264_nvenc / h264_qsv / h264_amf) kalau ada dan lolos tes encode 0,2 s, kalau tidak libx264

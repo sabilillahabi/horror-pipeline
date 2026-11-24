@@ -129,6 +129,49 @@ def card_image(card: dict, W: int, H: int) -> Image.Image:
     return img
 
 
+# ------------------------------------------------------------------ watermark
+WM_VERSION = 1            # part of the video cache key: bump when the watermark look changes
+WM_LAYOUT = {             # size, opacity and position per orientation (approved 24 Nov 2026, option A)
+    "vertical": {"size": 44, "x": "center", "y": 175},          # just under the "Title · Eps N · Part N/M" label
+    "landscape": {"size": 42, "right": 48, "bottom": 40},       # bottom-right corner
+}
+
+
+def watermark(ch: "Channel | None", vertical: bool, out_dir: Path, W: int, H: int):
+    """(png name, x, y) of the channel-name watermark, or None (no channel / `watermark: false`).
+
+    Bold serif signature font, channel text colour, ~60% opacity with a soft shadow. The PNG is written to
+    out_dir; the caller overlays it in the final encode."""
+    if ch is None:
+        return None
+    cfg = ch.cfg.get("watermark", {})
+    if cfg is False:
+        return None
+    cfg = cfg or {}
+    text = str(cfg.get("text") or ch.cfg.get("name") or ch.signature.lstrip("—– ").strip())
+    opacity = float(cfg.get("opacity", 0.6))
+    lay = WM_LAYOUT["vertical" if vertical else "landscape"]
+    size = int(cfg.get("size_vertical" if vertical else "size_landscape", lay["size"]))
+    font = ImageFont.truetype(ch.card_cfg()["signature_font"], size) if ch.card_cfg()["signature_font"] \
+        else ImageFont.load_default(size)
+    from PIL import ImageColor
+    rgb = ImageColor.getrgb(str(ch.cfg.get("text_color") or "#E8E2D6"))
+    w, h = int(font.getlength(text)) + 12, size + 18
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.text((7, 5), text, font=font, fill=(0, 0, 0, int(255 * opacity * 0.8)))
+    d.text((5, 3), text, font=font, fill=(*rgb, int(255 * opacity)))
+    from .common import sha
+    name = f"wm_{'v' if vertical else 'h'}_{sha([text, opacity, size, WM_VERSION, rgb])}.png"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    img.save(out_dir / name)
+    if vertical:
+        x, y = (W - w) // 2, int(lay["y"])
+    else:
+        x, y = W - w - int(lay["right"]), H - h - int(lay["bottom"])
+    return name, x, y
+
+
 # ------------------------------------------------------------------ audio generation
 def _level(src: Path, dst: Path, role: str) -> None:
     """48 kHz mono s16, optional reverb, gain to TARGET_LUFS; a limiter catches breath peaks."""

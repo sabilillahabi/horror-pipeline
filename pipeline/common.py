@@ -604,8 +604,10 @@ class Episode:
                 na = id_number(a)
                 start = next((bt for bt in self.beats if bt.num is not None and na is not None
                               and bt.num >= na), None)
+            pre = lambda x: re.match(r"\D*", str(x)).group().lower()  # noqa: E731  ("b" in b018a)
             idx = [i for i, bt in enumerate(self.beats)
-                   if bt is self.resolve_ref(b) or (re.fullmatch(r"\D*\d+", b) and bt.num == id_number(b))]
+                   if bt is self.resolve_ref(b) or (re.fullmatch(r"\D*\d+", b) and bt.num == id_number(b)
+                                                    and (pre(b) == "" or pre(bt.id) == pre(b)))]
             if start is None or not idx:
                 raise PipelineError(f"Rentang beat '{spec}' tidak ditemukan.")
             i0, i1 = self.beats.index(start), max(idx)
