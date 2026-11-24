@@ -398,9 +398,9 @@ def fix_true_peak(out: Path, video: Path, audio: Path, dur: float, tries: int = 
     ceiling = PART_TP
     for _ in range(tries):
         tp = loudness(out)["TP"]
-        if tp is not None and tp <= TP_MAX_FILE - 0.1:
+        if tp is not None and tp <= TP_MAX_FILE - 0.2:     # accept <= -1.2 dBTP (margin for re-encodes)
             return
-        ceiling -= (tp if tp is not None else 0.0) - (TP_MAX_FILE - 0.3)
+        ceiling -= (tp if tp is not None else 0.0) - (TP_MAX_FILE - 0.5)   # aim for about -1.5
         lim = audio.with_name(audio.stem + "_lim.wav")
         run(["ffmpeg", "-y", "-i", audio, "-af",
              f"alimiter=limit={10 ** (ceiling / 20):.4f}:attack=1:release=60:level=false",

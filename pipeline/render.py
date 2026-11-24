@@ -242,6 +242,12 @@ def mix_audio(narration: Path, bgm: Path | None, out: Path, total: float, r: dic
     os.replace(tmp, out)
 
 
+def _fix_peak(out: Path, video: Path, audio: Path, total: float) -> None:
+    """AAC can push the true peak over -1 dBTP: measure, limit the WAV lower, re-mux (video copied)."""
+    from .vertical import fix_true_peak
+    fix_true_peak(out, video, audio, total)
+
+
 def mux(video: Path, audio: Path, out: Path, total: float) -> None:
     tmp = atomic_out(out)
     from .encode import AUDIO, FASTSTART
@@ -496,6 +502,7 @@ def cmd_build(ep: Episode, args) -> None:
         out = ep.output / f"preview_{sel[0].key}-{sel[-1].key}.mp4"
         srt = out.with_suffix(".srt")
         mux(video, mix, out, total)
+        _fix_peak(out, video, mix, total)
         write_srt(segs, srt)
         write_description(ep, segs, ep.output / f"description_{out.stem}.txt")
         ok(f"Preview: {out.relative_to(ROOT)}  ({fmt_ts(total)}) + {srt.name}")
@@ -503,6 +510,7 @@ def cmd_build(ep: Episode, args) -> None:
         out = ep.output / f"{ep.ep}.mp4"
         srt = ep.output / f"{ep.ep}.srt"
         mux(video, mix, out, total)
+        _fix_peak(out, video, mix, total)
         write_srt(segs, srt)
         write_description(ep, segs, ep.output / "description.txt")
         ok(f"Selesai: {out.relative_to(ROOT)}  ({fmt_ts(total)}, {out.stat().st_size / 1e6:.0f} MB)")
