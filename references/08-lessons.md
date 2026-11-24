@@ -55,3 +55,7 @@
 28. **Watermark lupa dipasang di ep01** — sekarang otomatis di setiap render (channel yaml `watermark:`), jadi tidak
     bisa terlupa lagi. Rentang `--beats b001-b004` sempat ikut menangkap `h04` (nomor sama) — diperbaiki: akhiran
     rentang hanya mencocokkan beat dengan awalan huruf yang sama.
+29. **Durasi part ditentukan audio asli, bukan perkiraan.** Hook h02 ep01 lebih panjang dari estimasi → part 2 jadi 2:55
+    setelah render. Selalu: `tts` dulu (ringkasan di akhir mencetak durasi + wpm tiap part), pastikan tiap part
+    **≤ 2:52** (sisakan ±3 s), baru `build`. Kalau mepet: `pause_after` level part (0,15–0,2) atau `repace` satu baris
+    paling lambat. True peak di atas −1 dBTP sekarang dikoreksi otomatis setelah encode (part dan video panjang).
