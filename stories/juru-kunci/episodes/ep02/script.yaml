@@ -1,0 +1,673 @@
+# Juru Kunci — Episode 2 (BARU, format parts:) — "Yang Menunggu"
+# Ditulis ulang 24 Nov 2026 dari script lama (93 beat, format chapters:):
+# 4 part (<=2:55), 3 hook jembatan (h02/h03/h04, reuse gambar akhir part sebelumnya),
+# 9 baris dipangkas 59 kata, 5 beat jadi reuse, b093 long_only (kartu BERSAMBUNG).
+# tts.locked: false — 12 baris baru butuh TTS; repace (langkah 4) mengubahnya jadi true.
+# pause_after 0.2 di level part 2 dan 3: part ketat, mengikuti preseden ep01 part 2.
+episode: 2
+tts:
+  locked: true   # clips re-paced with `repace`; tts must not regenerate them
+title: Yang Menunggu
+youtube_title: Tusuk Konde Perak Itu Ternyata Bukan Hadiah | Juru Kunci Eps 2
+thumbnail:
+  beat: b001
+  text: SUDAH DITERIMA
+recap: 'Sebelumnya di Juru Kunci: aku menerima tusuk konde perak dari perempuan di gerbang makam. Padahal
+  aturan ketiga bilang, jangan menerima apa pun darinya.'
+recap_image: b001
+parts:
+- title: Tusuk Konde
+  beats:
+  - id: b001
+    speaker: narrator
+    text: Tusuk konde itu dingin. Dinginnya bukan dingin logam biasa. Dingin seperti memegang es batu,
+      dan dingin itu merambat sampai ke pergelangan tanganku.
+    scene: Close-up of a young man's open palm holding an old silver hairpin carved with jasmine flowers,
+      oil lamp light, dark joglo interior at night
+    characters_in_scene: []
+  - id: b002
+    speaker: narrator
+    text: Sekar masih tersenyum. Senyum yang sama seperti perempuan di gerbang tadi. Senyum yang tidak
+      sampai ke matanya.
+    scene: Close-up of a young woman's calm face framed by a white prayer mukena, a faint unreadable smile,
+      oil lamp light
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b003
+    speaker: narrator
+    text: Malam itu, aku tidak tidur sama sekali. Setiap kali mataku terpejam, aku melihat undakan gerbang
+      itu lagi.
+    visual: black
+    pause_after: 0.3
+  - id: b004
+    speaker: narrator
+    text: Keesokan paginya.
+    visual: text_card
+    card_text: KEESOKAN PAGINYA
+    pause_after: 0.3
+  - id: b005
+    speaker: narrator
+    text: Pagi harinya, Sekar menuangkan teh seperti biasa. Seolah semalam tidak terjadi apa-apa. Seolah
+      bukan dia yang memberiku tusuk konde itu.
+    scene: Morning in a rustic Javanese kitchen, a young woman in a cream blouse pours tea from a clay
+      teapot into two glasses, calm, sunlight through a wooden window
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b006
+    speaker: sekar
+    text: Mas semalam mimpi buruk ya? Matanya merah.
+  - id: b007
+    speaker: narrator
+    text: Aku bertanya soal ibu-ibu kebaya hijau yang menitipkan tusuk konde itu. Aku bertanya pelan-pelan,
+      takut jawabannya.
+    scene: Close-up of a tired young man's face with red eyes, holding a glass of tea, morning light in
+      a rustic kitchen
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b008
+    speaker: sekar
+    text: Ibu-ibu? Sekar nggak ketemu siapa-siapa semalam, Mas. Sekar tidur dari jam sembilan.
+    scene: Close-up of a young woman's confused face, eyebrows knitting, shaking her head slightly, morning
+      kitchen light
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b009
+    speaker: narrator
+    text: Dia tidak ingat. Atau dia berpura-pura tidak ingat. Dua-duanya sama menakutkannya.
+    visual: black
+    pause_after: 0.3
+  - id: b010
+    speaker: narrator
+    text: Siang itu, aku berjalan ke sungai di ujung desa. Tusuk konde itu kulempar sejauh mungkin, sampai
+      aku tidak bisa melihat lagi ke mana jatuhnya.
+    scene: Seen from behind, a young man standing at the edge of a small river throwing a small silver
+      object into the water, midday sun, bamboo groves on the far bank
+    characters_in_scene:
+    - name: bayu
+      position: center
+      view: from behind
+  - id: b011
+    speaker: narrator
+    text: Aku pulang dengan perasaan lega. Untuk pertama kalinya sejak semalam, dadaku terasa ringan.
+      Aku bahkan sempat berpikir, mungkin semuanya sudah selesai.
+    scene: A young man walking back along a dirt village road between rice fields, shoulders relaxed,
+      afternoon light
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b012
+    speaker: narrator
+    text: Tapi waktu aku masuk kamar, tusuk konde itu sudah ada di atas bantalku. Rapi. Di tengah-tengah
+      bantal, seperti sengaja diletakkan.
+    scene: Close-up of an old silver hairpin carved with jasmine flowers lying on a white pillow in a
+      dim bedroom, evening light through a wooden window
+    characters_in_scene: []
+  - id: b013
+    speaker: narrator
+    text: Aku tidak berani menyentuhnya lagi. Aku tidur di kursi ruang tengah malam itu, dengan lampu
+      menyala.
+    scene: A young man sitting on the edge of a bed staring at a silver hairpin on the pillow, not daring
+      to touch it, evening light
+    characters_in_scene:
+    - name: bayu
+      position: center
+    pause_after: 0.6
+  - id: b014
+    speaker: narrator
+    text: Malam itu juga, aku pergi ke rumah Mbah Karto. Dialah satu-satunya orang yang mungkin tahu apa
+      yang harus kulakukan.
+    scene: An old man opening a carved wooden door at night holding an oil lantern, lantern light from
+      below on his wrinkled face, bamboo walls
+    characters_in_scene:
+    - name: mbah_karto
+      position: center
+  - id: b015
+    speaker: narrator
+    text: Mbah Karto menyuruhku masuk. Kami duduk berhadapan, seperti malam pertama dulu.
+    scene: Two men sitting across a low wooden table in a dim joglo living room, a single oil lamp between
+      them, the old man on the left, the young man on the right
+    characters_in_scene:
+    - name: mbah_karto
+      position: center-left
+    - name: bayu
+      position: center-right
+  - id: b016
+    speaker: narrator
+    text: Wajahnya berubah waktu aku meletakkan tusuk konde itu di atas meja. Bukan kaget. Lebih seperti
+      ketakutan yang sudah lama dia duga akan datang.
+    scene: Close-up of an old man's face changing, eyes widening in alarm at something on the table, oil
+      lamp light
+    characters_in_scene:
+    - name: mbah_karto
+      position: center
+  - id: b017
+    speaker: mbah_karto
+    text: Le... kamu sudah menerimanya.
+  - id: b018
+    speaker: narrator
+    text: Mbah, saya sudah mencoba membuangnya. Saya lempar ke sungai. Tapi sore ini dia sudah kembali
+      ke kamar saya.
+    scene: Close-up of a young man's tense face, jaw clenched, trying to explain himself, oil lamp light
+      flickering
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b019
+    speaker: mbah_karto
+    text: Sekali diterima, barang itu sudah tahu jalannya pulang.
+- title: Sumirah
+  pause_after: 0.2
+  beats:
+  - id: h02
+    speaker: narrator
+    text: Mbah Karto belum selesai bercerita. Dan bagian selanjutnya lebih menakutkan.
+    reuse: b019
+    crop: wide
+  - id: b020
+    speaker: narrator
+    text: Lalu Mbah Karto bercerita. Tentang perempuan di gerbang itu. Suaranya pelan sekali, seperti
+      takut ada yang mendengar dari luar.
+    scene: Close-up of wrinkled old hands slowly folding a white cloth on a wooden table beside an oil
+      lamp
+    characters_in_scene: []
+  - id: b021
+    speaker: mbah_karto
+    text: Namanya Sumirah.
+    scene: A young Javanese woman in a faded green kebaya standing at an old moss-covered stone graveyard
+      gate in daylight, seen from behind, long black hair in a loose old-fashioned bun
+    characters_in_scene:
+    - name: sumirah
+      position: center
+      view: from behind
+  - id: b022
+    speaker: mbah_karto
+    text: Tunangannya pergi merantau ke Jakarta. Berjanji pulang sebelum panen. Dia tidak pernah pulang.
+      Dan Sumirah tetap menunggu, tahun demi tahun.
+  - id: b023
+    speaker: mbah_karto
+    text: Sumirah menunggu di gerbang itu setiap malam. Sampai dia meninggal di undakan yang sama.
+    scene: A young woman in a faded green kebaya sitting alone on the stone steps of a graveyard gate
+      at dusk, perfectly still, mist gathering around her feet
+    characters_in_scene:
+    - name: sumirah
+      position: center
+  - id: b024
+    speaker: narrator
+    text: Dan sejak itu, dia tidak pernah pergi. Empat puluh tahun, dia duduk di undakan yang sama.
+    visual: black
+    pause_after: 0.3
+  - id: b025
+    speaker: mbah_karto
+    text: Tusuk konde itu satu-satunya barang peninggalan ibunya. Dia memberikannya hanya kepada orang
+      yang dia pilih.
+  - id: b026
+    speaker: narrator
+    text: Dipilih untuk apa, Mbah?
+    scene: Close-up of a young man's face going pale, eyes widening, oil lamp light
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b027
+    speaker: mbah_karto
+    text: Untuk menggantikannya... menunggu di gerbang.
+  - id: b028
+    speaker: narrator
+    text: Aku pulang dengan tusuk konde itu masih di sakuku. Mbah Karto tidak mau menyimpannya. Katanya,
+      barang itu sudah memilih.
+    scene: Walking down a dark village dirt road at night with a flashlight in one hand, giant banyan
+      trees looming ahead, thin mist
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b029
+    speaker: narrator
+    text: Di tengah jalan, aku mendengar sesuatu. Suara kentongan. Pelan. Tiga kali. Padahal malam ini
+      bukan malam Jumat Kliwon.
+    scene: Distant view at night of seven giant banyan trees on a hill, a wooden kentongan slit drum hanging
+      at the graveyard gate, moonlight, fog
+    characters_in_scene: []
+  - id: b030
+    speaker: narrator
+    text: Sesampainya di rumah, lampu kamar Sekar masih menyala. Dan dari balik pintu itu, terdengar suara
+      bersenandung. Tembang yang sama seperti malam sebelumnya.
+    scene: Dark hallway of a joglo house at night, a thin line of warm lamp light under a closed bedroom
+      door
+    characters_in_scene: []
+    pause_after: 0.6
+  - id: b031
+    speaker: narrator
+    text: Pagi harinya, aku membuka lagi buku catatan kakek. Kalau ada jawaban di mana pun, jawabannya
+      pasti ada di buku itu.
+    scene: Hands opening an old worn brown notebook on a wooden desk, dust in the morning light, a brass
+      key beside it
+    characters_in_scene: []
+  - id: b032
+    speaker: narrator
+    text: Halaman-halaman yang sobek itu... Bukan sobek karena tua. Sobekannya terlalu rapi.
+  - id: b033
+    speaker: narrator
+    text: Lalu mataku tertuju pada foto keluarga di dinding. Foto yang sama yang sudah tergantung di sana
+      sejak aku kecil.
+    scene: Close-up of an old faded family photograph hanging on a dark wooden wall, an elderly Javanese
+      man in a black peci with a young boy and a little girl in front of a joglo house
+    characters_in_scene: []
+  - id: b034
+    speaker: narrator
+    text: Di balik foto itu, ada lipatan kertas. Kertas yang sama dengan buku kakek. Kuningnya sama, baunya
+      sama.
+    scene: A hand lifting an old framed photograph off a dark wooden wall, revealing a folded yellowed
+      paper hidden behind it
+    characters_in_scene: []
+  - id: b035
+    speaker: narrator
+    text: Satu halaman yang hilang dari buku itu. Disembunyikan kakek di balik foto. Supaya aku menemukannya...
+      hanya kalau aku sudah siap.
+    scene: Close-up of a yellowed notebook page with old handwriting in Javanese script and a small ink
+      drawing of a young woman in a green kebaya, no readable Latin text
+    characters_in_scene: []
+  - id: b036
+    speaker: narrator
+    text: Sumirah.
+    visual: text_card
+    card_text: SUMIRAH
+  - id: b037
+    speaker: narrator
+    text: Di bawah namanya, ada satu kalimat lagi. Ditulis dengan tinta yang lebih baru. Seperti baru
+      ditulis semalam.
+  - id: b038
+    speaker: narrator
+    text: Kembalikan tusuk konde di bawah beringin ketujuh sebelum ayam berkokok, atau dia mengambil gantinya.
+    visual: text_card
+    card_text: Kembalikan tusuk konde di bawah beringin ketujuh sebelum ayam berkokok, atau dia mengambil
+      gantinya.
+- title: Gantinya
+  pause_after: 0.2
+  beats:
+  - id: h03
+    speaker: narrator
+    text: Halaman yang hilang itu ada di tanganku. Dan isinya lebih menakutkan dari yang kubayangkan.
+    reuse: b037
+    crop: wide
+  - id: b039
+    speaker: narrator
+    text: Gantinya. Siapa gantinya? Aku membaca kalimat itu berulang-ulang, sampai kata-katanya terasa
+      seperti ancaman.
+    scene: Close-up of a young man's face, realization dawning, morning light through a wooden window
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b040
+    speaker: narrator
+    text: Aku membuka halaman peta tujuh beringin itu lagi.
+    scene: Open notebook pages with hand-drawn maps of seven banyan trees, numbered, a finger pointing
+      at the largest tree in the center, small drawings of offerings beside each tree
+    characters_in_scene: []
+  - id: b041
+    speaker: narrator
+    text: Tapi pohon ketujuh, yang paling besar di tengah... halamannya yang sobek. Halaman yang sekarang
+      ada di tanganku.
+  - id: b042
+    speaker: narrator
+    text: Siang itu, warga datang lagi. Tapi kali ini mereka tidak berani menatapku. Mereka meletakkan
+      beras dan pisang di teras, lalu pergi tanpa sepatah kata.
+    scene: Several Javanese villagers standing at the porch of a joglo house with heads bowed, setting
+      down sacks of rice and bananas without a word, overcast daylight
+    characters_in_scene:
+    - name: warga
+      position: center-left
+    - name: bayu
+      position: center-right
+  - id: b043
+    speaker: warga
+    text: Mas Juru Kunci... kami cuma bisa mendoakan.
+    scene: Close-up of an old villager's weathered face, hands pressed together in prayer, eyes downcast,
+      overcast daylight
+    characters_in_scene:
+    - name: warga
+      position: center
+  - id: b044
+    speaker: narrator
+    text: Mereka tahu sesuatu. Tapi tidak ada yang berani mengatakannya. Di desa ini, ada hal-hal yang
+      memang tidak boleh dikatakan.
+  - id: b045
+    speaker: narrator
+    text: Sore itu, aku kembali ke rumah Mbah Karto. Aku harus tahu soal beringin ketujuh.
+    scene: An old man standing behind a half-open carved wooden door in daylight, shaking his head, refusing
+      to let the visitor in
+    characters_in_scene:
+    - name: mbah_karto
+      position: center
+  - id: b046
+    speaker: mbah_karto
+    text: Beringin ketujuh bukan tempat orang hidup, Le. Pulang. Jaga adikmu.
+    scene: Close-up of an elderly Javanese man's stern face in a doorway, shaking his head firmly, refusing
+      entry, daylight
+    characters_in_scene:
+    - name: mbah_karto
+      position: center
+  - id: b047
+    speaker: narrator
+    text: 'Pintu itu tertutup. Dan aku mengerti: malam ini, tidak ada yang akan membantuku. Aku harus
+      menghadapi ini sendiri.'
+    scene: A closed carved wooden door of an old house in late afternoon light, a young man standing before
+      it with his head bowed
+    characters_in_scene:
+    - name: bayu
+      position: center
+      view: from behind
+  - id: b048
+    speaker: narrator
+    text: Sore itu, aku menemukan Sekar berdiri di jendela lagi. Menatap tujuh beringin. Sudah dua jam
+      dia berdiri di sana, tidak bergerak.
+    scene: A young woman standing at a wooden window in the evening staring blankly into the distance,
+      seven giant banyan trees faintly visible far away, her long hair loose
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b049
+    speaker: narrator
+    text: Kali ini dia tidak menoleh waktu aku memanggil.
+    reuse: b048
+    crop: closeup_face
+  - id: b050
+    speaker: sekar
+    effect: whisper
+    text: Mas... dia sudah di sini.
+    scene: Close-up of a young woman's face turning slowly from a window, eyes blank and unfocused, lips
+      barely moving, evening light
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b051
+    speaker: narrator
+    text: Itu suara Sekar. Tapi kata-katanya bukan kata-kata Sekar.
+    scene: Extreme close-up of a young woman's lips moving without expression, eyes out of frame, evening
+      light, unsettling stillness
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b052
+    speaker: narrator
+    text: Tusuk konde itu pertama kali menyentuh tangan Sekar. Sebelum tanganku.
+    visual: black
+    pause_after: 0.6
+  - id: b053
+    speaker: narrator
+    text: Malam itu, aku tidak tidur. Aku duduk di depan kamar Sekar, berjaga. Lampu minyak di sampingku,
+      kunci kuningan di tanganku.
+    scene: A young man sitting on the floor in a dark hallway outside a closed bedroom door, an oil lamp
+      beside him, a brass key in his hand
+    characters_in_scene:
+    - name: bayu
+      position: center
+  - id: b054
+    speaker: narrator
+    text: Jam dua belas lewat. Pintu kamar Sekar terbuka sendiri. Pelan sekali, tanpa suara.
+    scene: A bedroom door in a dark hallway slowly opening by itself, a thin sliver of darkness beyond,
+      oil lamp glow
+    characters_in_scene: []
+  - id: b055
+    speaker: narrator
+    text: Sekar keluar. Tanpa alas kaki. Rambutnya tergerai. Matanya terbuka, tapi kosong.
+    scene: A young woman in a white prayer mukena walking barefoot down a dark hallway, eyes open but
+      blank, long hair loose, oil lamp glow
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b056
+    speaker: narrator
+    text: Dia berjalan melewatiku, seperti aku tidak ada di sana. Seperti aku cuma bayangan di lorong
+      itu.
+    reuse: b055
+    crop: wide
+  - id: b057
+    speaker: narrator
+    text: Dia berjalan ke arah pintu depan. Ke arah makam.
+    scene: A young woman in a white prayer mukena standing at an old carved wooden front door at night,
+      her hand on the latch, seen from behind
+    characters_in_scene:
+    - name: sekar
+      position: center
+      view: from behind
+  - id: b058
+    speaker: narrator
+    text: Aku mengambil kunci kuningan itu, lalu mengikutinya.
+    scene: Close-up of a hand grabbing a large old ornate brass key from a wooden bench in the dark
+    characters_in_scene: []
+    pause_after: 0.6
+  - id: b059
+    speaker: narrator
+    text: Di luar, kabut sudah turun. Jalan menuju makam tidak terlihat ujungnya. Yang terdengar cuma
+      langkah kaki Sekar di tanah.
+    scene: A young man stepping out of a joglo house doorway into a foggy dark yard at night, holding
+      a flashlight and a brass key, mist swallowing the dirt road ahead
+    characters_in_scene:
+    - name: bayu
+      position: center
+      view: from behind
+  - id: b060
+    speaker: narrator
+    text: Aku mengikutinya masuk ke dalam kabut.
+    visual: black
+    pause_after: 0.6
+  - id: b061
+    speaker: narrator
+    text: Aku mengikutinya sampai ke gerbang makam. Sepanjang jalan aku memanggil namanya, tapi dia tidak
+      pernah menoleh.
+    scene: A young man in a white shirt and a young woman in a white dress walking side by side on a narrow
+      village road at midnight, both near the center of the frame, moonlight
+    characters_in_scene:
+    - name: bayu
+      position: center-left
+    - name: sekar
+      position: center-right
+  - id: b062
+    speaker: narrator
+    text: Sekar berhenti di undakan gerbang. Persis di tempat Sumirah duduk malam itu.
+    reuse: b061
+    crop: detail
+  - id: b063
+    speaker: narrator
+    text: Dan dia sudah ada di sana. Duduk di undakan. Menunggu. Seolah dia tahu kami akan datang.
+    scene: A young woman in a faded green kebaya sitting on the stone steps of a graveyard gate at night,
+      seen from behind, mist around her feet
+    characters_in_scene:
+    - name: sumirah
+      position: center
+      view: from behind
+  - id: b064
+    speaker: narrator
+    text: Kali ini dia tidak membelakangiku. Kali ini dia menatapku.
+    scene: Close-up of a young woman's pale face turning over her shoulder toward the viewer, faint sad
+      smile, empty dark eyes, moonlight on pale skin, mist
+    characters_in_scene:
+    - name: sumirah
+      position: center
+  - id: b065
+    speaker: sumirah
+    text: Kamu membawanya kembali.
+    scene: Close-up of a young woman's pale face, eyes fixed on something in the young man's hand, faint
+      hopeful smile, moonlight
+    characters_in_scene:
+    - name: sumirah
+      position: center
+- title: Beringin Ketujuh
+  beats:
+  - id: h04
+    speaker: narrator
+    text: Sumirah menatap tusuk konde di tanganku. Dan di bawah beringin ketujuh, sesuatu mulai bangun.
+    reuse: b065
+    crop: wide
+  - id: b066
+    speaker: narrator
+    text: Aku mengangkat tusuk konde itu. Tanganku gemetar. Dinginnya menusuk sampai ke tulang.
+    scene: Close-up of a trembling hand holding up an old silver hairpin carved with jasmine flowers,
+      moonlight, dark graveyard gate behind
+    characters_in_scene: []
+  - id: b067
+    speaker: narrator
+    text: Tapi sebelum aku melangkah, tanah di bawah beringin paling besar itu bergerak. Akar-akarnya
+      bergeser pelan.
+    scene: An enormous ancient banyan tree at night, its thick aerial roots shifting slowly like fingers,
+      a faint red glow deep between the roots, mist
+    characters_in_scene: []
+  - id: b068
+    speaker: narrator
+    text: Di antara akar-akar itu, dua titik merah menyala. Mata yang terbuka.
+    scene: Close-up between dark banyan roots at night, two faint red glowing points in the blackness,
+      like eyes opening
+    characters_in_scene: []
+  - id: b069
+    speaker: penunggu
+    text: Milikku.
+  - id: b070
+    speaker: narrator
+    text: Suara itu bukan suara manusia. Suara itu datang dari dalam tanah. Dari bawah akar-akar itu.
+    visual: black
+    pause_after: 0.6
+  - id: b071
+    speaker: narrator
+    text: Langit di timur mulai pucat. Aku tidak punya banyak waktu. Ayam sebentar lagi berkokok, dan
+      aku belum melakukan apa-apa.
+    scene: A pale grey dawn sky over the silhouettes of giant banyan trees, thin mist, the last stars
+      fading
+    characters_in_scene: []
+  - id: b072
+    speaker: sumirah
+    text: Letakkan di bawah beringin ketujuh. Sebelum ayam berkokok.
+    scene: Close-up of a young woman's pale face, eyes wide, whispering urgently, moonlight fading into
+      dawn
+    characters_in_scene:
+    - name: sumirah
+      position: center
+  - id: b073
+    speaker: narrator
+    text: Aku berlari ke beringin paling besar. Aku meletakkan tusuk konde itu di antara akar-akarnya.
+      Tanganku tidak berhenti gemetar.
+    scene: A hand placing an old silver hairpin carved with jasmine flowers at the base of an enormous
+      banyan tree's roots at night, pale dawn light
+    characters_in_scene: []
+  - id: b074
+    speaker: narrator
+    text: Akar-akar itu bergerak. Menutup di atas tusuk konde itu, seperti tangan yang menggenggam. Pelan,
+      tapi pasti.
+    scene: Close-up of thick banyan roots slowly closing over a small silver hairpin on the ground, pale
+      dawn light
+    characters_in_scene: []
+  - id: b075
+    speaker: narrator
+    text: Sumirah berdiri. Untuk pertama kalinya, dia tersenyum... tanpa sedih. Seperti seseorang yang
+      akhirnya boleh pulang.
+    scene: A young woman in a faded green kebaya standing up from stone steps at dawn, a peaceful smile
+      without sadness, mist lifting around her
+    characters_in_scene:
+    - name: sumirah
+      position: center
+  - id: b076
+    speaker: sumirah
+    text: Terima kasih, Le.
+  - id: b077
+    speaker: narrator
+    text: Lalu dia menghilang. Seperti asap yang ditiup angin. Tidak ada bekasnya sama sekali.
+    reuse: b075
+    crop: closeup_face
+  - id: b078
+    speaker: narrator
+    text: Sekar jatuh berlutut. Lalu menangis.
+    visual: black
+    pause_after: 0.6
+  - id: b079
+    speaker: narrator
+    text: Aku memeluknya. Dia gemetar. Dia tidak ingat apa pun. Dia bahkan tidak ingat keluar dari kamar.
+    scene: Siblings hugging tightly at a stone graveyard gate at dawn, pale light, mist lifting, seven
+      banyan trees behind them
+    characters_in_scene:
+    - name: bayu
+      position: center-left
+    - name: sekar
+      position: center-right
+  - id: b080
+    speaker: sekar
+    text: Mas... kenapa kita di sini?
+  - id: b081
+    speaker: narrator
+    text: Aku tidak menjawab. Aku membawanya pulang. Sepanjang jalan, aku tidak berani menoleh ke belakang.
+  - id: b082
+    speaker: narrator
+    text: Aku pikir semuanya sudah selesai.
+    visual: black
+    pause_after: 0.6
+  - id: b083
+    speaker: narrator
+    text: Pagi harinya, rumah terasa... normal. Terlalu normal.
+    scene: Morning sunlight streaming into a quiet joglo living room, an empty rattan chair in the corner,
+      dust motes in the light, no people
+    characters_in_scene: []
+  - id: b084
+    speaker: narrator
+    text: Sekar memasak di dapur, seperti tidak terjadi apa-apa.
+    scene: Morning in a rustic Javanese kitchen, a young woman cooking over a wood-fired stove, steam
+      rising, calm
+    characters_in_scene:
+    - name: sekar
+      position: center
+  - id: b085
+    speaker: narrator
+    text: Semuanya kembali seperti sebelum aku pulang. Kecuali satu hal.
+  - id: b086
+    speaker: narrator
+    text: Buku catatan kakek terbuka di atas meja. Padahal semalam aku menutupnya. Aku ingat betul, aku
+      menutupnya.
+    scene: An old notebook lying open on a wooden desk in morning light, a fresh page visible, a brass
+      key beside it
+    characters_in_scene: []
+  - id: b087
+    speaker: narrator
+    text: Ada halaman baru di sana. Halaman yang kemarin tidak ada. Kertasnya masih putih, belum menguning
+      seperti yang lain.
+    scene: Close-up of a fresh notebook page with wet black ink handwriting in Javanese script, morning
+      light, the ink still glistening
+    characters_in_scene: []
+  - id: b088
+    speaker: narrator
+    text: Tulisannya masih basah. Tintanya belum kering.
+    reuse: b087
+    crop: detail
+  - id: b089
+    speaker: narrator
+    text: Aturan keempat.
+    visual: text_card
+    card_text: Aturan keempat. Jangan biarkan gerbang terbuka semalaman.
+  - id: b090
+    speaker: narrator
+    text: Aku berlari ke jendela. Menatap ke arah makam. Dan yang kulihat membuat lututku lemas.
+    scene: A young man at a wooden window in the morning staring toward distant banyan trees, alarmed
+    characters_in_scene:
+    - name: bayu
+      position: center
+    pause_after: 0.6
+  - id: b091
+    speaker: narrator
+    text: Gerbang makam itu terbuka. Lebar. Seperti sengaja dibiarkan terbuka. Seperti ada yang keluar...
+      atau ada yang masuk.
+    scene: An old stone graveyard gate standing wide open in the morning mist, no one there, seven giant
+      banyan trees beyond
+    characters_in_scene: []
+  - id: b092
+    speaker: narrator
+    text: Dan di undakan gerbang, ada sesaji baru. Bunga, dupa, dan sebuah telur. Masih hangat. Dupanya
+      masih menyala.
+    scene: Close-up of a fresh offering on old stone steps, flowers, a burning incense stick and an egg
+      on a banana leaf, morning mist
+    characters_in_scene: []
+  - id: b093
+    speaker: narrator
+    text: Bersambung.
+    visual: text_card
+    card_text: BERSAMBUNG
+    pause_after: 0.6
+    long_only: true

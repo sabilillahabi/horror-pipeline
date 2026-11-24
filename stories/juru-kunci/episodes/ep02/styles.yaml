@@ -1,0 +1,18 @@
+# styles.yaml — ep02 (BARU)
+# Baris pelan (10, maks 3/part): P1 b001/b003/b012, P2 b027/b030/b038, P3 b052/b065, P4 b069/b093.
+# b030 diubah "jeda" -> "jeda panjang" dan b065 ditambah "pelan" supaya terhitung pelan
+# oleh check (SLOW_WORDS). Hook h02/h03/h04: tempo default, tegang, tanpa kata pelan.
+# Semua baris lain memakai pace default "Tempo sedang, mengalir, tidak diseret."
+b001: Pelan, nyaris berbisik, menekankan kata 'dingin'.
+b003: Sangat pelan, menekankan kesunyian.
+b012: Pelan, makin tegang di akhir kalimat.
+b027: Berhenti sejenak sebelum 'menunggu di gerbang', sangat pelan.
+b030: Berbisik merinding, jeda panjang sebelum 'tembang yang sama'.
+b038: Pelan, tiap kata ditekan.
+b052: Berhenti sejenak, lalu sangat pelan dan berat.
+b065: Lirih dan pelan, penuh harap, hampir lega.
+b069: Berbisik sangat lambat dan berat, satu kata saja.
+b093: Sangat pelan, datar, menggantung.
+h02: Tegang dan menahan suara, langsung masuk, seperti melanjutkan cerita yang terputus.
+h03: Tegang, suara bergetar, langsung masuk ke halaman yang hilang.
+h04: Tegang dan menahan suara, lalu datar dan dingin di kalimat terakhir.

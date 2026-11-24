@@ -95,6 +95,19 @@ def _lock(ep: Episode) -> None:
         return
     line = "tts:\n  locked: true   # clips re-paced with `repace`; tts must not regenerate them\n"
     lines = text.splitlines(keepends=True)
+    # Hapus blok tts: yang sudah ada dulu: kunci duplikat bikin YAML last-wins,
+    # jadi `locked: false` yang lama tetap menang dan TTS merekam ulang semua klip.
+    out: list[str] = []
+    i = 0
+    while i < len(lines):
+        if lines[i].startswith("tts:"):
+            i += 1
+            while i < len(lines) and (lines[i].startswith(" ") or lines[i].startswith("\t")):
+                i += 1
+            continue
+        out.append(lines[i])
+        i += 1
+    lines = out
     for i, ln in enumerate(lines):  # insert after the `episode:` line to keep the header readable
         if ln.startswith("episode:"):
             lines.insert(i + 1, line)

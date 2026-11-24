@@ -1,0 +1,5 @@
+# Cover per part IG/FB (1080x1920): judul persis dari thumbnail_9x16 (thumbnail/title_ep02.png) + "PART N".
+# Default: gambar terkuat di rentang waktu part (SFX hit / close-up karakter), tidak ada gambar dipakai dua kali.
+# Override per part kalau perlu, mis.:
+#   part3: {beat: b052}
+# Buat ulang + pasang ke video tanpa render ulang:  python horror.py covers juru-kunci ep02
