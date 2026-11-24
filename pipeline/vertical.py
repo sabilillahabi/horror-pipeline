@@ -27,7 +27,19 @@ from . import visuals as V
 from .render import TEXT_CARD_FADE, render_clip, save_still, split_slot
 
 W, H = 1080, 1920
-POS_X = {"left": 0.30, "center": 0.50, "centre": 0.50, "middle": 0.50, "foreground": 0.50, "right": 0.70}
+POS_X = {"left": 0.30, "center": 0.50, "centre": 0.50, "middle": 0.50, "foreground": 0.50, "right": 0.70,
+         "center-left": 0.44, "centre-left": 0.44, "center-right": 0.56, "centre-right": 0.56}
+
+
+def pos_x(p: str) -> float:
+    """Window centre for a `position` value; the first known word wins ("left foreground" → left)."""
+    key = p.strip().lower()
+    if key in POS_X:
+        return POS_X[key]
+    for tok in key.replace(",", " ").split():
+        if tok in POS_X and tok not in ("foreground",):
+            return POS_X[tok]
+    return 0.5
 VZOOM = 0.08              # Ken Burns zoom inside the crop (horizontal uses ~0.12)
 PAN_SPEED = 0.04          # max pan speed, share of image width per second ("slow")
 HASHTAGS = "#KemenyanMalam #JuruKunciWringinpitu #ceritahoror #horor"
@@ -75,7 +87,7 @@ def crop_plan(ep: Episode, b, src: Path, dur: float, rnd: random.Random, aspect:
         if not chars and b.image_from:
             srcb = ep.resolve_ref(b.image_from)
             chars = srcb.chars if srcb else []
-        xs = [(n, POS_X.get(p.lower(), 0.5)) for n, p, _ in chars]
+        xs = [(n, pos_x(p)) for n, p, _ in chars]
         # pans are for wide/establishing shots only; a close-up or detail stays put
         close = b.crop in ("closeup_face", "detail") or \
             re.match(r"\s*(extreme\s+)?close[\s-]?up|\s*detail", b.scene or "", re.I)

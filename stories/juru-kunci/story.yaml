@@ -4,6 +4,8 @@ hashtag: "#JuruKunciWringinpitu"
 language: id
 channel: kemenyan-malam   # intro/outro from channels/kemenyan-malam.yaml
 style_block: "Dark semi-realistic digital painting, muted colors, cinematic lighting."
+# Added to every Flow prompt so ONE 16:9 image works for landscape and for the 9:16 cut (~1/3 width, centre).
+composition_block: "Main subject centered in the middle third of the frame, important details away from the left and right edges, atmospheric empty space on both sides, headroom above."
 
 # --- Gemini TTS ---
 # Each character: gemini_voice + gemini_style (default delivery, written in Indonesian/English).

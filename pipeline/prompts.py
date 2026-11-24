@@ -17,7 +17,31 @@ POSITION_PHRASES = {
 }
 
 
+# Added to every Flow prompt (story.yaml `composition_block` overrides it; "" turns it off): one 16:9 image
+# must work both as the landscape frame and as the ~1/3-wide 9:16 window cut from its centre.
+COMPOSITION_DEFAULT = ("Main subject centered in the middle third of the frame, important details away from the "
+                       "left and right edges, atmospheric empty space on both sides, headroom above.")
+NEAR_CENTER = {"center-left": "just left of center", "centre-left": "just left of center",
+               "center-right": "just right of center", "centre-right": "just right of center"}
+
+
+def composition(ep: Episode) -> str:
+    v = ep.story.get("composition_block")
+    return COMPOSITION_DEFAULT if v is None else " ".join(str(v).split())
+
+
+def far_apart(beat) -> bool:
+    """Two+ characters placed at opposite edges (plain left + right): the 9:16 window can't hold both."""
+    sides = {t for _, p, _ in beat.chars for t in p.lower().replace(",", " ").split() if t in ("left", "right")}
+    return len(beat.chars) >= 2 and sides == {"left", "right"}
+
+
 def position_phrase(pos: str) -> str:
+    key = pos.strip().lower()
+    for k, v in NEAR_CENTER.items():
+        if key.startswith(k):
+            rest = position_phrase(key[len(k):])
+            return f"{v}" + (f", {rest}" if rest else "")
     tokens = [t for t in pos.replace(",", " ").replace("-", " ").lower().split() if t]
     if not tokens:
         return ""
@@ -48,6 +72,11 @@ def build_prompt(ep: Episode, beat) -> str:
         scene += "."
     if scene:
         parts.append(scene)
+    if len(beat.chars) >= 2:
+        parts.append("The characters stand close together near the center of the frame.")
+    comp = composition(ep)
+    if comp:
+        parts.append(comp)
     style = " ".join(str(ep.story.get("style_block", "") or "").split())
     if style:
         parts.append(style)
@@ -169,6 +198,10 @@ def format_issues(ep: Episode) -> list[str]:
             cap = float(r["cliff_pause"]) if cb is not None and b.key == cb.key else float(r["max_pause"])
             if b.pause_after is not None and b.pause_after > cap + 1e-6:
                 out.append(f"{b.key}: pause_after {b.pause_after} > {cap} (dipotong otomatis)")
+        for b in bs:
+            if ep.needs_own_image(b) and far_apart(b):
+                out.append(f"{b.key}: tokoh di kiri dan kanan berjauhan — di vertikal cuma pembicara yang kelihatan; "
+                           "pakai position center-left / center-right")
         if bs and bs[0].visual in ("black", "text_card"):
             out.append(f"Part {pi + 1} mulai dengan {bs[0].visual} ({bs[0].key}): di vertikal diganti gambar "
                        "terdekat; lebih baik mulai dengan hook bergambar")

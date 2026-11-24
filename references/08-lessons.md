@@ -46,3 +46,6 @@
     push lagi dengan `scripts/push_assets.py`. Laptop tidak lagi menjalankan TTS terjadwal (key dipakai satu tempat).
 25. **Grain menentukan ukuran file.** Dengan grain 8 dan maxrate 6M, part 2:30 jadi 118 MB dan video panjang 472 MB
     (selalu mentok di cap). Grain 2: 36–40 MB per part, 155 MB video panjang (diukur 23 Nov 2026).
+26. **Vertikal cuma memakai ±⅓ lebar gambar.** Tokoh di ujung kiri + ujung kanan, atau benda kunci di pinggir, hilang
+    di Shorts. Sejak 24 Nov 2026 setiap prompt Flow memuat kalimat komposisi tengah (`composition_block`) dan adegan
+    dua tokoh memakai `center-left`/`center-right`; `check` memperingatkan posisi `left` + `right`.

@@ -55,7 +55,9 @@ parts:                            # 3-4 part, masing-masing <= 2:55; baris perta
         threads_dialogue: true       # paksa baris narator jadi dialog di Threads
 ```
 Aturan:
-- `position` harus sesuai gambar sebenarnya (left/center/right) — crop 9:16 memusatkan ke situ. Salah tulis
+- `position` harus sesuai gambar sebenarnya (left/center/right, atau `center-left`/`center-right` untuk dua tokoh
+  berdekatan) — crop 9:16 memusatkan ke situ. Adegan dua tokoh: tulis `center-left` + `center-right`, jangan
+  `left` + `right` (lihat 02 bagian 1b). Salah tulis
   `center` padahal tokoh di kanan = tokoh terpotong di vertikal (kasus b071).
 - Beat `reuse` mewarisi tokoh dari beat sumber; tetap isi `characters_in_scene` kalau komposisinya beda.
 - Kalimat yang juga muncul sebagai `text_card` akan tampil dua kali (kartu + subtitle) — sengaja, untuk aksesibilitas.
