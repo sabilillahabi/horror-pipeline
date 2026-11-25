@@ -20,7 +20,8 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
    - gambar dibuat **user di Google Flow** (bukan di Muse): sudah ada yang diunggah, atau perlu prompt dulu?
    - target upload hari ini (YouTube saja, atau + TikTok/IG/FB/Threads) dan tenggat waktunya
 3. `outline.yaml` ada dan episode yang dikerjakan tercantum di dalamnya (status approved sebelum TTS/render). Lihat `references/10-story-length.md`.
-4. Output selalu dua orientasi dari gambar 16:9 yang sama: part vertikal 1080x1920 dan video panjang 1920x1080.
+4. Thumbnail/cover mengikuti `references/11-thumbnails-and-folders.md` (contoh di `references/style/`); collection Flow dan folder Drive episode dibuat dulu.
+5. Output selalu dua orientasi dari gambar 16:9 yang sama: part vertikal 1080x1920 dan video panjang 1920x1080.
    Jangan pernah generate gambar 9:16 terpisah — versi vertikal dipotong dari 16:9 secara otomatis.
 
 ## Format (sejak 23 Nov 2026) — patuhi tanpa diminta
@@ -40,6 +41,9 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 - Part vertikal: tanpa kartu pembuka/penutup, tanpa outro, tanpa beat hitam/kartu di tengah (kartu = `long_only`);
   3 detik pertama selalu gambar; label kecil
   "<Judul> · Eps N · Part N/M"; cover per part (05). Outro channel hanya di video panjang.
+- Thumbnail 16x9/9x16 dari Flow dengan contoh resmi ep01 sebagai referensi; cover part hanya lewat `covers` (11,
+  `references/style/`). Sebelum generate di Flow, buat collection episode dulu; upload ke Drive selalu ke folder
+  `Kemenyan Malam/<Judul>/Eps NN/` (11).
 - Upload: 3 episode/minggu, maks 2 part/hari (12:00 & 19:00 WIB), satu file per slot, video panjang 18:00 sehari
   setelah part terakhir (07).
 

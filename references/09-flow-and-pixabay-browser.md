@@ -5,7 +5,8 @@ Use this file only if your workspace has a browser that is signed in to Bil's Go
 and Bil asked you to do it. Never sign in, enter passwords or change browser settings yourself.
 
 ## Google Flow
-- One Flow project per story ("Juru Kunci"), one collection per episode ("Juru Kunci - Eps 02").
+- One Flow project per story ("Juru Kunci"). **Create the episode collection ("Juru Kunci - Eps 03") BEFORE
+  generating anything** and keep every image of that episode (scenes, regenerations, thumbnails) in it (11).
 - Characters are saved as Flow Characters (Bayu, Sekar, Mbah Karto, Sumirah; Pak Darno failed to save, so
   describe him with his full character_block).
 - Work in the agent panel ("What do you want to create?"):
@@ -19,7 +20,8 @@ and Bil asked you to do it. Never sign in, enter passwords or change browser set
   umbrellas, "REST IN PEACE" text, friendly ghost smiles. Fix with the image editor ("What do you want to
   change?") or regenerate.
 - Thumbnails `thumb_epXX_16x9` and `thumb_epXX_9x16` in the same session; text = story title + "EPISODE N"
-  only. Put the previous episode's thumbnail in the prompt as a reference for identical title lettering.
+  only. Attach `references/style/thumbnail_16x9_ep01.jpg` / `thumbnail_9x16_ep01.jpg` as references for identical
+  lettering and layout, and compare side by side before importing (11). Never make part covers in Flow.
 - Download with "Download collection" (zip). 1K is enough for scenes; 2K upscaling is slow.
 - Flow AI credits reset monthly. If Flow shows a low-credits warning, tell Bil how many images are still
   missing before continuing, and prefer `reuse` + `crop` in script.yaml over near-duplicate images.

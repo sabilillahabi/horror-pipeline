@@ -25,7 +25,8 @@ Preview sebelum episode penuh: `build --beats b001-b018d` (dan `--vertical`) →
 - **Watermark "Kemenyan Malam"** (gaya yang disetujui 24 Nov 2026): serif tebal krem (font tanda tangan outro),
   ±60% opasitas + bayangan halus, 44 px, tengah atas tepat di bawah label part. Jangan pindah ke kanan/bawah
   (tertutup tombol & caption TikTok/Reels/Shorts).
-- Cover per part: judul dipotong dari `thumbnail_9x16.jpg` + "PART N", latar gambar terkuat part itu, disematkan
+- Cover per part (format: 11, contoh `references/style/part_cover_ep01_part2.jpg`): **hanya** lewat `covers`;
+  judul dipotong dari `thumbnail_9x16.jpg` + "PART N", latar gambar terkuat part itu, disematkan
   di video dan disalin `epXX_partN_cover.jpg`. Ganti gambar: `covers.yaml` → `python horror.py covers <slug> <ep>`.
 - Tiap part dinormalisasi sendiri (−14 LUFS, ≤ −1.5 dBTP). Target ukuran ±20–40 MB per part.
 

@@ -56,8 +56,8 @@ python horror.py check <slug> <ep>                   # semua gambar lengkap? thu
 Masalah → beri user daftar beat + perbaikan prompt untuk diulang di Flow, lalu import lagi.
 
 ## 4. Thumbnail episode (juga dari Flow)
-Dua gambar dengan judul tertulis (gaya tetap: "JURU KUNCI" krem slab-serif bercahaya merah, "EPISODE N" putih
-condensed, rata kiri di sepertiga atas; karakter utama). Nama file `thumb_epXX_16x9` dan `thumb_epXX_9x16`
+Dua gambar dengan judul tertulis. Format, tipografi, dan contoh resmi: **11** (`references/style/`) — lampirkan
+contoh ep01 sebagai referensi di Flow. Nama file `thumb_epXX_16x9` dan `thumb_epXX_9x16`
 (akhiran/kurung bebas), ikut di folder import:
 ```bash
 python horror.py import-flow <slug> <ep> <folder>   # → thumbnail/thumbnail_16x9.jpg (1280x720 <2MB) + thumbnail_9x16.jpg

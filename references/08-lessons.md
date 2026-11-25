@@ -67,3 +67,7 @@
     hanya `key_events` episode itu, berhenti di cliffhanger outline, dan kirim naskah ke Bil sebelum TTS (10).
 32. **Tanpa layar hitam/kartu di tengah part.** Part 1 ep02 punya ±6 s hitam + kartu "KEESOKAN PAGINYA" + 6 s hitam
     lagi. Di Shorts/TikTok itu titik swipe. Semua beat part bergambar; kartu hanya `long_only` (01).
+33. **Cover part dibuat sendiri = salah format.** Cover ep02 part 1 (Muse) memakai font judul lain dan layout lain dari
+    ep01. Thumbnail selalu dengan contoh resmi sebagai referensi; cover hanya lewat `covers` (11).
+34. **Aset jangan tersebar.** Buat collection Flow per episode sebelum generate, dan folder Drive per episode sebelum
+    upload (11).
