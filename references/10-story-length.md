@@ -6,7 +6,10 @@ Satu **jilid** = satu season. Panjang cerita diputuskan SEBELUM menulis episode 
 - Default **1 jilid = 9 episode = 3 arc x 3 episode**. Rentang 6–12 episode hanya kalau cerita jelas membutuhkannya.
 - Jumlah jilid tidak dibatasi. Jilid berikutnya hanya dibuat kalau minat penonton bagus (lihat Checkpoint), dan
   setiap jilid baru butuh outline sendiri yang disetujui Bil.
-- Nomor episode **berlanjut** antar jilid (jilid 2 dimulai Eps 10).
+- Nomor episode **mulai lagi dari 1 di setiap jilid** (keputusan Bil, 25 Nov 2026). Supaya folder tidak bertabrakan,
+  setiap jilid baru punya folder cerita sendiri: `stories/<slug>-jilid2/` (salin `story.yaml` dan `sound_assets.yaml`,
+  tambah `jilid: 2`), dengan `outline.yaml` dan `episodes/ep01/` sendiri. Jilid 1 tetap `stories/<slug>/`.
+  Cara menampilkan jilid ke penonton (mis. "Juru Kunci Jilid 2 · Eps 1") diputuskan Bil saat jilid 2 dimulai.
 - Penonton TIDAK diberi tahu posisi dalam jilid. Judul, label video ("<Judul> · Eps N · Part N/M"), caption, dan
   Threads hanya memakai "Eps N" dan "Part N/M" — tidak pernah "1/9", "Jilid 1", atau jumlah total episode.
 

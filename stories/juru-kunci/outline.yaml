@@ -1,6 +1,6 @@
 # OUTLINE JILID 1 — DRAFT, Bil yang mengedit.
 # - Episode berstatus `draft` boleh ditulis script-nya, tapi harus `approved` (di-OK Bil) sebelum TTS/render.
-# - Nomor episode berlanjut antar jilid (jilid 2 mulai Eps 10).
+# - Nomor episode mulai lagi dari 1 di setiap jilid; jilid 2 = folder cerita baru stories/juru-kunci-jilid2/.
 # - Posisi dalam jilid TIDAK pernah ditampilkan ke penonton (tidak ada "x/9", "Jilid 1"); hanya "Eps N" dan "Part N/M".
 # - Aturan lengkap: references/10-story-length.md
 title: "Juru Kunci"
@@ -29,7 +29,7 @@ episodes:
     jilid: 1
     arc: 1
     working_title: "Yang Menunggu"
-    status: draft   # script.yaml sudah ada (ditulis ulang 24 Nov); tetap perlu OK Bil sebelum TTS/render
+    status: done    # diproduksi Muse (selesai 25 Nov 2026)
     parts: ["Tusuk Konde", "Sumirah", "Gantinya", "Beringin Ketujuh"]
     key_events:
       - "Tusuk konde dibuang ke sungai, tapi kembali ke atas bantal Bayu"

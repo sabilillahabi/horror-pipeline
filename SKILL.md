@@ -24,7 +24,7 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
    Jangan pernah generate gambar 9:16 terpisah — versi vertikal dipotong dari 16:9 secara otomatis.
 
 ## Format (sejak 23 Nov 2026) — patuhi tanpa diminta
-- Panjang cerita: 1 jilid = 9 episode (3 arc x 3), nomor episode berlanjut antar jilid, penonton tidak pernah diberi
+- Panjang cerita: 1 jilid = 9 episode (3 arc x 3), nomor episode mulai lagi dari 1 tiap jilid (jilid baru = folder `stories/<slug>-jilid2/`), penonton tidak pernah diberi
   tahu posisi dalam jilid (hanya "Eps N" dan "Part N/M"); outline wajib di `stories/<slug>/outline.yaml` (10).
 - Episode = **3–4 part** di `script.yaml` (`parts:`), tiap part 2:30–2:50, **wajib ≤ 2:55**; 1.100–1.300 kata per
   episode; baris pertama part = hook, baris terakhir = cliffhanger; part 2–4 dibuka "hook jembatan" (01).
