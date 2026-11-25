@@ -1,9 +1,10 @@
-# Sound design for Juru Kunci ep02.
+# Sound design for Juru Kunci ep02 (REWORK 25 Nov 2026).
 # Files live in assets/sound/<name>.mp3 (see stories/juru-kunci/sound_assets.yaml).
 #
 # music: one background bed for the whole episode, ducked under voice.
 # ambience: looped beds over beat ranges (inclusive, in script order), crossfaded 1.5 s.
 # sfx: one-shots per beat. at = start | end | offset seconds from beat start. vol in dB relative to 0.
+# Entri untuk beat yang dipotong di rework (b059-b091) dihapus.
 
 music:
   file: bgm_dark_ambient
@@ -11,16 +12,15 @@ music:
   duck_under_voice: -5
   fade_in: 3
   fade_out: 4
-  mute_on_beats: [b012, b052, b069]   # short silence for impact: hairpin returns, "first touched Sekar", the Penunggu speaks
+  mute_on_beats: [b012, b052]   # short silence for impact: hairpin returns, "first touched Sekar"
 
 ambience:   # same levels as ep01
   - {file: amb_night_village, from: b001, to: b003, vol: -16}    # cold open: night, the cold hairpin
   - {file: amb_village_morning, from: b005, to: b013, vol: -22}  # morning kitchen, river, road, evening bedroom
   - {file: amb_night_village, from: b014, to: b030, vol: -16}    # night at Mbah Karto's, walk home, kentongan, humming
-  - {file: amb_village_morning, from: b031, to: b047, vol: -20}  # morning notebook, villagers, afternoon door
-  - {file: amb_night_village, from: b048, to: b060, vol: -16}    # evening window, midnight sleepwalk, fog
-  - {file: amb_night_village, from: b061, to: b082, vol: -16}    # graveyard night into dawn
-  - {file: amb_village_morning, from: b083, to: b093, vol: -20}  # morning that feels too normal, the open gate
+  - {file: amb_village_morning, from: b031, to: b052, vol: -20}  # morning notebook, map, "gantinya"
+  - {file: amb_village_morning, from: b042, to: b047, vol: -20}  # villagers, Mbah Karto shuts the door
+  - {file: amb_night_village, from: b103, to: b051, vol: -16}    # dusk at the banyan, evening window, midnight door
 
 sfx:
   b010:  {file: sfx_whoosh, at: end, vol: -12}          # the hairpin thrown into the river
@@ -31,23 +31,11 @@ sfx:
   b030:  {file: sfx_humming_female, at: 0.5, vol: -18}  # the same tembang from Sekar's room
   b034:  {file: sfx_paper_flip, at: start, vol: -12}    # lifting the photo, the hidden paper
   b035:  {file: sfx_paper_flip, at: start, vol: -12}    # the missing page
-  b038:  {file: sfx_hit_low, at: start, vol: -12}       # the rule, read aloud
+  b038:  {file: sfx_hit_low, at: start, vol: -12}       # the sentence, read aloud
   b040:  {file: sfx_paper_flip, at: start, vol: -12}    # opening the banyan map pages
   b046:  {file: sfx_door_creak, at: end, vol: -10}      # Mbah Karto shuts the door
   b047:  {file: sfx_door_creak, at: start, vol: -10}    # the closed door
   b052:  {file: sfx_hit_big, at: end, vol: -6}          # the hairpin touched Sekar first
   b054:  {file: sfx_door_creak, at: start, vol: -10}    # Sekar's door opens by itself
-  b059:  {file: sfx_footsteps_dirt, at: start, vol: -14}  # footsteps in the fog
-  b061:  {file: sfx_footsteps_dirt, at: start, vol: -14}  # following her to the gate
-  b067:  {file: sfx_rattan_creak, at: start, vol: -12}  # the roots shifting like fingers
-  b068:  {file: sfx_hit_low, at: end, vol: -8}          # two red points: eyes opening
-  b069:  {file: sfx_hit_big, at: start, vol: -8}        # "Milikku."
-  b070:  {file: sfx_wind_gust, at: start, vol: -10}     # a voice from inside the earth
-  b073:  {file: sfx_running, at: start, vol: -10}       # running to the seventh banyan
-  b074:  {file: sfx_rattan_creak, at: start, vol: -12}  # the roots closing over the hairpin
-  b077:  {file: sfx_whoosh, at: 1.0, vol: -10}          # Sumirah vanishes like smoke
-  b086:  {file: sfx_paper_flip, at: start, vol: -12}    # the notebook lying open
-  b087:  {file: sfx_paper_flip, at: start, vol: -12}    # the fresh page
-  b089:  {file: sfx_hit_low, at: start, vol: -10}       # rule four
-  b090:  {file: sfx_running, at: start, vol: -10}       # running to the window
-  b091:  {file: sfx_door_creak, at: start, vol: -12}    # the graveyard gate standing open
+  b102:  {file: sfx_hit_low, at: end, vol: -10}         # "Dia menunggu adikku."
+  b051:  {file: sfx_hit_low, at: end, vol: -10}         # "Itu suara Sekar. Tapi kata-katanya bukan kata-kata Sekar."

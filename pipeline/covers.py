@@ -94,11 +94,11 @@ def extract_title(ep: Episode, force: bool = False) -> Path:
     boxes = _bands(_text_mask(top))
     if len(boxes) < 2:
         raise PipelineError(f"Blok judul tidak terdeteksi di {src.name} ({len(boxes)} baris teks)")
-    boxes = boxes[:2]                               # title line + "EPISODE n" line
+    boxes = boxes[:3]                               # title lines (1-2) + "EPISODE n" line
     region = Image.new("L", (W, H), 0)
     d = ImageDraw.Draw(region)
-    for i, (x0, y0, x1, y1) in enumerate(boxes):    # room for the red glow round the title; EPISODE has none
-        m = 34 if i == 0 else 8
+    for i, (x0, y0, x1, y1) in enumerate(boxes):    # room for the red glow round the title lines; EPISODE has none
+        m = 8 if i == len(boxes) - 1 else 34
         d.rectangle((x0 - m, y0 - m, x1 + m, y1 + m), fill=255)
     region = region.filter(ImageFilter.GaussianBlur(4))
 
@@ -192,7 +192,7 @@ def make_cover(ep: Episode, b, n: int, out: Path) -> Path:
     title = Image.open(extract_title(ep)).convert("RGBA")
     img.alpha_composite(title)
     lines = _title_lines(ep)
-    ex0, ey0, ex1, ey1 = lines[1]                   # the "EPISODE n" line
+    ex0, ey0, ex1, ey1 = lines[-1]                  # the "EPISODE n" line (last)
     cap = ey1 - ey0                                 # its letter height
     text = f"PART {n}"
     size = int(cap * 1.32)
