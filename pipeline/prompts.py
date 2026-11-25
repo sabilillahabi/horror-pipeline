@@ -202,6 +202,10 @@ def format_issues(ep: Episode) -> list[str]:
             if ep.needs_own_image(b) and far_apart(b):
                 out.append(f"{b.key}: tokoh di kiri dan kanan berjauhan — di vertikal cuma pembicara yang kelihatan; "
                            "pakai position center-left / center-right")
+        for b in bs:
+            if b.visual in ("black", "text_card") and not b.long_only and b is not bs[0]:
+                out.append(f"Part {pi + 1}: {b.key} = {b.visual} di tengah part (bikin swipe di Shorts/TikTok); "
+                           "beri gambar (reuse/crop), atau jadikan long_only kalau cuma untuk video panjang")
         if bs and bs[0].visual in ("black", "text_card"):
             out.append(f"Part {pi + 1} mulai dengan {bs[0].visual} ({bs[0].key}): di vertikal diganti gambar "
                        "terdekat; lebih baik mulai dengan hook bergambar")

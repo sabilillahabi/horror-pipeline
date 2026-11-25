@@ -21,10 +21,15 @@ Episode harus tercantum di `stories/<slug>/outline.yaml` dan mengikutinya — li
   video panjang (berfungsi sebagai pembuka chapter). Hitung durasinya dalam batas 2:55.
 - Kalau part terlalu mepet 2:55: turunkan jeda default part itu (`pause_after: 0.2` di level part, di bawah
   `title`) sebelum memotong teks.
-- Part pertama tidak dibuka dengan layar hitam/kartu teks; kalau terpaksa, vertikal menggantinya dengan gambar
-  terdekat (lihat 05), tapi lebih baik hook bergambar.
-- Tempo: ±115 wpm seperti ep01 final (target 110–130, lihat 03). `pause_after` maks 0,6 s; 1,0 s hanya di cliffhanger part; beat hitam maks
-  1,5 s. Nilai lebih besar dipotong otomatis dan `check` memperingatkan.
+- **Tanpa beat `black` / `text_card` di dalam part** (keputusan Bil, 25 Nov 2026): layar hitam atau kartu di
+  tengah Shorts/TikTok membuat penonton swipe. Lompatan waktu ("Keesokan paginya") ditulis di narasi dan diberi
+  gambar (baru, `reuse`, atau `crop`). Kartu teks hanya boleh sebagai beat `long_only` (video panjang saja, mis.
+  "Bersambung"). `check` memperingatkan setiap beat hitam/kartu yang bukan `long_only`.
+- **Batas episode:** script hanya memakai `key_events` episode itu di outline. Jangan memakai kejadian, reveal, atau
+  penyelesaian milik episode lain (contoh gagal: draf ep02 pertama sudah mengembalikan tusuk konde = ep03,
+  membebaskan Sumirah = ep09, dan membuka aturan keempat = ep08). Cliffhanger = cliffhanger di outline; berhenti di situ.
+- Tempo: ±115 wpm seperti ep01 final (target 110–130, lihat 03). `pause_after` maks 0,6 s; 1,0 s hanya di cliffhanger part; beat hitam (video
+  panjang saja) maks 1,5 s. Nilai lebih besar dipotong otomatis dan `check` memperingatkan.
 - Gambar: **25–30 gambar Flow baru per episode** (16:9 saja), sisanya `reuse` + `crop` (wide / closeup_face /
   detail). `prompts` dan `check` mencetak jumlahnya dan memperingatkan di atas 30.
 

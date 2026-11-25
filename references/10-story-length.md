@@ -29,6 +29,10 @@ Satu **jilid** = satu season. Panjang cerita diputuskan SEBELUM menulis episode 
   Episode berstatus `draft` boleh ditulis script-nya, tapi outline episode itu harus di-OK Bil (`approved`)
   sebelum TTS/render.
 - Perubahan outline = usulan untuk Bil, bukan keputusan penulis/agen.
+- **Batas episode:** episode hanya berisi `key_events` miliknya dan berhenti di `cliffhanger`-nya. Kejadian, reveal,
+  atau penyelesaian episode lain tidak boleh dipakai lebih awal (lihat 01).
+- **Gerbang naskah:** sebelum TTS/render, kirim teks lengkap semua part (+ jumlah kata per part) ke Bil dan tunggu OK.
+  Setelah OK, ubah status episode jadi `approved`; setelah dirilis/diserahkan, `done`.
 - `python horror.py check <story> <ep>`: error kalau ep >= 2 tanpa outline.yaml atau episode tidak tercantum;
   peringatan kalau status masih `draft` (atau ep01 tanpa outline).
 

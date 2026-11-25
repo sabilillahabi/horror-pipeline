@@ -31,11 +31,14 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 - Tempo = **ep01 final, ±115 wpm** (target 110–130): style default + "tempo tenang, mengalir, tidak terburu-buru";
   klip lama yang lambat `repace --tempo 1.2 --max-gap 0.8`. Ikuti aturan keputusan di 03 — jangan tanya Bil soal tempo;
   maks 3 baris pelan per part;
-  `pause_after` ≤ 0,6 s (1,0 s cliffhanger); beat hitam ≤ 1,5 s (03).
+  `pause_after` ≤ 0,6 s (1,0 s cliffhanger); beat hitam ≤ 1,5 s, dan hanya di video panjang (03).
+- Batas episode: hanya `key_events` episode itu, berhenti di cliffhanger outline; naskah lengkap dikirim ke Bil dan
+  di-OK sebelum TTS/render (10).
 - 25–30 gambar Flow baru per episode, sisanya `reuse` + `crop` (02).
 - Satu gambar 16:9 harus bagus di landscape dan vertikal: subjek di sepertiga tengah, pinggir = suasana, dua tokoh
   berdekatan (`center-left`/`center-right`). `prompts` menambahkan kalimat komposisinya otomatis (02 bagian 1b).
-- Part vertikal: tanpa kartu pembuka/penutup, tanpa outro; 3 detik pertama selalu gambar; label kecil
+- Part vertikal: tanpa kartu pembuka/penutup, tanpa outro, tanpa beat hitam/kartu di tengah (kartu = `long_only`);
+  3 detik pertama selalu gambar; label kecil
   "<Judul> · Eps N · Part N/M"; cover per part (05). Outro channel hanya di video panjang.
 - Upload: 3 episode/minggu, maks 2 part/hari (12:00 & 19:00 WIB), satu file per slot, video panjang 18:00 sehari
   setelah part terakhir (07).

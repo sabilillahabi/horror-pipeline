@@ -62,3 +62,8 @@
 30. **Tempo final ep01 = patokan: ±115 wpm** (repace 1.2, max-gap 0.8). Versi 1.3 (±134 wpm) menurut Bil kecepatan.
     Target lama 130–150 wpm di dokumen membuat Muse menghitung tempo 1.43 dan bertanya ke Bil — sekarang target
     110–130, review menandai < 105 / > 135, dan aturan keputusan tempo di 03 tidak perlu konfirmasi.
+31. **Episode tidak boleh memakan jatah episode lain.** Draf ep02 (Muse, 25 Nov 2026) part 4-nya sudah mengembalikan
+    tusuk konde (ep03), membebaskan Sumirah (ep09), dan membuka aturan keempat (ep08) — seluruh ep02 dirombak. Tulis
+    hanya `key_events` episode itu, berhenti di cliffhanger outline, dan kirim naskah ke Bil sebelum TTS (10).
+32. **Tanpa layar hitam/kartu di tengah part.** Part 1 ep02 punya ±6 s hitam + kartu "KEESOKAN PAGINYA" + 6 s hitam
+    lagi. Di Shorts/TikTok itu titik swipe. Semua beat part bergambar; kartu hanya `long_only` (01).
