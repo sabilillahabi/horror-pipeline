@@ -1,7 +1,7 @@
 """`prompts` and `check` commands."""
 from __future__ import annotations
 
-from .common import ROOT, Episode, info, ok, step, warn
+from .common import ROOT, Episode, info, ok, outline_issues, step, warn
 
 POSITION_PHRASES = {
     "left": "on the left side of the frame",
@@ -246,6 +246,13 @@ def cmd_check(ep: Episode, args) -> int:
         warn(f"{len(need)} gambar baru > {IMG_MAX} (target {IMG_MIN}–{IMG_MAX}); pakai reuse + crop")
     for x in format_issues(ep):
         warn(x)
+    o_err, o_warn = outline_issues(ep.slug, ep.number)
+    for x in o_warn:
+        warn(x)
+    for x in o_err:
+        print(f"  ✗ {x}")
+    if o_err:
+        return 1
     if missing:
         print(f"\n  {len(missing)} gambar belum ada.")
         return 1

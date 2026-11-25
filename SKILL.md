@@ -19,10 +19,13 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
    - apakah `script.yaml` episode ini sudah ada/dikunci, atau perlu ditulis dulu (`references/01-story-and-script.md`)
    - gambar dibuat **user di Google Flow** (bukan di Muse): sudah ada yang diunggah, atau perlu prompt dulu?
    - target upload hari ini (YouTube saja, atau + TikTok/IG/FB/Threads) dan tenggat waktunya
-3. Output selalu dua orientasi dari gambar 16:9 yang sama: part vertikal 1080x1920 dan video panjang 1920x1080.
+3. `outline.yaml` ada dan episode yang dikerjakan tercantum di dalamnya (status approved sebelum TTS/render). Lihat `references/10-story-length.md`.
+4. Output selalu dua orientasi dari gambar 16:9 yang sama: part vertikal 1080x1920 dan video panjang 1920x1080.
    Jangan pernah generate gambar 9:16 terpisah — versi vertikal dipotong dari 16:9 secara otomatis.
 
 ## Format (sejak 23 Nov 2026) — patuhi tanpa diminta
+- Panjang cerita: 1 jilid = 9 episode (3 arc x 3), nomor episode berlanjut antar jilid, penonton tidak pernah diberi
+  tahu posisi dalam jilid (hanya "Eps N" dan "Part N/M"); outline wajib di `stories/<slug>/outline.yaml` (10).
 - Episode = **3–4 part** di `script.yaml` (`parts:`), tiap part 2:30–2:50, **wajib ≤ 2:55**; 1.100–1.300 kata per
   episode; baris pertama part = hook, baris terakhir = cliffhanger; part 2–4 dibuka "hook jembatan" (01).
 - Tempo = **ep01 final, ±115 wpm** (target 110–130): style default + "tempo tenang, mengalir, tidak terburu-buru";
@@ -40,6 +43,7 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 ## Alur kerja (urut, jangan lompat)
 | # | Tahap | Perintah utama | Referensi |
 |---|-------|----------------|-----------|
+| 0 | Panjang cerita & outline jilid disetujui Bil | `outline.yaml`, `check` | 10 |
 | 1 | Story & script dikunci | `prompts`, `check` | 01 |
 | 2 | Prompt Flow → user generate di Google Flow → upload → import | `prompts`, `import-flow <zip/folder>`, `check` | 02 |
 | 3 | Thumbnail episode (16:9 + 9:16), juga dari Flow | `import-flow <folder>` | 02 |

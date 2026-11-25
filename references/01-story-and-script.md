@@ -1,6 +1,7 @@
 # 01 — Story & script
 
 Kunci script dulu, baru generate apa pun. Mengubah teks/beat setelah TTS & gambar = generate ulang.
+Episode harus tercantum di `stories/<slug>/outline.yaml` dan mengikutinya — lihat `10-story-length.md`.
 
 ## Format episode (sejak 23 Nov 2026)
 - **1 episode = 3–4 part.** Tiap part target **2:30–2:50**, wajib **≤ 2:55** (batas YouTube Shorts). Part

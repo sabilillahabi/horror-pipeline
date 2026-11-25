@@ -338,6 +338,25 @@ def _parse_focus(v):
     raise PipelineError(f"focus harus [x, y] dengan nilai 0..1, dapat: {v}")
 
 
+def outline_issues(story: str, number: int) -> tuple[list[str], list[str]]:
+    """Gerbang outline (references/10): (errors, warnings) for episode `number` of stories/<story>/outline.yaml."""
+    path = STORIES / story / "outline.yaml"
+    if not path.exists():
+        if number >= 2:
+            return [f"outline.yaml belum ada di stories/{story}/ — wajib sebelum ep{number:02d} (references/10)"], []
+        return [], [f"outline.yaml belum ada di stories/{story}/ (ep01 boleh dengan outline kasar, references/10)"]
+    try:
+        data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as e:
+        return [f"outline.yaml tidak valid: {e}"], []
+    row = next((e for e in (data.get("episodes") or []) if isinstance(e, dict) and e.get("number") == number), None)
+    if row is None:
+        return [f"ep{number:02d} tidak tercantum di outline.yaml — tambahkan dulu dan minta OK Bil"], []
+    if str(row.get("status", "draft")).strip().lower() == "draft":
+        return [], [f"outline ep{number:02d} masih draft — minta OK Bil sebelum TTS/render"]
+    return [], []
+
+
 class Episode:
     def __init__(self, story: str, ep: str):
         self.slug = story
