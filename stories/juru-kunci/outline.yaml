@@ -29,7 +29,7 @@ episodes:
     jilid: 1
     arc: 1
     working_title: "Yang Menunggu"
-    status: draft   # dirombak 25 Nov 2026: draf Muse pertama memakai jatah ep03/ep08/ep09 dan ada hitam/kartu di part; naskah baru harus di-OK Bil
+    status: done   # 4 part tayang (Jumat 27 + Sabtu 28 Nov 2026), video panjang Minggu 29 Nov 18:00; di-OK Bil 25 Nov 2026; naskah 1.059 kata, sengaja di bawah 1.100 untuk part yang lebih pendek
     parts: ["Tusuk Konde", "Sumirah", "Gantinya", "Beringin Ketujuh"]
     key_events:
       - "Tusuk konde dibuang ke sungai, tapi kembali ke atas bantal Bayu"
