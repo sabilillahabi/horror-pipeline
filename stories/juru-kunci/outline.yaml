@@ -10,6 +10,11 @@ arcs:
   1: "Bayu pulang, menjadi juru kunci, belajar aturan kunci"
   2: "Masa lalu Sumirah terungkap, dan warga ternyata tahu semuanya"
   3: "Konfrontasi dengan Sang Penunggu dan ending"
+style:
+  narration: "Narator 'aku' memakai gaya santai seperti ep01 ('nggak', bukan 'tidak'); dialog warga/Mbah Karto boleh lebih Jawa. ep02 sengaja dibiarkan 'tidak' karena klip TTS dipakai ulang; mulai ep03 kembali ke gaya ep01."
+continuity:
+  - "Sudah tayang: tembang Sekar (ep01, ep02), kentongan tiga kali (ep01, ep02), sesaji baru di makam malam pertama (ep01), Pak Darno warga yang biasanya banyak bicara (ep02), peta tujuh beringin di balik halaman tersembunyi (ep02)"
+  - "Belum boleh: Sumirah bicara langsung (ep07/ep08), wujud Sang Penunggu (ep08), aturan keempat (ep08), Sumirah pergi (ep09)"
 episodes:
   # ---------------------------------------------------------------- ARC 1
   - number: 1
@@ -47,7 +52,7 @@ episodes:
     key_events:
       - "Bayu mengikuti Sekar yang berjalan sambil bersenandung tembang lama menuju beringin ketujuh"
       - "Bayu mengembalikan tusuk konde di bawah beringin; tanah di situ ternyata sudah pernah digali"
-      - "Sesajen yang selama ini dikira dari warga ternyata diletakkan Sekar"
+      - "Sesaji baru yang Bayu temukan di makam pada malam pertama (ep01) ternyata diletakkan Sekar, tanpa dia sadari"
       - "Ayam berkokok; Sekar pingsan dan tak ingat apa pun"
     cliffhanger: "Tusuk konde itu lenyap dari bawah beringin, dan di gerbang makam muncul tusuk konde kedua"
     reveal: "Sumirah bukan Sang Penunggu; ada sesuatu yang lain yang memakai namanya dan menyuruh warga memilih juru kunci"
@@ -60,7 +65,7 @@ episodes:
     status: draft
     parts: ["Senandung", "Rumah Sumirah", "Surat dari Jakarta", "Kebaya Hijau"]
     key_events:
-      - "Sekar bersenandung tembang yang tak pernah diajarkan siapa pun; Bayu merekamnya"
+      - "Sekar bersenandung lagi tembang yang tak pernah dia pelajari (sudah terdengar di ep02); kali ini Bayu merekamnya diam-diam"
       - "Bayu mencari rumah lama Sumirah di ujung desa, kosong tapi bersih terawat"
       - "Ditemukan surat tunangan dari Jakarta yang tak pernah sampai"
       - "Bayu mulai curiga Sumirah tidak meninggal karena menunggu"
@@ -75,7 +80,7 @@ episodes:
     key_events:
       - "Bayu menelusuri siapa saja yang memberi hadiah dan mencatat pola waktunya"
       - "Pak Lurah mengaku: setiap juru kunci 'dibayar' warga supaya penunggu tidak mengambil orang desa"
-      - "Halaman sobek ternyata diambil warga, bukan Mbah Karto"
+      - "Halaman-halaman sobek lainnya ternyata diambil warga, bukan kakek (yang hanya menyembunyikan satu halaman di balik foto) dan bukan Mbah Karto"
       - "Warga mengundang Bayu ke selamatan besar tanpa mau menjelaskan untuk apa"
     cliffhanger: "Di undangan selamatan tertulis nama Sekar sebagai tamu kehormatan"
     characters: [narrator, bayu, sekar, mbah_karto, warga, lurah]
