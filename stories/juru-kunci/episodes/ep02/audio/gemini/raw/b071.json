@@ -1,0 +1,18 @@
+{
+  "hash": "9114df44f112",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Langit di timur mulai pucat. Aku tidak punya banyak waktu. Ayam sebentar lagi berkokok, dan aku belum melakukan apa-apa.",
+  "v": 1,
+  "merged_with": [
+    "b070",
+    "b071"
+  ],
+  "cut": [
+    7.303,
+    19.236
+  ]
+}

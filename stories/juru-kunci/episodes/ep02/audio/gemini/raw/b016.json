@@ -1,0 +1,20 @@
+{
+  "hash": "8cb138cf1e09",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Wajahnya berubah waktu aku meletakkan tusuk konde itu di atas meja. Bukan kaget. Lebih seperti ketakutan yang sudah lama dia duga akan datang.",
+  "v": 1,
+  "merged_with": [
+    "b013",
+    "b014",
+    "b015",
+    "b016"
+  ],
+  "cut": [
+    25.339,
+    37.648
+  ]
+}

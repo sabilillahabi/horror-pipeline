@@ -1,0 +1,20 @@
+{
+  "hash": "e2e710062a00",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Gantinya. Siapa gantinya? Aku membaca kalimat itu berulang-ulang, sampai kata-katanya terasa seperti ancaman.",
+  "v": 1,
+  "merged_with": [
+    "b039",
+    "b040",
+    "b041",
+    "b042"
+  ],
+  "cut": [
+    0.158,
+    7.122
+  ]
+}

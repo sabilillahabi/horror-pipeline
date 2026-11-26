@@ -1,0 +1,22 @@
+{
+  "hash": "1b810778c2e1",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Pagi harinya, aku membuka lagi buku catatan kakek. Kalau ada jawaban di mana pun, jawabannya pasti ada di buku itu.",
+  "v": 1,
+  "merged_with": [
+    "b031",
+    "b032",
+    "b033",
+    "b034",
+    "b035",
+    "b036"
+  ],
+  "cut": [
+    0.112,
+    9.163
+  ]
+}

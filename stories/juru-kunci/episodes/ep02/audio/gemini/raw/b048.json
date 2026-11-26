@@ -1,0 +1,19 @@
+{
+  "hash": "2eacddc3881c",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Waktu aku pulang, Sekar berdiri di jendela lagi. Menatap tujuh beringin. Tidak bergerak sama sekali.",
+  "v": 1,
+  "merged_with": [
+    "b103",
+    "b104",
+    "b048"
+  ],
+  "cut": [
+    30.978,
+    39.054
+  ]
+}

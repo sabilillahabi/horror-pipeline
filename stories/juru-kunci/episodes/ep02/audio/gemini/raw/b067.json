@@ -1,0 +1,19 @@
+{
+  "hash": "5bd3deda7c48",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Tapi sebelum aku melangkah, tanah di bawah beringin paling besar itu bergerak. Akar-akarnya bergeser pelan.",
+  "v": 1,
+  "merged_with": [
+    "b066",
+    "b067",
+    "b068"
+  ],
+  "cut": [
+    8.07,
+    16.943
+  ]
+}

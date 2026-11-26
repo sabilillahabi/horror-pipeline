@@ -1,0 +1,19 @@
+{
+  "hash": "7740c9d4204e",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Di antara akar-akar itu, dua titik merah menyala. Mata yang terbuka.",
+  "v": 1,
+  "merged_with": [
+    "b066",
+    "b067",
+    "b068"
+  ],
+  "cut": [
+    18.061,
+    24.26
+  ]
+}

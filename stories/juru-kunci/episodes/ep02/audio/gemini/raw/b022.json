@@ -1,0 +1,19 @@
+{
+  "hash": "f9dc72bfccbb",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Algenib",
+  "language": "id-ID",
+  "style": "Kakek Jawa berusia 75 tahun, suara serak dan berat, bicara tegas dan berwibawa, logat Jawa kental, terdengar seperti peringatan. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Tunangannya pergi merantau ke Jakarta. Berjanji pulang sebelum panen. Dia tidak pernah pulang. Dan Sumirah tetap menunggu, tahun demi tahun.",
+  "v": 1,
+  "merged_with": [
+    "b021",
+    "b022",
+    "b023"
+  ],
+  "cut": [
+    3.044,
+    19.424
+  ]
+}

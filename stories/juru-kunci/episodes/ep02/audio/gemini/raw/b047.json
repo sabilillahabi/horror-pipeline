@@ -1,0 +1,19 @@
+{
+  "hash": "2521f0446e77",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Pintu itu tertutup. Dan aku mengerti: malam ini, tidak ada yang akan membantuku. Aku harus menghadapi ini sendiri.",
+  "v": 1,
+  "merged_with": [
+    "b047",
+    "b048",
+    "b049"
+  ],
+  "cut": [
+    0.153,
+    9.809
+  ]
+}

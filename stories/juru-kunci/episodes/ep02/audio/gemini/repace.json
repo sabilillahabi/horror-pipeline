@@ -1,0 +1,542 @@
+{
+  "recap": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "recap.wav"
+  },
+  "b001": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b001.wav"
+  },
+  "b002": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b002.wav"
+  },
+  "b003": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b003.wav"
+  },
+  "b004": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b004.wav"
+  },
+  "b005": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b005.wav"
+  },
+  "b006": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b006.wav"
+  },
+  "b007": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b007.wav"
+  },
+  "b008": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b008.wav"
+  },
+  "b009": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b009.wav"
+  },
+  "b010": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b010.wav"
+  },
+  "b011": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b011.wav"
+  },
+  "b012": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b012.wav"
+  },
+  "b013": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b013.wav"
+  },
+  "b014": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b014.wav"
+  },
+  "b015": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b015.wav"
+  },
+  "b016": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b016.wav"
+  },
+  "b017": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b017.wav"
+  },
+  "b018": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b018.wav"
+  },
+  "b019": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b019.wav"
+  },
+  "h02": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "h02.wav"
+  },
+  "b020": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b020.wav"
+  },
+  "b021": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b021.wav"
+  },
+  "b022": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b022.wav"
+  },
+  "b023": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b023.wav"
+  },
+  "b024": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b024.wav"
+  },
+  "b025": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b025.wav"
+  },
+  "b026": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b026.wav"
+  },
+  "b027": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b027.wav"
+  },
+  "b028": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b028.wav"
+  },
+  "b029": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b029.wav"
+  },
+  "b030": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b030.wav"
+  },
+  "b031": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b031.wav"
+  },
+  "b032": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b032.wav"
+  },
+  "b033": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b033.wav"
+  },
+  "b034": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b034.wav"
+  },
+  "b035": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b035.wav"
+  },
+  "b036": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b036.wav"
+  },
+  "b037": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b037.wav"
+  },
+  "b038": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b038.wav"
+  },
+  "h03": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "h03.wav"
+  },
+  "b039": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b039.wav"
+  },
+  "b040": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b040.wav"
+  },
+  "b041": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b041.wav"
+  },
+  "b042": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b042.wav"
+  },
+  "b043": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b043.wav"
+  },
+  "b044": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b044.wav"
+  },
+  "b045": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b045.wav"
+  },
+  "b046": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b046.wav"
+  },
+  "b047": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b047.wav"
+  },
+  "b048": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b048.wav"
+  },
+  "b049": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b049.wav"
+  },
+  "b050": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b050.wav"
+  },
+  "b051": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b051.wav"
+  },
+  "b052": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b052.wav"
+  },
+  "b053": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b053.wav"
+  },
+  "b054": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b054.wav"
+  },
+  "b055": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b055.wav"
+  },
+  "b056": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b056.wav"
+  },
+  "b057": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b057.wav"
+  },
+  "b058": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b058.wav"
+  },
+  "b059": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b059.wav"
+  },
+  "b060": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b060.wav"
+  },
+  "b061": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b061.wav"
+  },
+  "b062": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b062.wav"
+  },
+  "b063": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b063.wav"
+  },
+  "b064": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b064.wav"
+  },
+  "b065": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b065.wav"
+  },
+  "h04": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "h04.wav"
+  },
+  "b066": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b066.wav"
+  },
+  "b067": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b067.wav"
+  },
+  "b068": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b068.wav"
+  },
+  "b069": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b069.wav"
+  },
+  "b070": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b070.wav"
+  },
+  "b071": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b071.wav"
+  },
+  "b072": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b072.wav"
+  },
+  "b073": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b073.wav"
+  },
+  "b074": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b074.wav"
+  },
+  "b075": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b075.wav"
+  },
+  "b076": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b076.wav"
+  },
+  "b077": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b077.wav"
+  },
+  "b078": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b078.wav"
+  },
+  "b079": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b079.wav"
+  },
+  "b080": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b080.wav"
+  },
+  "b081": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b081.wav"
+  },
+  "b082": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b082.wav"
+  },
+  "b083": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b083.wav"
+  },
+  "b084": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b084.wav"
+  },
+  "b085": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b085.wav"
+  },
+  "b086": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b086.wav"
+  },
+  "b087": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b087.wav"
+  },
+  "b088": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b088.wav"
+  },
+  "b089": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b089.wav"
+  },
+  "b090": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b090.wav"
+  },
+  "b091": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b091.wav"
+  },
+  "b092": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b092.wav"
+  },
+  "b093": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b093.wav"
+  },
+  "b094": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b094.wav"
+  },
+  "b095": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b095.wav"
+  },
+  "b098": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b098.wav"
+  },
+  "b096": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b096.wav"
+  },
+  "b099": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b099.wav"
+  },
+  "b101": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b101.wav"
+  },
+  "b102": {
+    "tempo": 1.0,
+    "max_gap": 0.8,
+    "source": "b102.wav"
+  },
+  "b105": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b105.wav"
+  },
+  "b103": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b103.wav"
+  },
+  "b104": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b104.wav"
+  },
+  "b106": {
+    "tempo": 1.2,
+    "max_gap": 0.8,
+    "source": "b106.wav"
+  }
+}

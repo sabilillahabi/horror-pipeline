@@ -1,0 +1,19 @@
+{
+  "hash": "3f8d8d236d70",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "Algenib",
+  "language": "id-ID",
+  "style": "Kakek Jawa berusia 75 tahun, suara serak dan berat, bicara tegas dan berwibawa, logat Jawa kental, terdengar seperti peringatan. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Namanya Sumirah.",
+  "v": 1,
+  "merged_with": [
+    "b021",
+    "b022",
+    "b023"
+  ],
+  "cut": [
+    0.118,
+    2.694
+  ]
+}

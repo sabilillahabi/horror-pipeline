@@ -1,0 +1,22 @@
+{
+  "hash": "1490f0ff6dc0",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Sekar berhenti di undakan gerbang. Persis di tempat Sumirah duduk malam itu.",
+  "v": 1,
+  "merged_with": [
+    "b059",
+    "b060",
+    "b061",
+    "b062",
+    "b063",
+    "b064"
+  ],
+  "cut": [
+    23.885,
+    27.759
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "hash": "3526eeee3a2d",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Mbah Karto menyuruhku masuk. Kami duduk berhadapan, seperti malam pertama dulu.",
+  "v": 1,
+  "merged_with": [
+    "b013",
+    "b014",
+    "b015",
+    "b016"
+  ],
+  "cut": [
+    19.122,
+    24.793
+  ]
+}

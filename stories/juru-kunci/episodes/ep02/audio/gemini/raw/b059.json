@@ -1,0 +1,22 @@
+{
+  "hash": "0ac218294030",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Di luar, kabut sudah turun. Jalan menuju makam tidak terlihat ujungnya. Yang terdengar cuma langkah kaki Sekar di tanah.",
+  "v": 1,
+  "merged_with": [
+    "b059",
+    "b060",
+    "b061",
+    "b062",
+    "b063",
+    "b064"
+  ],
+  "cut": [
+    0.166,
+    8.81
+  ]
+}

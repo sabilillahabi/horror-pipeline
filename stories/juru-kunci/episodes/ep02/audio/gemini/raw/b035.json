@@ -1,0 +1,22 @@
+{
+  "hash": "a7632e746c8d",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Satu halaman yang hilang dari buku itu. Disembunyikan kakek di balik foto. Supaya aku menemukannya... hanya kalau aku sudah siap.",
+  "v": 1,
+  "merged_with": [
+    "b031",
+    "b032",
+    "b033",
+    "b034",
+    "b035",
+    "b036"
+  ],
+  "cut": [
+    34.598,
+    43.4
+  ]
+}

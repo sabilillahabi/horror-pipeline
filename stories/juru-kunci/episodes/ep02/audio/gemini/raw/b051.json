@@ -1,0 +1,18 @@
+{
+  "hash": "2ee9e6270cde",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Sangat pelan, datar, menggantung.",
+  "text": "Itu suara Sekar. Tapi kata-katanya bukan kata-kata Sekar.",
+  "v": 1,
+  "merged_with": [
+    "b051",
+    "b093"
+  ],
+  "cut": [
+    0.182,
+    5.096
+  ]
+}

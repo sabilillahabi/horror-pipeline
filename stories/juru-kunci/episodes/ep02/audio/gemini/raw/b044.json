@@ -1,0 +1,18 @@
+{
+  "hash": "f060541dbe21",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Mereka tahu sesuatu. Tapi tidak ada yang berani mengatakannya. Di desa ini, ada hal-hal yang memang tidak boleh dikatakan.",
+  "v": 1,
+  "merged_with": [
+    "b044",
+    "b045"
+  ],
+  "cut": [
+    0.158,
+    11.165
+  ]
+}

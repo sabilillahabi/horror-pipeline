@@ -1,0 +1,19 @@
+{
+  "hash": "bb436c244b48",
+  "engine": "gemini",
+  "model": "gemini-3.8-flash-tts",
+  "voice": "id-id-assistant-1",
+  "language": "id-ID",
+  "style": "Pencerita horor laki-laki muda, bahasa Indonesia logat Jakarta yang santai. Bercerita intim seperti curhat di malam hari, suara rendah, ada ketegangan yang ditahan. Jeda singkat dan alami di koma dan titik-titik. Tempo tenang, mengalir, tidak terburu-buru.",
+  "text": "Sebelum pulang, aku berjalan ke tepi makam. Dari sana, beringin ketujuh terlihat jelas. Pohon paling besar, akarnya menjalar seperti jari-jari yang memegang tanah.",
+  "v": 1,
+  "merged_with": [
+    "b103",
+    "b104",
+    "b048"
+  ],
+  "cut": [
+    0.192,
+    13.694
+  ]
+}
