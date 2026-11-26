@@ -47,9 +47,11 @@ import hashlib
 import json
 import os
 import sys
+import threading
 import time
 import urllib.error
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 sys.path.insert(0, "/opt/muse/skills/custom-connector-setup/bin")
@@ -118,6 +120,9 @@ def blob_sha(data: bytes) -> str:
 
 
 def _sleep_for_rate_limit(resp_headers, attempt: int) -> float:
+    """Tidur untuk rate limit ASLI saja. Dipanggil hanya untuk 429 / 403
+    rate-limit, jadi X-RateLimit-Reset di sini memang relevan. (Untuk
+    502/503 pemanggil memakai backoff eksponensial, bukan fungsi ini.)"""
     retry_after = resp_headers.get("Retry-After")
     if retry_after:
         try:
@@ -166,7 +171,10 @@ def api(method: str, path: str, body: dict | None = None, timeout: int = 60) -> 
             rate_limited = ("rate limit" in msg_lower or "abuse" in msg_lower
                             or e.headers.get("X-RateLimit-Remaining") == "0")
             if e.code in (429, 502, 503) or (e.code == 403 and rate_limited):
-                wait = _sleep_for_rate_limit(e.headers, attempt)
+                if e.code in (429,) or (e.code == 403 and rate_limited):
+                    wait = _sleep_for_rate_limit(e.headers, attempt)
+                else:  # 502/503: backoff eksponensial, bukan Reset header
+                    wait = min(5.0 * (2 ** attempt), 60.0)
                 print(f"  rate limit/transient ({last_err}), tunggu {wait:.0f} dtk ...", flush=True)
                 time.sleep(wait)
                 continue
@@ -237,18 +245,33 @@ def main() -> int:
         print(f"{BRANCH} sudah sama, tidak ada yang di-push.")
         return 0
 
-    # 1. Blobs (idempotent: aman diulang kalau terputus).
-    new_shas: dict[str, str] = {}
-    for i, (p, rel, data) in enumerate(to_post, 1):
+    # 1. Blobs (idempotent: aman diulang kalau terputus). Paralel 4 worker:
+    #    satu POST ~7 dtk (didominasi upload body), sekuensial butuh ~50 mnt
+    #    untuk 419 blob; 4 worker ~12 mnt. Tiap request ambil surrogate baru
+    #    (pola resmi) dan aman di thread (socket baru per panggilan).
+    def _post_blob(item: tuple[Path, str, bytes]) -> tuple[str, str]:
+        p, rel, data = item
         sha = blob_sha(data)
         res = api("POST", f"/repos/{OWNER}/{REPO}/git/blobs",
                   {"content": base64.b64encode(data).decode("ascii"), "encoding": "base64"},
                   timeout=300)
         if res["sha"] != sha:
             raise SystemExit(f"blob SHA tidak cocok untuk {rel}: API {res['sha'][:8]} vs lokal {sha[:8]}")
-        new_shas[rel] = sha
-        if i % 25 == 0 or i == len(to_post):
-            print(f"  blob {i}/{len(to_post)}", flush=True)
+        return rel, sha
+
+    new_shas: dict[str, str] = {}
+    done = 0
+    done_lock = threading.Lock()
+    with ThreadPoolExecutor(max_workers=4) as ex:
+        futs = {ex.submit(_post_blob, item): item for item in to_post}
+        for fut in as_completed(futs):
+            rel, sha = fut.result()
+            new_shas[rel] = sha
+            with done_lock:
+                done += 1
+                n_done = done
+            if n_done % 25 == 0 or n_done == len(to_post):
+                print(f"  blob {n_done}/{len(to_post)}", flush=True)
     for (p, rel, data) in plan:
         if rel not in new_shas:
             new_shas[rel] = blob_sha(data)  # SHA sudah ada di tree
@@ -268,17 +291,22 @@ def main() -> int:
     commit_res = api("POST", f"/repos/{OWNER}/{REPO}/git/commits",
                      {"message": msg, "tree": new_tree, "parents": [tip]})
     commit = commit_res["sha"]
-    print(f"commit baru: {commit[:8]} (parent {tip[:8]})")
+    # Tulis SHA lengkap (bukan [:8]): kalau ref update gagal, commit yang
+    # sudah dibuat masih bisa ditemukan lewat API (API tidak menerima SHA pendek).
+    print(f"commit baru: {commit} (parent {tip}, tree {new_tree})")
 
-    # 4. Ref check + update (tidak pernah force).
+    # 4. Ref check + update (tidak pernah force). PERHATIKAN: endpoint update
+    #    memakai "refs" (jamak), BUKAN "ref" seperti GET — PATCH ke /git/ref/
+    #    mengembalikan 404 (kejadian 2026-11-26: commit sudah dibuat tapi ref
+    #    tidak ke-update).
     ref_now = get_ref()
     if ref_now["object"]["sha"] != tip:
         raise SystemExit(
             f"BERHENTI: ref {BRANCH} bergerak ({tip[:8]} -> {ref_now['object']['sha'][:8]}). "
             f"Commit {commit[:8]} dibuat tapi ref TIDAK di-update. Lapor dulu.")
-    api("PATCH", f"/repos/{OWNER}/{REPO}/git/ref/heads/{BRANCH}",
+    api("PATCH", f"/repos/{OWNER}/{REPO}/git/refs/heads/{BRANCH}",
         {"sha": commit, "force": False})
-    print(f"OK: ref {BRANCH} -> {commit[:8]}")
+    print(f"OK: ref {BRANCH} -> {commit}")
 
     # 5. Verifikasi: tree baru masih berisi ep01 + berisi ep02.
     new_ref = get_ref()
