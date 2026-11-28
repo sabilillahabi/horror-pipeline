@@ -149,6 +149,10 @@ def plan(ep: Episode, segs, override: dict | None = None) -> list[dict]:
             shots.append({"kind": "text", "slot": s.slot, "text": b.card_text or b.text, "dir": "static",
                           "fade": TEXT_CARD_FADE, "key": b.key})
             continue
+        if b.poses:
+            shots += _pose_shots(ep, s, b, rnd, flip)
+            flip += 1
+            continue
         src = ep.image_for(b)
         if src is None:
             raise PipelineError(f"Gambar untuk {b.key} tidak ada.")
@@ -171,6 +175,33 @@ def plan(ep: Episode, segs, override: dict | None = None) -> list[dict]:
             shots.append(sh)
             t += part
     return shots
+
+
+def _pose_shots(ep: Episode, s, b, rnd: random.Random, flip: int) -> list[dict]:
+    """Poses (12-A): the 9:16 window is planned once on the first pose and reused (scaled) for the
+    others; one pan or one zoom runs across the whole beat."""
+    from .render import pose_split
+    poses = pose_split(ep, b, s.slot)
+    cp = crop_plan(ep, b, poses[0][0], s.slot, rnd)
+    W0, H0 = cp["size"]
+    out = []
+    for img, part, f0, f1 in poses:
+        with Image.open(img) as im:
+            w, h = im.size
+        sx, sy = w / W0, h / H0
+        box = (cp["box"][0] * sx, cp["box"][1] * sy, cp["box"][2] * sx, cp["box"][3] * sy)
+        sh = {"kind": "image", "slot": part, "src": img, "crop": b.crop, "focus": b.focus, "key": b.key,
+              "mode": cp["mode"], "box": box, "wf": cp["wf"], "why": cp["why"] + " · pose", "size": (w, h)}
+        if cp["mode"] == "pan":
+            sh["x0"] = cp["x0"] + (cp["x1"] - cp["x0"]) * f0
+            sh["x1"] = cp["x0"] + (cp["x1"] - cp["x0"]) * f1
+            sh["dir"] = "pan"
+        else:
+            sh["x0"] = sh["x1"] = cp["x0"]
+            sh["dir"] = "zoom_in" if flip % 2 == 0 else "zoom_out"
+            sh["seg"] = (round(f0, 5), round(f1, 5))
+        out.append(sh)
+    return out
 
 
 # ------------------------------------------------------------------ rendering
@@ -247,7 +278,7 @@ def render(ep: Episode, shots: list[dict], force: bool, label="vclip") -> list[P
                     save_still(img, still, W, H)
                 render_clip(still, out, dur, sh.get("dir", "static"), r, W, H,
                             zoom=sh.get("zoom", VZOOM) if sh["kind"] == "image" else None,
-                            fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
+                            fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]), seg=sh.get("seg"))
         jobs.append(job)
     info(f"{len(jobs)} klip vertikal dirender, {len(shots) - len(jobs)} dari cache")
     run_parallel(jobs, label)

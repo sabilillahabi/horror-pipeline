@@ -28,12 +28,15 @@ def _even(x: float) -> int:
     return max(2, int(round(x / 2)) * 2)
 
 
-def kb_filter(direction: str, dur: float, amount: float, w: int, h: int) -> str:
+def kb_filter(direction: str, dur: float, amount: float, w: int, h: int, seg: tuple | None = None) -> str:
     """Ken Burns with crop/scale on a still that is already kb_scale (1.5x) the output size.
 
     zoom: the still is scaled per frame to (1+z(t))·output and the centre cut out; pan: scaled once to
     (1+amount)·output and the crop window slides. Easing: smoothstep over the clip."""
     p = f"min(1,t/{max(0.04, dur):.3f})"
+    if seg:  # one segment of a move spanning several clips (poses): progress f0 → f1, then hold
+        f0, f1 = seg
+        p = f"({f0:.5f}+{f1 - f0:.5f}*{p})"
     e = f"({p}*{p}*(3-2*{p}))"
     if direction in ("zoom_in", "zoom_out", "subtle"):
         a = amount * (0.35 if direction == "subtle" else 1.0)
@@ -50,7 +53,7 @@ def kb_filter(direction: str, dur: float, amount: float, w: int, h: int) -> str:
 
 def render_clip(still: Path | None, out: Path, dur: float, direction: str, r: dict,
                 w: int, h: int, zoom: float | None = None, fade: float = 0.0,
-                slot: float | None = None) -> None:
+                slot: float | None = None, seg: tuple | None = None) -> None:
     """Render one shot. `fade` > 0: fade in from black at the start and out to black by `slot`
     (the crossfade tail after `slot` then stays black)."""
     from .encode import clip_args
@@ -68,7 +71,9 @@ def render_clip(still: Path | None, out: Path, dur: float, direction: str, r: di
         run(["ffmpeg", "-y", "-f", "lavfi", "-i", f"color=c=black:s={w}x{h}:r={fps}",
              "-vf", post.lstrip(","), *common_out], "render klip hitam")
     else:
-        vf = kb_filter(direction, n / fps, r["zoom"] if zoom is None else zoom, w, h) + post
+        # a pose segment moves over its own slot and holds through the crossfade tail
+        mdur = (slot if slot is not None else n / fps) if seg else n / fps
+        vf = kb_filter(direction, mdur, r["zoom"] if zoom is None else zoom, w, h, seg) + post
         run(["ffmpeg", "-y", "-loop", "1", "-framerate", fps, "-i", still, "-vf", vf, *common_out],
             f"render klip {out.name}")
     os.replace(tmp, out)
@@ -306,6 +311,9 @@ def plan_shots(ep: Episode, segs: list[Segment]) -> list[dict]:
                 shots.append({"kind": "text", "slot": s.slot, "text": b.card_text or b.text,
                               "dir": "static", "fade": TEXT_CARD_FADE})
                 continue
+            if b.poses:
+                shots += pose_shots(ep, s, b, next_dir())
+                continue
             src, crop, focus = ep.image_for(b), b.crop, b.focus
             if src is None:
                 raise PipelineError(f"Gambar untuk {b.key} tidak ada. Jalankan: check {ep.slug} {ep.ep}")
@@ -319,6 +327,30 @@ def plan_shots(ep: Episode, segs: list[Segment]) -> list[dict]:
             shots.append({"kind": "image", "slot": part, "src": src, "crop": c, "focus": focus,
                           "shift": shift, "dir": next_dir()})
     return shots
+
+
+def pose_split(ep: Episode, b, slot: float) -> list[tuple[Path, float, float]]:
+    """[(image, f0, f1)]: the beat's poses in order, splitting its slot evenly (min MIN_POSE_SEC each;
+    extra poses are dropped when the beat is too short). f0/f1 = share of the beat's camera move."""
+    from .common import MAX_POSES, MIN_POSE_SEC
+    imgs = ep.pose_images(b)[:MAX_POSES]
+    for k, p in zip(b.poses, imgs):
+        if p is None:
+            raise PipelineError(f"Pose {k} untuk {b.key} tidak ada. Jalankan: check {ep.slug} {ep.ep}")
+    n = max(1, min(len(imgs), int(slot // MIN_POSE_SEC)))
+    fps = int(ep.render["fps"])
+    out, t = [], 0.0
+    for img, part in zip(imgs[:n], split_slot(slot, n, fps)):
+        out.append((img, part, t / slot, (t + part) / slot))
+        t += part
+    return out
+
+
+def pose_shots(ep: Episode, s, b, direction: str) -> list[dict]:
+    """One shot per pose; the camera move runs once across the whole beat (12-A)."""
+    return [{"kind": "image", "slot": part, "src": img, "crop": b.crop, "focus": b.focus, "shift": 0.0,
+             "dir": direction, "seg": (round(f0, 5), round(f1, 5))}
+            for img, part, f0, f1 in pose_split(ep, b, s.slot)]
 
 
 def render_shots(ep: Episode, shots: list[dict], w: int, h: int, force: bool,
@@ -364,7 +396,7 @@ def render_shots(ep: Episode, shots: list[dict], w: int, h: int, force: bool,
                     save_still(img, still_path, w, h, scale)
                 still = still_path
             render_clip(still, out, dur, sh.get("dir", "subtle"), r, w, h, zoom,
-                        fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]))
+                        fade=sh.get("fade", 0.0), slot=sh.get("fade_slot", sh["slot"]), seg=sh.get("seg"))
         jobs.append(job)
     info(f"{len(jobs)} klip dirender, {len(shots) - len(jobs)} dari cache")
     run_parallel(jobs, label)
@@ -434,6 +466,7 @@ def cmd_build(ep: Episode, args) -> None:
     step(f"Build {ep.slug} {ep.ep}" + (" [vertikal]" if vertical else "")
          + (f"  [preview {sel[0].key}–{sel[-1].key}]" if sel else ""))
     missing = [b for b in ep.missing_images() if keys is None or b.key in keys]
+    missing += [b for b, _ in ep.missing_poses() if (keys is None or b.key in keys) and b not in missing]
     if missing:
         raise PipelineError("Gambar belum lengkap: " + ", ".join(b.key for b in missing) +
                             f"\n  Cek dengan: check {ep.slug} {ep.ep}")

@@ -58,6 +58,10 @@ PART_MAX_S, PART_TARGET = 175.0, (150.0, 170.0)   # <= 2:55 (YouTube Shorts), ta
 WPM_LOW, WPM_HIGH, WPM_TARGET = 105, 135, (110, 130)
 
 
+MAX_POSES = 4         # images per beat (base + 3 poses), references/12-A
+MIN_POSE_SEC = 1.2    # each pose stays on screen at least this long
+
+
 def is_slow_style(text: str) -> bool:
     t = (text or "").lower()
     return any(w in t for w in SLOW_WORDS)
@@ -292,6 +296,16 @@ class Beat:
     def num(self) -> int | None:
         """Numeric part of the id: 18 for `18`, `b018` and `b018a`."""
         return id_number(self.id)
+
+    @property
+    def poses(self) -> list[str]:
+        """`poses: [b012, b012b, b012c]` → image file stems shown in order within this beat (12-A)."""
+        raw = self.raw.get("poses") if self.raw else None
+        if not raw:
+            return []
+        if isinstance(raw, (str, int)):
+            raw = [raw]
+        return [beat_key(x) for x in raw if str(x).strip()]
 
 
 def id_number(bid) -> int | None:
@@ -580,6 +594,17 @@ class Episode:
 
     def missing_images(self) -> list[Beat]:
         return [b for b in self.beats if self.needs_own_image(b) and not self.find_image(b.key)]
+
+    def pose_images(self, b: Beat) -> list[Path | None]:
+        """Images shown within a beat, in order: its poses (12-A) or just its single image."""
+        if b.visual == "image" and b.poses:
+            return [self.find_image(k) for k in b.poses]
+        return [self.image_for(b)]
+
+    def missing_poses(self) -> list[tuple[Beat, str]]:
+        return [(b, k) for b in self.beats if b.visual == "image" and b.poses
+                for k in b.poses if not self.find_image(k)]
+
 
     @property
     def audio_dir(self) -> Path:

@@ -13,7 +13,9 @@ Video Flow berbayar: **tidak dipakai**. Gerak didapat dari beberapa gambar diam 
   referensi** + prompt: "same scene, same composition, same lighting and characters; only change: <gerak>".
 - **Durasi adegan tetap mengikuti narasi.** Pose dibagi rata sesuai urutan dalam durasi beat; tiap pose minimal
   1,2 s (beat terlalu pendek → pakai lebih sedikit pose). Gerak kamera (push-in/pan) dihitung untuk seluruh beat,
-  jadi tetap mulus melewati pergantian pose; pergantian pose = potong biasa atau dissolve 0,12 s.
+  jadi tetap mulus melewati pergantian pose; pergantian pose memakai crossfade standar pipeline (0,5 s).
+- Sudah diimplementasi (28 Nov 2026): `build` (vertikal + panjang) membaca `poses:`; `check` error kalau > 4 pose
+  atau file pose belum ada, dan memperingatkan pose < 1,2 s; `review` membuat `review_poses.png`.
 - Dipakai untuk adegan tokoh yang ada aksi/emosi. Establishing shot dan benda cukup gerak kamera + efek.
 - Jumlah: boleh lebih dari 30 gambar per episode. Patokan: ±25–30 adegan dasar, ±60–90 gambar total termasuk pose.
 - QA: lembar kontak pose berdampingan per beat. Tolak pose yang wajah, pakaian, atau latarnya bergeser; generate
@@ -51,6 +53,9 @@ Alamat email tidak ditulis di repo — akun disebut `flow1`…`flow4`.
 - Catat per akun per hari: jumlah gambar yang berhasil dan saat kena batas (supaya batas nyata diketahui).
 - Nama file tetap `[bXXX]` / `[bXXXb]`, unik di seluruh episode, apa pun akunnya.
 
-**Setelah download**: import semua zip dari semua akun (09), lalu kirim ke Bil **satu lembar kontak gabungan**:
+`flow_plan.yaml` minimal: `accounts: {flow1: [b001, b002], flow2: [b010]}` (beat dasar; posenya ikut otomatis).
+
+**Setelah download**: import semua zip dari semua akun (09), lalu kirim ke Bil **satu lembar kontak gabungan**
+(`review` membuat `review_flow_accounts.png` kalau `flow_plan.yaml` ada):
 gambar dikelompokkan per akun dengan ref style kit di sampingnya, plus lembar pose (A). Gambar yang gayanya melenceng
 diulang di akun yang sama sebelum render.

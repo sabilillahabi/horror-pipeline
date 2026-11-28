@@ -212,6 +212,34 @@ def format_issues(ep: Episode) -> list[str]:
     return out
 
 
+def pose_issues(ep: Episode) -> list[str]:
+    """Poses (references/12-A): errors returned, short-pose warnings printed."""
+    from .common import MAX_POSES, MIN_POSE_SEC, probe_duration
+    errs = []
+    posed = [b for b in ep.beats if b.poses]
+    if not posed:
+        return errs
+    print(f"  Pose  : {len(posed)} beat berpose · {sum(len(b.poses) for b in posed)} gambar pose")
+    wpm = 115.0
+    for b in posed:
+        if b.visual != "image":
+            errs.append(f"{b.key}: poses hanya untuk beat bergambar (visual: {b.visual})")
+            continue
+        if len(b.poses) > MAX_POSES:
+            errs.append(f"{b.key}: {len(b.poses)} pose (maks {MAX_POSES} gambar per beat termasuk gambar dasar)")
+        for k in b.poses:
+            if not ep.find_image(k):
+                errs.append(f"{b.key}: gambar pose images/{k}.png belum ada")
+        a = ep.audio_path(b.key)
+        dur = probe_duration(a) if b.text and a.exists() else len(b.text.split()) / wpm * 60
+        dur = max(dur, b.min_duration or 0.0)
+        n = min(len(b.poses), MAX_POSES)
+        if n and dur / n < MIN_POSE_SEC:
+            warn(f"{b.key}: {n} pose dalam ±{dur:.1f} s (< {MIN_POSE_SEC} s per pose) — "
+                 f"hanya {max(1, int(dur // MIN_POSE_SEC))} pose yang tampil")
+    return errs
+
+
 def cmd_check(ep: Episode, args) -> int:
     step(f"Cek aset {ep.slug} {ep.ep}")
     need = [b for b in ep.beats if ep.needs_own_image(b)]
@@ -225,7 +253,7 @@ def cmd_check(ep: Episode, args) -> int:
     rimg = ep.script.get("recap_image")
     if rimg and not ep.recap_image():
         print(f"    ✗ recap_image: {rimg}")
-    expected = {b.key for b in need}
+    expected = {b.key for b in need} | {k for b in ep.beats for k in b.poses}
     extra = sorted(p.name for p in ep.images.iterdir()
                    if p.is_file() and p.stem not in expected and not p.name.startswith("."))
     if extra:
@@ -248,6 +276,7 @@ def cmd_check(ep: Episode, args) -> int:
                  + (" — pakai fallback `thumbnail:` di script.yaml" if r == "16x9" and ep.script.get("thumbnail") else ""))
     if len(need) > IMG_MAX:
         warn(f"{len(need)} gambar baru > {IMG_MAX} (target {IMG_MIN}–{IMG_MAX}); pakai reuse + crop")
+    pose_err = pose_issues(ep)
     for x in format_issues(ep):
         warn(x)
     o_err, o_warn = outline_issues(ep.slug, ep.number)
@@ -255,7 +284,9 @@ def cmd_check(ep: Episode, args) -> int:
         warn(x)
     for x in o_err:
         print(f"  ✗ {x}")
-    if o_err:
+    for x in pose_err:
+        print(f"  ✗ {x}")
+    if o_err or pose_err:
         return 1
     if missing:
         print(f"\n  {len(missing)} gambar belum ada.")

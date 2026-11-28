@@ -401,6 +401,66 @@ def first_frames_sheet(parts: list[dict], outdir: Path) -> Path:
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def pose_sheets(ep: Episode, outdir: Path) -> list[Path]:
+    """references/12: review_poses.png (one row per multi-pose beat, base first) and, when
+    episodes/epXX/flow_plan.yaml exists, review_flow_accounts.png (images grouped per Flow account with the
+    story's style kit refs on the left of each group). Visual drift check before rendering."""
+    import yaml
+    from . import fonts
+    fnt = fonts.font("sans_bold", 20)
+    out, TH = [], 220
+
+    def thumb(path, w=TH):
+        im = Image.open(path).convert("RGB")
+        return im.resize((w, max(1, round(im.height * w / im.width))))
+
+    def sheet(rows, name):
+        rows = [(lab, ims) for lab, ims in rows if ims]
+        if not rows:
+            return None
+        pad, lw = 8, 150
+        rh = max(i.height for _, ims in rows for i in ims) + pad
+        W = lw + pad + max(len(ims) for _, ims in rows) * (TH + pad)
+        img = Image.new("RGB", (W, len(rows) * rh + pad), (35, 35, 35))
+        d = ImageDraw.Draw(img)
+        for r, (lab, ims) in enumerate(rows):
+            y = pad + r * rh
+            d.text((pad, y + 4), lab, font=fnt, fill=(255, 210, 60))
+            for c, im in enumerate(ims):
+                img.paste(im, (lw + pad + c * (TH + pad), y))
+        p = outdir / name
+        img.save(p)
+        return p
+
+    rows = []
+    for b in ep.beats:
+        if b.visual == "image" and b.poses:
+            rows.append((b.key, [thumb(x) for x in ep.pose_images(b) if x]))
+    p = sheet(rows, "review_poses.png")
+    if p:
+        out.append(p)
+    plan = ep.dir / "flow_plan.yaml"
+    if plan.exists():
+        cfg = yaml.safe_load(plan.read_text(encoding="utf-8")) or {}
+        refs_dir = ep.dir.parent.parent / "style_kit" / "refs"
+        refs = sorted(x for x in refs_dir.glob("*") if x.suffix.lower() in (".png", ".jpg", ".jpeg", ".webp")) \
+            if refs_dir.is_dir() else []
+        ref_th = [thumb(x, 120) for x in refs[:3]]
+        rows = []
+        for acc, keys in (cfg.get("accounts") or {}).items():
+            ims = []
+            for k in keys or []:
+                b = ep.resolve_ref(k)
+                for x in (ep.pose_images(b) if b else [ep.find_image(str(k))]):
+                    if x:
+                        ims.append(thumb(x))
+            rows.append((str(acc), ref_th + ims))
+        p = sheet(rows, "review_flow_accounts.png")
+        if p:
+            out.append(p)
+    return out
+
+
 def review_parts(ep: Episode, m: dict) -> Path:
     outdir = Path(m["outdir"])
     step(f"Review part vertikal ({len(m['parts'])} part)")
@@ -450,6 +510,7 @@ def review_parts(ep: Episode, m: dict) -> Path:
         sheets += contact_sheets({"output": str(f), "srt": str(f.with_suffix(".srt")), "burned_subs": True,
                                   "vertical": True, "segments": []}, ep, prefix=f"review_sheet_part{r['n']}")
     crop_sheets = crop_maps({"output": str(outdir / "x.mp4"), "crops": [c for r in rows for c in r.get("crops", [])]})
+    crop_sheets += pose_sheets(ep, outdir)
     TB = thumbs_check(ep)
     (fixes if TB else passes).append("Thumbnail 16x9 + 9x16: " + ("ada" if not TB else "; ".join(TB)))
 
@@ -555,6 +616,7 @@ def review(ep: Episode, manifest: Path | None = None) -> Path:
     info("Membuat contact sheet (1 frame / 4 s, subtitle ikut dibakar)")
     sheets = contact_sheets(m, ep)
     crop_sheets = crop_maps(m) if vertical else []
+    crop_sheets += pose_sheets(ep, out.parent)
 
     r = [f"# Review — {out.name}", "",
          f"{dt.datetime.now():%Y-%m-%d %H:%M} · durasi {fmt_ts(m['total'])} · "
