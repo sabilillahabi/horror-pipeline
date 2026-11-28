@@ -22,7 +22,8 @@ Preview sebelum episode penuh: `build --beats b001-b018d` (dan `--vertical`) →
   channel. Part berakhir di cliffhanger + jeda 1,0 s dengan fade-out ambience/musik 0,5 s di akhir.
   Beat `long_only` (mis. kartu "Bersambung") tidak masuk part.
 - Label kecil tetap di atas: "<Judul> · Eps N · Part N/M". Subtitle Arial/Liberation Bold 64 px, maks 2 baris.
-- **Subtitle karaoke** (keputusan Bil, 28 Nov 2026; semua video vertikal Kemenyan Malam — part dan cerita sekali
+- **Subtitle karaoke — DITUNDA (Bil, 28 Nov 2026): jangan diimplementasi/dipakai sampai Bil minta.** Rancangan untuk nanti
+  (semua video vertikal Kemenyan Malam — part dan cerita sekali
   tamat; video panjang TIDAK, caption-nya terpisah): ukuran, font, posisi, dan jumlah baris tetap seperti di atas.
   Kata yang **sedang diucapkan** berubah warna dari putih ke krem keemasan `#E8C27A` (senada judul), lalu kembali
   putih/tetap krem setelah lewat — mengikuti suara, **bukan** penekanan atau kata kunci. Waktu per kata dari

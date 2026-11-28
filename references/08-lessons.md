@@ -72,4 +72,4 @@
 34. **Aset jangan tersebar.** Buat collection Flow per episode sebelum generate, dan folder Drive per episode sebelum
     upload (11).
 35. **Gerak tanpa video Flow.** Penonton minta "gambar bergerak" (26 Nov 2026). Solusinya variasi pose (maks 4
-    gambar per beat) + subtitle karaoke + gerak kamera, bukan video Flow berbayar (12, 05).
+    gambar per beat) + gerak kamera (karaoke ditunda), bukan video Flow berbayar (12, 05).
