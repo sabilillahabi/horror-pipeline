@@ -124,37 +124,57 @@ VOICE = ("Kamu admin channel horor Indonesia 'Kemenyan Malam' (tagline: Dengarka
 GEMINI_ERR: list[str] = []
 
 
+FALLBACK_MODELS = ["gemini-flash-latest", "gemini-flash-lite-latest", "gemini-2.5-flash", "gemini-2.5-flash-lite"]
+
+
+def _gemini_once(m: str, key: str, prompt: str) -> str:
+    body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 4096,
+                                 "thinkingConfig": {"thinkingBudget": 0}}}
+    try:
+        r = http_json(GEMINI_URL.format(m=m, k=key), body, timeout=120)
+    except RuntimeError as e:  # model that cannot turn thinking off → small budget instead
+        if "HTTP 400" not in str(e):
+            raise
+        body["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 512}
+        r = http_json(GEMINI_URL.format(m=m, k=key), body, timeout=120)
+    cand = (r.get("candidates") or [{}])[0]
+    text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", [])
+                   if not p.get("thought")).strip()
+    if not text:
+        why = cand.get("finishReason") or (r.get("promptFeedback") or {}).get("blockReason") or "kosong"
+        raise RuntimeError(f"jawaban kosong ({why})")
+    return text
+
+
 def gemini(prompt: str) -> str | None:
+    """Tries the configured model, then fallbacks; busy/overloaded models (429/503) are retried with a
+    longer wait. Returns None (and records why) if every model fails — the report still goes out."""
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
         if not GEMINI_ERR:
             GEMINI_ERR.append("secret GEMINI_API_KEY kosong/tidak ada")
         return None
-    m = os.environ.get("GEMINI_MODEL") or "gemini-flash-latest"
-    body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
-            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 4096,
-                                 "thinkingConfig": {"thinkingBudget": 0}}}
-    try:
-        try:
-            r = http_json(GEMINI_URL.format(m=m, k=key), body, timeout=120)
-        except RuntimeError as e:  # model that cannot turn thinking off → small budget instead
-            if "HTTP 400" not in str(e):
-                raise
-            body["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 512}
-            r = http_json(GEMINI_URL.format(m=m, k=key), body, timeout=120)
-        cand = (r.get("candidates") or [{}])[0]
-        text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", [])
-                       if not p.get("thought")).strip()
-        if not text:
-            why = cand.get("finishReason") or (r.get("promptFeedback") or {}).get("blockReason") or "kosong"
-            raise RuntimeError(f"jawaban kosong ({why})")
-        return text
-    except Exception as e:  # report still goes out without AI parts
-        msg = re.sub(r"AIza[0-9A-Za-z_\-]{10,}", "***", str(e))
-        print(f"gemini: {msg}")
-        if not GEMINI_ERR:
-            GEMINI_ERR.append(f"model {m}: {msg[:300]}")
-        return None
+    first = os.environ.get("GEMINI_MODEL") or FALLBACK_MODELS[0]
+    models = [first] + [x for x in FALLBACK_MODELS if x != first]
+    errs = []
+    for m in models:
+        for attempt in range(2):
+            try:
+                return _gemini_once(m, key, prompt)
+            except Exception as e:
+                msg = re.sub(r"AIza[0-9A-Za-z_\-]{10,}", "***", str(e))
+                busy = any(c in msg for c in ("HTTP 503", "HTTP 429", "UNAVAILABLE", "RESOURCE_EXHAUSTED"))
+                print(f"gemini {m}: {msg[:200]}")
+                if busy and attempt == 0:
+                    time.sleep(20)
+                    continue
+                code = re.search(r"HTTP (\d+)", msg)
+                errs.append(f"{m}: {code.group(0) if code else msg[:80]}")
+                break
+    GEMINI_ERR.clear()
+    GEMINI_ERR.append("semua model gagal — " + "; ".join(errs))
+    return None
 
 
 def fmt(n: int) -> str:
