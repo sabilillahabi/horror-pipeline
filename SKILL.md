@@ -1,6 +1,6 @@
 ---
 name: "horror_serial"
-description: "Produksi cerita horor bersambung di Muse AI: tiap episode = 3-4 part vertikal (<= 2:55, dipakai sama untuk YouTube Shorts/TikTok/IG Reels/FB Reels) + satu video panjang YouTube 16:9. Dari script.yaml (parts) sampai file siap upload: prompt gambar Google Flow (user generate di Flow lalu diimport), narasi Gemini TTS ±115 wpm seperti ep01 final (request digabung), lapisan suara, render cepat (encoder hardware/veryfast, shot paralel), outro channel (video panjang saja), cover per part, caption, jadwal 3 episode/minggu, review teknis + visual. Pakai saat user mau membuat / melanjutkan episode cerita horor (mis. Juru Kunci, channel Kemenyan Malam)."
+description: "Produksi cerita horor bersambung di Muse AI: tiap episode = 3-4 part vertikal (<= 2:55, dipakai sama untuk YouTube Shorts/TikTok/IG Reels/FB Reels) + satu video panjang YouTube 16:9. Dari script.yaml (parts) sampai file siap upload: prompt gambar Google Flow (user generate di Flow lalu diimport), narasi Gemini TTS ±115 wpm seperti ep01 final (request digabung), lapisan suara, render cepat (encoder hardware/veryfast, shot paralel), outro channel (video panjang saja), cover per part, caption, jadwal 1 upload/hari (1 episode/minggu), review teknis + visual. Pakai saat user mau membuat / melanjutkan episode cerita horor (mis. Juru Kunci, channel Kemenyan Malam)."
 ---
 
 # Horror Serial Pipeline (Muse AI)
@@ -25,7 +25,7 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
    Jangan pernah generate gambar 9:16 terpisah — versi vertikal dipotong dari 16:9 secara otomatis.
 
 ## Format (sejak 23 Nov 2026) — patuhi tanpa diminta
-- Panjang cerita: 1 jilid = 9 episode (3 arc x 3), nomor episode mulai lagi dari 1 tiap jilid (jilid baru = folder `stories/<slug>-jilid2/`), penonton tidak pernah diberi
+- Panjang cerita: 1 jilid = 4 episode (1 bulan; Juru Kunci jilid 1 = 6), nomor episode mulai lagi dari 1 tiap jilid (jilid baru = folder `stories/<slug>-jilid2/`), penonton tidak pernah diberi
   tahu posisi dalam jilid (hanya "Eps N" dan "Part N/M"); outline wajib di `stories/<slug>/outline.yaml` (10).
 - Episode = **3–4 part** di `script.yaml` (`parts:`), tiap part 2:30–2:50, **wajib ≤ 2:55**; 1.100–1.300 kata per
   episode; baris pertama part = hook, baris terakhir = cliffhanger; part 2–4 dibuka "hook jembatan" (01).
@@ -44,33 +44,8 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
 - Thumbnail 16x9/9x16 dari Flow dengan contoh resmi ep01 sebagai referensi; cover part hanya lewat `covers` (11,
   `references/style/`). Sebelum generate di Flow, buat collection episode dulu; upload ke Drive selalu ke folder
   `Kemenyan Malam/<Judul>/Eps NN/` (11).
-- Upload: 3 episode/minggu, maks 2 part/hari (12:00 & 19:00 WIB), satu file per slot, video panjang 18:00 sehari
-  setelah part terakhir (07).
-
-## Alur kerja (urut, jangan lompat)
-| # | Tahap | Perintah utama | Referensi |
-|---|-------|----------------|-----------|
-| 0 | Panjang cerita & outline jilid disetujui Bil | `outline.yaml`, `check` | 10 |
-| 1 | Story & script dikunci | `prompts`, `check` | 01 |
-| 2 | Prompt Flow → user generate di Google Flow → upload → import | `prompts`, `import-flow <zip/folder>`, `check` | 02 |
-| 3 | Thumbnail episode (16:9 + 9:16), juga dari Flow | `import-flow <folder>` | 02 |
-| 4 | Narasi (cek rencana request dulu) + outro channel | `tts --plan`, `tts`, `channel-tts` | 03 |
-| 5 | Lapisan suara | `sound-import <folder>` | 04 |
-| 6 | Simpan aset baru ke `muse-assets` | `python scripts/push_assets.py --story <s> --ep <ep>` | 00 |
-| 7 | Preview part 1 → **persetujuan user** | `build --beats <part1>` (+ `--vertical`) | 05 |
-| 8 | Video panjang, lalu part vertikal (satu per satu) | `build`, `build --vertical` | 05 |
-| 9 | Cover part (+ Threads opsional) | otomatis di `build --vertical`; `covers`, `threads` | 05, 07 |
-| 10 | Review teknis + **cek visual oleh kamu** (`first_frames.png`!) | otomatis setelah build; `review` | 06 |
-| 11 | `publish.md`: judul + deskripsi + hashtag per platform, jadwal | aturan per platform di 07 | 07 |
-
-Sebelum mulai baca `references/08-lessons.md` — semua bug di sana sudah pernah terjadi.
-
-Rilis: **part dulu, video panjang belakangan** — jadwal mingguan di `references/07-publish.md`.
-Klip TTS lama yang terlalu lambat: `repace` (atempo, tanpa kuota) — jangan generate ulang (03).
-Kalau workspace punya browser yang login ke akun Google Bil dan Bil minta kamu sendiri yang generate gambar di Flow
-atau download suara di Pixabay, ikuti `references/09-flow-and-pixabay-browser.md`.
-
-## Output Contract (per episode, di `stories/<slug>/episodes/epXX/`)
+- Upload: 1 per hari jam 19:00 WIB — Sen–Kam part 1–4 (berturut-turut), Jum & Sab cerita sekali tamat, Min video panjang
+  YouTube (07). Jilid default 4 episode = 1 bulan (10).
 - `output/vertical/epXX_partN.mp4` — 3–4 part, masing-masing ≤ 2:55, 105–135 wpm, −14 LUFS / ≤ −1.5 dBTP,
   ±20–40 MB, 3 detik pertama gambar (bukan hitam/kartu), tanpa kartu penutup; sama untuk Shorts/TikTok/IG/FB
 - `output/vertical/covers/epXX_partN_cover.jpg` + `covers_sheet.png`; `first_frames.png`; `captions.txt`

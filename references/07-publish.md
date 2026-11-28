@@ -9,27 +9,27 @@
 Upload IG/FB sebagai **Reels** (post video biasa di FB memotong 9:16 jadi 4:5). Di YouTube, isi "Related video"
 tiap Short dengan part berikutnya; part terakhir → video panjang episode itu (setelah tayang).
 
-## Jadwal mingguan (WIB) — 3 episode per minggu
-Maksimal **2 upload part per hari**, jam **12:00 dan 19:00**, di keempat platform short-video sekaligus (file sama).
+## Jadwal mingguan (WIB) — 1 upload per hari (keputusan Bil, 28 Nov 2026)
+Satu upload per hari supaya tiap video punya waktu cukup untuk didistribusikan dan ditonton. Part satu episode
+tayang **berturut-turut** (tidak diselingi cerita lain) supaya rasa penasaran terbawa dari hari ke hari.
 
-| Hari | 12:00 | 18:00 (YouTube, video panjang) | 19:00 |
-|------|-------|-------|-------|
-| Senin | Ep A Part 1 | | Ep A Part 2 |
-| Selasa | Ep A Part 3 | | Ep A Part 4 |
-| Rabu | Ep B Part 1 | **Ep A** | Ep B Part 2 |
-| Kamis | Ep B Part 3 | | Ep B Part 4 |
-| Jumat | Ep C Part 1 | **Ep B** | Ep C Part 2 |
-| Sabtu | Ep C Part 3 | | Ep C Part 4 |
-| Minggu | slot cadangan (part ke-4 / susulan) | **Ep C** | slot cadangan |
+| Hari | Upload | Platform |
+|------|--------|----------|
+| Senin | Episode minggu ini · Part 1 | Shorts, TikTok, IG Reels, FB Reels |
+| Selasa | Part 2 | idem |
+| Rabu | Part 3 | idem |
+| Kamis | Part 4 | idem |
+| Jumat | Cerita sekali tamat #1 | idem |
+| Sabtu | Cerita sekali tamat #2 | idem |
+| Minggu | Video panjang episode minggu ini (16:9) | YouTube saja |
 
 Aturan:
-- Video panjang tiap episode tayang di YouTube jam **18:00 pada hari setelah part terakhirnya** (episode 3 part:
-  part terakhir Selasa/Kamis/Sabtu 12:00, panjangnya tetap besok jam 18:00; slot 19:00 yang kosong boleh dipakai
-  susulan).
-- Kalau ada part yang tertunda, pakai slot Minggu; jangan pernah lebih dari 2 part per hari.
-- **Satu file per slot.** Jangan pernah batch-upload beberapa part sekaligus; jadwalkan tiap part di slotnya
-  (fitur jadwal platform boleh, tapi satu part per slot).
-- Butuh 3 episode jadi per minggu: simpan minimal satu episode stok.
+- Jam tayang: **19:00 WIB** untuk semua slot (default; Bil boleh mengganti jamnya, satu jam yang sama tiap hari).
+- 1 episode cerita bersambung per minggu → jilid 4 episode selesai dalam 1 bulan.
+- Episode yang cuma 3 part: Kamis diisi cerita sekali tamat tambahan atau dikosongkan; jangan pernah 2 upload sehari.
+- **Satu file per slot.** Jangan batch-upload beberapa part sekaligus; pakai fitur jadwal platform, satu part per slot.
+- Simpan minimal satu episode stok supaya jadwal tidak bolong.
+- Format cerita sekali tamat masih dirancang (belum ada aturannya); sampai ada, slot Jumat/Sabtu boleh kosong.
 - Threads opsional: satu thread per part, diposting di slot yang sama dengan Short part itu (lihat bawah).
 
 ## Judul & deskripsi per platform → `stories/<slug>/episodes/epXX/publish.md`
@@ -63,7 +63,7 @@ Juru Kunci Eps 1 Part 1/4"). Tiap part judul berbeda; jangan "Part 2" saja.
 ## Threads (opsional) — 1 thread per part, barengan dengan Short-nya
 `python horror.py threads <slug> <ep>` (sesudah `build --vertical`) → `output/threads/part<N>.md` + `images/`.
 - **Jumlah thread = jumlah part video** (3–4). Thread part N diposting **di slot yang sama dengan Short part N**
-  (12:00 / 19:00), tepat setelah Short-nya tayang.
+  (19:00), tepat setelah Short-nya tayang.
 - Post 1 = hook + 🧵 + label "<Judul> · Eps N · Part N/M" + cover part (`epXX_partN_cover.jpg`, sama dengan Short).
   Maks 2 gambar adegan 4:5 (`--thumb-only` tanpa gambar adegan). Post ≤ 480 karakter (emoji = byte UTF-8), putus di
   batas kalimat, maks 15 post.

@@ -3,7 +3,11 @@
 Satu **jilid** = satu season. Panjang cerita diputuskan SEBELUM menulis episode apa pun.
 
 ## Panjang
-- Default **1 jilid = 9 episode = 3 arc x 3 episode**. Rentang 6–12 episode hanya kalau cerita jelas membutuhkannya.
+- Default **1 jilid = 4 episode = 1 bulan tayang** (keputusan Bil, 28 Nov 2026): 4 episode x 4 part = 16 part,
+  ±35–40 menit cerita. Struktur: ep1 pembuka, ep2–3 komplikasi dan reveal, ep4 klimaks dan penutup.
+  Pengecualian: Juru Kunci jilid 1 = 6 episode (sudah berjalan sebelum aturan ini).
+- Cerita dipadatkan dengan memotong **subplot**, bukan suasana: tiap adegan tetap pelan dan detail (bunyi, rasa
+  dingin, gerak kecil tokoh). Lebih sedikit kejadian, tiap kejadian lebih dalam.
 - Jumlah jilid tidak dibatasi. Jilid berikutnya hanya dibuat kalau minat penonton bagus (lihat Checkpoint), dan
   setiap jilid baru butuh outline sendiri yang disetujui Bil.
 - Nomor episode **mulai lagi dari 1 di setiap jilid** (keputusan Bil, 25 Nov 2026). Supaya folder tidak bertabrakan,
@@ -15,7 +19,7 @@ Satu **jilid** = satu season. Panjang cerita diputuskan SEBELUM menulis episode 
 
 ## Isi satu episode
 - 3–4 part vertikal (masing-masing <= 2:55; pada ±115 wpm praktis selalu 4 part) + 1 video panjang horizontal.
-- Script 1.100–1.300 kata per episode (±10–11 ribu kata untuk 9 episode). Detail format: 01.
+- Script 1.100–1.300 kata per episode (±4,5–5 ribu kata untuk jilid 4 episode). Detail format: 01.
 - Setiap episode berakhir dengan **cliffhanger**. Setiap akhir arc berakhir dengan **reveal** yang lebih besar.
 - Episode terakhir jilid menutup semua benang cerita jilid itu. Kalau ada kelanjutan (jilid berikutnya), pancingannya
   sudah direncanakan di outline sejak awal.
@@ -37,8 +41,8 @@ Satu **jilid** = satu season. Panjang cerita diputuskan SEBELUM menulis episode 
   peringatan kalau status masih `draft` (atau ep01 tanpa outline).
 
 ## Checkpoint
-Setelah 3 episode pertama sebuah jilid tayang 7 hari, bandingkan rata-rata view-through dan views per part dengan
+Setelah episode 2 sebuah jilid tayang 7 hari, bandingkan rata-rata view-through dan views per part dengan
 baseline channel sendiri.
-- Jelas di bawah baseline: padatkan outline jadi 6 episode dengan menggabungkan arc.
-- Sehat: lanjutkan rencana.
+- Jelas di bawah baseline: jangan rencanakan jilid 2; tutup jilid sesuai outline.
+- Sehat: Bil boleh memutuskan menyiapkan outline jilid 2 (cerita yang sama) atau cerita baru.
 - Tidak pernah memperpanjang di luar outline tanpa persetujuan Bil.

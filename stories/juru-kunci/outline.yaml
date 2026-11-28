@@ -1,20 +1,21 @@
 # OUTLINE JILID 1 — DRAFT, Bil yang mengedit.
 # - Episode berstatus `draft` boleh ditulis script-nya, tapi harus `approved` (di-OK Bil) sebelum TTS/render.
 # - Nomor episode mulai lagi dari 1 di setiap jilid; jilid 2 = folder cerita baru stories/juru-kunci-jilid2/.
-# - Posisi dalam jilid TIDAK pernah ditampilkan ke penonton (tidak ada "x/9", "Jilid 1"); hanya "Eps N" dan "Part N/M".
+# - Posisi dalam jilid TIDAK pernah ditampilkan ke penonton (tidak ada "x/6", "Jilid 1"); hanya "Eps N" dan "Part N/M".
+# - Jilid 1 dipadatkan jadi 6 episode (keputusan Bil, 28 Nov 2026): ep01-03 tetap, ep04-06 menggabungkan rencana lama ep04-09.
 # - Aturan lengkap: references/10-story-length.md
 title: "Juru Kunci"
 slug: juru-kunci
 jilid: 1
 arcs:
   1: "Bayu pulang, menjadi juru kunci, belajar aturan kunci"
-  2: "Masa lalu Sumirah terungkap, dan warga ternyata tahu semuanya"
-  3: "Konfrontasi dengan Sang Penunggu dan ending"
+  2: "Masa lalu Sumirah terungkap, dan warga ternyata tahu semuanya (ep04-05)"
+  3: "Konfrontasi dengan Sang Penunggu dan ending (ep06)"
 style:
   narration: "Narator 'aku' memakai gaya santai seperti ep01 ('nggak', bukan 'tidak'); dialog warga/Mbah Karto boleh lebih Jawa. ep02 sengaja dibiarkan 'tidak' karena klip TTS dipakai ulang; mulai ep03 kembali ke gaya ep01."
 continuity:
   - "Sudah tayang: tembang Sekar (ep01, ep02), kentongan tiga kali (ep01, ep02), sesaji baru di makam malam pertama (ep01), Pak Darno warga yang biasanya banyak bicara (ep02), peta tujuh beringin di balik halaman tersembunyi (ep02)"
-  - "Belum boleh: Sumirah bicara langsung (ep07/ep08), wujud Sang Penunggu (ep08), aturan keempat (ep08), Sumirah pergi (ep09)"
+  - "Belum boleh: Sumirah bicara langsung (akhir ep05/ep06), wujud Sang Penunggu (ep06), aturan keempat (ep06), Sumirah pergi (ep06)"
 episodes:
   # ---------------------------------------------------------------- ARC 1
   - number: 1
@@ -63,79 +64,40 @@ episodes:
     arc: 2
     working_title: "Tembang Lama"
     status: draft
-    parts: ["Senandung", "Rumah Sumirah", "Surat dari Jakarta", "Kebaya Hijau"]
+    parts: ["Rekaman", "Rumah Sumirah", "Surat dari Jakarta", "Undangan"]
     key_events:
-      - "Sekar bersenandung lagi tembang yang tak pernah dia pelajari (sudah terdengar di ep02); kali ini Bayu merekamnya diam-diam"
-      - "Bayu mencari rumah lama Sumirah di ujung desa, kosong tapi bersih terawat"
-      - "Ditemukan surat tunangan dari Jakarta yang tak pernah sampai"
-      - "Bayu mulai curiga Sumirah tidak meninggal karena menunggu"
-    cliffhanger: "Tembang di rekaman ternyata menyebut nama Bayu"
-    characters: [narrator, bayu, sekar, mbah_karto, warga, sumirah]
+      - "Sekar bersenandung lagi tembang yang tak pernah dia pelajari (sudah terdengar di ep02); kali ini Bayu merekamnya diam-diam, dan di rekaman tembang itu menyebut nama Bayu"
+      - "Bayu mencari rumah lama Sumirah di ujung desa: kosong, tapi bersih dan terawat seperti masih ditinggali"
+      - "Ditemukan surat tunangan dari Jakarta yang tak pernah sampai; Bayu mulai curiga Sumirah tidak meninggal karena menunggu"
+      - "Pak Lurah mengaku: setiap juru kunci 'dibayar' warga lewat hadiah supaya penunggu tidak mengambil orang desa; halaman-halaman sobek lainnya ternyata diambil warga (kakek hanya menyembunyikan satu halaman di balik foto)"
+    cliffhanger: "Warga mengundang Bayu ke selamatan besar; di undangan tertulis nama Sekar sebagai tamu kehormatan"
+    characters: [narrator, bayu, sekar, mbah_karto, warga, lurah, sumirah]
   - number: 5
-    jilid: 1
-    arc: 2
-    working_title: "Hadiah Warga"
-    status: draft
-    parts: ["Beras dan Amplop", "Lurah", "Buku Catatan", "Malam Selamatan"]
-    key_events:
-      - "Bayu menelusuri siapa saja yang memberi hadiah dan mencatat pola waktunya"
-      - "Pak Lurah mengaku: setiap juru kunci 'dibayar' warga supaya penunggu tidak mengambil orang desa"
-      - "Halaman-halaman sobek lainnya ternyata diambil warga, bukan kakek (yang hanya menyembunyikan satu halaman di balik foto) dan bukan Mbah Karto"
-      - "Warga mengundang Bayu ke selamatan besar tanpa mau menjelaskan untuk apa"
-    cliffhanger: "Di undangan selamatan tertulis nama Sekar sebagai tamu kehormatan"
-    characters: [narrator, bayu, sekar, mbah_karto, warga, lurah]
-  - number: 6
     jilid: 1
     arc: 2
     working_title: "Yang Dikorbankan"
     status: draft
-    parts: ["Selamatan", "Pengakuan Mbah Karto", "Empat Puluh Tahun", "Nama yang Tak Boleh"]
+    parts: ["Selamatan", "Empat Puluh Tahun", "Pengepungan", "Gerbang Terbuka"]
     key_events:
-      - "Di selamatan, warga membongkar cerita lama: Sumirah dulu dikorbankan desa agar panen selamat"
-      - "Mbah Karto mengaku ikut menyaksikan dan diam selama puluhan tahun"
-      - "Kakek Bayu menjadi juru kunci untuk menebus dosa itu"
-      - "Bayu hampir menyebut nama Sang Penunggu karena marah, lalu dihentikan"
-    cliffhanger: "Warga mengepung rumah kakek: mereka ingin Sekar yang jadi pengganti Sumirah"
-    reveal: "Warga tahu semuanya sejak awal dan memilih Bayu supaya Sekar bisa dijadikan tumbal"
+      - "Di selamatan, cerita lama terbongkar: Sumirah dulu dikorbankan desa agar panen selamat; Mbah Karto mengaku ikut menyaksikan lalu diam puluhan tahun"
+      - "Kakek Bayu menjadi juru kunci untuk menebus dosa itu; Bayu hampir menyebut nama Sang Penunggu karena marah, lalu dihentikan"
+      - "Warga mengepung rumah kakek karena menginginkan Sekar sebagai pengganti; Bayu dan Sekar kabur lewat jalan belakang dibantu Mbah Karto"
+      - "Kunci kuningan ternyata penyegel, bukan sekadar pembuka; gerbang makam terbuka sendiri dan semua nisan menghadap Bayu"
+    cliffhanger: "Sekar bicara dengan suara Sumirah: Sang Penunggu sudah menyebut nama Bayu lebih dulu"
+    reveal: "Warga tahu semuanya sejak awal dan memilih Bayu sebagai juru kunci supaya Sekar bisa dijadikan tumbal"
     characters: [narrator, bayu, sekar, mbah_karto, warga, lurah, sumirah]
   # ---------------------------------------------------------------- ARC 3
-  - number: 7
-    jilid: 1
-    arc: 3
-    working_title: "Kunci Kuningan"
-    status: draft
-    parts: ["Pengepungan", "Jalan Belakang", "Gerbang Terbuka", "Tujuh Beringin"]
-    key_events:
-      - "Bayu dan Sekar kabur lewat jalan belakang dibantu Mbah Karto"
-      - "Kunci kuningan ternyata bukan hanya pembuka gerbang, tapi penyegel sesuatu"
-      - "Gerbang makam terbuka sendiri; semua nisan menghadap ke arah Bayu"
-      - "Sekar mulai bicara dengan suara Sumirah"
-    cliffhanger: "Sekar berkata Sang Penunggu sudah menyebut nama Bayu lebih dulu"
-    characters: [narrator, bayu, sekar, mbah_karto, warga, sumirah]
-  - number: 8
-    jilid: 1
-    arc: 3
-    working_title: "Nama yang Tak Boleh Disebut"
-    status: draft
-    parts: ["Suara Sumirah", "Beringin Terbesar", "Sang Penunggu", "Aturan Keempat"]
-    key_events:
-      - "Sumirah, lewat Sekar, menjelaskan bahwa ia justru menjaga Sekar dari Sang Penunggu"
-      - "Bayu melihat wujud Sang Penunggu di bawah beringin paling besar"
-      - "Aturan keempat yang disobek dari buku kakek akhirnya terbaca"
-      - "Bayu harus memilih: menyebut nama itu atau menyerahkan kunci"
-    cliffhanger: "Bayu membuka mulut untuk menyebut nama Sang Penunggu"
-    characters: [narrator, bayu, sekar, sumirah, penunggu]
-  - number: 9
+  - number: 6
     jilid: 1
     arc: 3
     working_title: "Juru Kunci"
     status: draft
-    parts: ["Nama", "Harga", "Fajar", "Gembok Baru"]
+    parts: ["Suara Sumirah", "Sang Penunggu", "Aturan Keempat", "Gembok Baru"]
     key_events:
-      - "Bayu menyebut nama itu dan mengikat Sang Penunggu dengan kunci kuningan"
-      - "Sumirah akhirnya pergi dari undakan gerbang; tusuk konde kembali ke sanggulnya"
-      - "Warga menghadapi akibat perbuatan mereka; Mbah Karto menyerahkan diri"
-      - "Bayu memutuskan tetap menjadi juru kunci, Sekar selamat"
+      - "Sumirah, lewat Sekar, menjelaskan bahwa selama ini ia justru menjaga Sekar dari Sang Penunggu"
+      - "Bayu melihat wujud Sang Penunggu di bawah beringin terbesar; aturan keempat yang disobek dari buku kakek akhirnya terbaca"
+      - "Bayu menyebut nama itu dan mengikat Sang Penunggu dengan kunci kuningan; Sumirah akhirnya pergi dari undakan gerbang, tusuk konde kembali ke sanggulnya"
+      - "Warga menghadapi akibat perbuatan mereka, Mbah Karto menyerahkan diri; Bayu memutuskan tetap menjadi juru kunci, Sekar selamat"
     cliffhanger: "Fajar tiba, desa tenang, tapi gembok baru di gerbang sudah terbuka"
     reveal: "Semua benang jilid 1 tertutup: Sumirah bebas, warga terbongkar, Sekar selamat, penunggu terikat"
     hook_jilid_2: "Di buku kakek ada nama juru kunci pertama, dan namanya bukan orang desa Wringinpitu"
