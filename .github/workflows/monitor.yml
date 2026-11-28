@@ -1,0 +1,47 @@
+name: Kemenyan Malam monitor
+
+on:
+  schedule:
+    - cron: "0 14 * * 1-6"   # Mon–Sat 21:00 WIB — daily report
+    - cron: "0 14 * * 0"     # Sun 21:00 WIB — weekly report
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "daily or weekly"
+        default: daily
+
+concurrency: monitor
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: monitor
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore state
+        uses: actions/cache/restore@v4
+        with:
+          path: monitor/state
+          key: monitor-state-${{ github.run_id }}
+          restore-keys: monitor-state-
+      - name: Run
+        env:
+          YT_API_KEY: ${{ secrets.YT_API_KEY }}
+          YT_CHANNEL: ${{ vars.YT_CHANNEL || secrets.YT_CHANNEL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
+          MODE: ${{ github.event.inputs.mode || (github.event.schedule == '0 14 * * 0' && 'weekly') || 'daily' }}
+        run: python monitor/youtube_monitor.py
+      - name: Save state
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: monitor/state
+          key: monitor-state-${{ github.run_id }}
