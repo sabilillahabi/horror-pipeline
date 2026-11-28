@@ -131,11 +131,24 @@ def gemini(prompt: str) -> str | None:
             GEMINI_ERR.append("secret GEMINI_API_KEY kosong/tidak ada")
         return None
     m = os.environ.get("GEMINI_MODEL") or "gemini-flash-latest"
+    body = {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 4096,
+                                 "thinkingConfig": {"thinkingBudget": 0}}}
     try:
-        r = http_json(GEMINI_URL.format(m=m, k=key),
-                      {"contents": [{"role": "user", "parts": [{"text": prompt}]}],
-                       "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1500}}, timeout=90)
-        return "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"]).strip()
+        try:
+            r = http_json(GEMINI_URL.format(m=m, k=key), body, timeout=120)
+        except RuntimeError as e:  # model that cannot turn thinking off → small budget instead
+            if "HTTP 400" not in str(e):
+                raise
+            body["generationConfig"]["thinkingConfig"] = {"thinkingBudget": 512}
+            r = http_json(GEMINI_URL.format(m=m, k=key), body, timeout=120)
+        cand = (r.get("candidates") or [{}])[0]
+        text = "".join(p.get("text", "") for p in (cand.get("content") or {}).get("parts", [])
+                       if not p.get("thought")).strip()
+        if not text:
+            why = cand.get("finishReason") or (r.get("promptFeedback") or {}).get("blockReason") or "kosong"
+            raise RuntimeError(f"jawaban kosong ({why})")
+        return text
     except Exception as e:  # report still goes out without AI parts
         msg = re.sub(r"AIza[0-9A-Za-z_\-]{10,}", "***", str(e))
         print(f"gemini: {msg}")
