@@ -50,14 +50,37 @@ Contoh jadi: `stories/juru-kunci/episodes/ep01/publish.md`.
 **Per platform**
 | | Judul | Deskripsi / caption | Link | Hashtag |
 |---|---|---|---|---|
-| YouTube Shorts | kolom judul, ≤ 70 huruf + ` #shorts` di akhir (maks 100) | 2–3 kalimat hook + label seri | **tanpa link** (tidak bisa diklik di Shorts) — pakai "Related video" ke part berikutnya, part terakhir → video panjang | 3 |
+| YouTube Shorts | kolom judul, ≤ 70 huruf + ` #shorts` di akhir (maks 100) | 2–3 kalimat hook + label seri | **tanpa link** (tidak bisa diklik di Shorts) — pakai "Related video" (aturan di bawah) | 3 |
 | TikTok | **tidak ada kolom judul**: baris pertama caption = judul (≤ 70 huruf) | baris kosong, 2–3 kalimat hook, label seri | tidak ada | 7 |
 | IG Reels | **tidak ada kolom judul**: baris pertama caption = judul | baris kosong, hook, label seri, `▶ link di bio` | link di bio (caption tidak bisa diklik) | 7 |
 | FB Reels | **tidak ada kolom judul**: baris pertama = judul | baris kosong, hook, label seri, `▶ [LINK YOUTUBE]` (bisa diklik) | link video panjang setelah tayang | 3 |
 | YouTube (panjang) | `youtube_title` dari script.yaml (≤ 70 huruf terlihat penuh, maks 100) + 1 alternatif | 2 baris pertama = hook (yang terlihat sebelum "lainnya"), sinopsis 3–4 kalimat tanpa spoiler, "Juru Kunci · Episode N: <judul>", ajakan subscribe, **Chapter** (salin dari `output/description.txt`, mulai 00:00), hashtag | link part/Shorts boleh | 5 di deskripsi + 10–15 tag di kolom Tag |
 
-Format judul part: `<hook singkat> | <Judul> Eps N Part N/M` (mis. "Perempuan di Gerbang Makam Menyisir Rambut |
-Juru Kunci Eps 1 Part 1/4"). Tiap part judul berbeda; jangan "Part 2" saja.
+Format judul part: `<hook singkat> | <Judul> Eps N Part N/M`. Tiap part judul berbeda; jangan "Part 2" saja.
+
+**Rumus hook judul** (dari data Eps 1–2, 28 Nov 2026): pernyataan misterius, sebaiknya dari sudut pandang "aku",
+yang membuat penonton bertanya *kenapa/apa*. Bukan deskripsi adegan. Jangan membocorkan cliffhanger part itu.
+- Jalan: "Sejak Hari Itu Semua Warga Memanggilku Juru Kunci" (5,2K), "Halaman yang Hilang Itu Menyimpan Satu
+  Peringatan" (1,4K dalam 6 jam), "Tusuk Konde Itu Selalu Kembali ke Bantalku" (1,7K).
+- Sepi: "Perempuan di Gerbang Makam Menyisir Rambut" (45) — deskripsi adegan, tidak ada pertanyaan.
+
+### Related video (YouTube Shorts) — dipasang Bil di YouTube Studio
+Tiap Short diberi "Related video" supaya penonton baru menemukan awal cerita:
+- Video panjang episode itu **sudah tayang** → semua part episode itu mengarah ke video panjangnya.
+- **Belum tayang** (Sen–Sab sebelum video panjang Minggu) → mengarah ke Part 1 episode itu; Minggu malam setelah
+  video panjang tayang, ganti ke video panjang.
+- Part 1 episode baru → video panjang episode sebelumnya.
+publish.md wajib memuat checklist ini per part (judul tujuan), plus pengingat "ganti ke video panjang" untuk Minggu.
+
+### Komentar pin — 1 pertanyaan per part
+publish.md memuat satu komentar per part untuk dipasang dan di-pin Bil di YouTube, TikTok, IG, dan FB:
+- Pertanyaan yang mengajak menebak, dengan suara channel (tenang, misterius), ≤ 150 karakter.
+- Tentang misteri yang sudah muncul di part itu; **tanpa spoiler** part/episode berikutnya.
+- Contoh: "Menurut kalian, siapa yang menaruh tusuk konde itu di bantal? 🕯️"
+
+### Part yang sepi
+Jangan upload ulang part yang views-nya rendah (konten duplikat bisa dianggap reupload). Arahkan penonton ke sana
+lewat Related video / video panjang.
 `[LINK YOUTUBE]` di FB diganti setelah video panjang tayang (caption yang sudah terbit boleh diedit).
 
 ## Threads (opsional) — 1 thread per part, barengan dengan Short-nya

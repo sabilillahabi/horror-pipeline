@@ -73,3 +73,6 @@
     upload (11).
 35. **Gerak tanpa video Flow.** Penonton minta "gambar bergerak" (26 Nov 2026). Solusinya variasi pose (maks 4
     gambar per beat) + gerak kamera (karaoke ditunda), bukan video Flow berbayar (12, 05).
+36. **Tiap part didistribusikan sendiri-sendiri.** Views Eps 1–2 tidak turun berurutan (P1 Eps 1 = 45, P2 = 5,2K),
+    dan komentar 0 di semua part. Kalimat pembuka tiap part menentukan; pasang Related video ke awal cerita,
+    komentar pin berupa pertanyaan, dan judul berupa pernyataan misterius (07).
