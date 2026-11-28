@@ -121,9 +121,14 @@ VOICE = ("Kamu admin channel horor Indonesia 'Kemenyan Malam' (tagline: Dengarka
          "kasar/spam/agama/politik: jangan dibalas (tulis SKIP).")
 
 
+GEMINI_ERR: list[str] = []
+
+
 def gemini(prompt: str) -> str | None:
     key = os.environ.get("GEMINI_API_KEY")
     if not key:
+        if not GEMINI_ERR:
+            GEMINI_ERR.append("secret GEMINI_API_KEY kosong/tidak ada")
         return None
     m = os.environ.get("GEMINI_MODEL") or "gemini-flash-latest"
     try:
@@ -132,7 +137,10 @@ def gemini(prompt: str) -> str | None:
                        "generationConfig": {"temperature": 0.7, "maxOutputTokens": 1500}}, timeout=90)
         return "".join(p.get("text", "") for p in r["candidates"][0]["content"]["parts"]).strip()
     except Exception as e:  # report still goes out without AI parts
-        print(f"gemini: {e}")
+        msg = re.sub(r"AIza[0-9A-Za-z_\-]{10,}", "***", str(e))
+        print(f"gemini: {msg}")
+        if not GEMINI_ERR:
+            GEMINI_ERR.append(f"model {m}: {msg[:300]}")
         return None
 
 
@@ -248,6 +256,8 @@ def main() -> None:
                      "angka di luar data.\n\n" + summary)
     if insight:
         lines += ["", "<b>Catatan</b>", E(insight)]
+    elif GEMINI_ERR:
+        lines += ["", f"⚠️ <i>Gemini gagal ({E(GEMINI_ERR[0])})</i>"]
     send_telegram("\n".join(lines))
 
     state["videos"] = {v["id"]: {"views": v["views"], "likes": v["likes"]} for v in vids}
