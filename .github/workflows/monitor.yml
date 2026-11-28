@@ -39,6 +39,13 @@ jobs:
           GEMINI_MODEL: ${{ vars.GEMINI_MODEL }}
           MODE: ${{ github.event.inputs.mode || (github.event.schedule == '0 14 * * 0' && 'weekly') || 'daily' }}
         run: python monitor/youtube_monitor.py
+      - name: Keep report copy
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ github.run_id }}
+          path: monitor/report/report.txt
+          retention-days: 90
       - name: Save state
         if: success()
         uses: actions/cache/save@v4

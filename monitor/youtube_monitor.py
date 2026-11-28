@@ -291,7 +291,11 @@ def main() -> None:
         lines += ["", "<b>Catatan</b>", E(insight)]
     elif GEMINI_ERR:
         lines += ["", f"⚠️ <i>Gemini gagal ({E(GEMINI_ERR[0])})</i>"]
-    send_telegram("\n".join(lines))
+    report = "\n".join(lines)
+    send_telegram(report)
+    out = Path(os.environ.get("REPORT_FILE", "monitor/report/report.txt"))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(re.sub(r"<[^>]+>", "", html.unescape(report)), encoding="utf-8")  # plain copy for review
 
     state["videos"] = {v["id"]: {"views": v["views"], "likes": v["likes"]} for v in vids}
     state["subs"] = subs
