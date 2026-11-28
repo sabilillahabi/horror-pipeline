@@ -1,6 +1,6 @@
 # horror-pipeline — Claude Code notes
 
-Indonesian serialized horror pipeline (channel Kemenyan Malam). Full workflow: `SKILL.md` + `references/00-11`.
+Indonesian serialized horror pipeline (channel Kemenyan Malam). Full workflow: `SKILL.md` + `references/00-12`.
 
 ## Model routing
 Default model for this project is **Sonnet** (`.claude/settings.json`). Delegate to the project subagents:

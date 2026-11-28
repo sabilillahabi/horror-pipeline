@@ -22,6 +22,12 @@ Preview sebelum episode penuh: `build --beats b001-b018d` (dan `--vertical`) →
   channel. Part berakhir di cliffhanger + jeda 1,0 s dengan fade-out ambience/musik 0,5 s di akhir.
   Beat `long_only` (mis. kartu "Bersambung") tidak masuk part.
 - Label kecil tetap di atas: "<Judul> · Eps N · Part N/M". Subtitle Arial/Liberation Bold 64 px, maks 2 baris.
+- **Subtitle karaoke** (keputusan Bil, 28 Nov 2026; semua video vertikal Kemenyan Malam — part dan cerita sekali
+  tamat; video panjang TIDAK, caption-nya terpisah): ukuran, font, posisi, dan jumlah baris tetap seperti di atas.
+  Kata yang **sedang diucapkan** berubah warna dari putih ke krem keemasan `#E8C27A` (senada judul), lalu kembali
+  putih/tetap krem setelah lewat — mengikuti suara, **bukan** penekanan atau kata kunci. Waktu per kata dari
+  timestamp TTS kalau ada; kalau tidak, dibagi proporsional jumlah huruf dalam klip itu. Tidak ada kotak, tidak ada
+  animasi membesar, label dan watermark tidak berubah.
 - **Watermark "Kemenyan Malam"** (gaya yang disetujui 24 Nov 2026): serif tebal krem (font tanda tangan outro),
   ±60% opasitas + bayangan halus, 44 px, tengah atas tepat di bawah label part. Jangan pindah ke kanan/bawah
   (tertutup tombol & caption TikTok/Reels/Shorts).

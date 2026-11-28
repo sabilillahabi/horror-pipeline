@@ -21,6 +21,7 @@ Semua path di bawah relatif ke folder skill ini (`$SKILL`), mis. `~/workspace/sk
    - target upload hari ini (YouTube saja, atau + TikTok/IG/FB/Threads) dan tenggat waktunya
 3. `outline.yaml` ada dan episode yang dikerjakan tercantum di dalamnya (status approved sebelum TTS/render). Lihat `references/10-story-length.md`.
 4. Thumbnail/cover mengikuti `references/11-thumbnails-and-folders.md` (contoh di `references/style/`); collection Flow dan folder Drive episode dibuat dulu.
+   Pose (maks 4 gambar per beat), narator perempuan/tokoh tambahan, dan multi-akun Flow + style kit: `references/12-poses-voices-flow-accounts.md`; subtitle karaoke di part vertikal (05).
 5. Output selalu dua orientasi dari gambar 16:9 yang sama: part vertikal 1080x1920 dan video panjang 1920x1080.
    Jangan pernah generate gambar 9:16 terpisah — versi vertikal dipotong dari 16:9 secara otomatis.
 
