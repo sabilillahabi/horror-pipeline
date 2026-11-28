@@ -280,15 +280,35 @@ def main() -> None:
     else:
         lines += ["", "Komentar baru: tidak ada"]
 
-    summary = "\n".join(f"{part_label(v['title']) or short_title(v['title'], 30)}: {v['views']} views, "
-                        f"{v['likes']} like, {v['comments']} komen, +{delta(v, base) or 0} dalam {span}"
+    prev_at = state.get("week_at" if mode == "weekly" else "updated")
+    gap_h = None
+    if prev_at:
+        try:
+            gap_h = (now - dt.datetime.fromisoformat(prev_at)).total_seconds() / 3600
+        except ValueError:
+            pass
+
+    def age_h(v):
+        return (now - dt.datetime.fromisoformat(v["published"].replace("Z", "+00:00"))).total_seconds() / 3600
+
+    summary = "\n".join(f"{part_label(v['title']) or short_title(v['title'], 30)} ({'Short' if v['short'] else 'video panjang'}, "
+                        f"tayang {age_h(v):.0f} jam lalu): {v['views']} views, {v['likes']} like, {v['comments']} komen"
+                        + (f", +{delta(v, base) or 0} views sejak cek sebelumnya" if gap_h else "")
                         for v in sorted(vids, key=lambda v: v["published"], reverse=True)[:14])
-    insight = gemini("Kamu analis channel YouTube horor 'Kemenyan Malam' (cerita bersambung, tiap episode 4 part "
-                     "Shorts Sen–Kam 19:00 WIB, video panjang Minggu). Dari data ini, tulis maks 3 poin singkat "
-                     "bahasa Indonesia santai (gua/lu): pola yang terlihat dan satu saran konkret. Jangan mengarang "
-                     "angka di luar data.\n\n" + summary)
+    window = (f"Cek sebelumnya {gap_h:.1f} jam lalu (angka + adalah kenaikan dalam {gap_h:.1f} jam itu, BUKAN 24 jam)."
+              if gap_h else "Belum ada cek sebelumnya, jadi belum ada data kenaikan.")
+    insight = gemini(
+        "Kamu analis channel YouTube horor Indonesia 'Kemenyan Malam'. Format channel: cerita bersambung, tiap episode "
+        "4 part Shorts tayang Senin–Kamis 19:00 WIB, video panjang tiap Minggu. Aturan yang sudah diputuskan dan JANGAN "
+        "disarankan untuk diubah: Shorts tanpa kartu pembuka/penutup dan tanpa ajakan di akhir video; ajakan interaksi "
+        "lewat komentar pin berisi pertanyaan; Related video Shorts diarahkan ke video panjang/Part 1.\n"
+        "Aturan analisis: video yang lebih baru wajar views-nya lebih kecil — bandingkan dengan memperhitungkan umur "
+        "(jam sejak tayang); jangan menyimpulkan tren dari kenaikan kalau jarak cek < 12 jam; jangan mengarang angka.\n"
+        "Tulis maks 3 poin singkat, bahasa Indonesia santai (gua/lu), teks biasa tanpa markdown/tanda bintang. "
+        "Kalau datanya belum cukup untuk menyimpulkan, bilang begitu.\n\n" + window + "\n" + summary)
     if insight:
-        lines += ["", "<b>Catatan</b>", E(insight)]
+        clean = re.sub(r"\*\*(.+?)\*\*", r"\1", insight).replace("*", "")
+        lines += ["", "<b>Catatan</b>", E(clean)]
     elif GEMINI_ERR:
         lines += ["", f"⚠️ <i>Gemini gagal ({E(GEMINI_ERR[0])})</i>"]
     report = "\n".join(lines)
@@ -301,6 +321,7 @@ def main() -> None:
     state["subs"] = subs
     if mode == "weekly" or not week:
         state["week"] = state["videos"]
+        state["week_at"] = now.isoformat()
     if comments:
         state["last_comment_at"] = max(c["at"] for c in comments)
     elif not state.get("last_comment_at"):
